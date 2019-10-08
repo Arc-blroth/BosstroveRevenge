@@ -1,0 +1,36 @@
+
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+	implementation 'org.jline:jline:3.12.1'
+	implementation 'org.fusesource.jansi:jansi:1.18'
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/main/java'
+		}
+		resources {
+			srcDir 'src/main/res'
+		}
+	}
+}
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    jcenter()
+    
+}
+
+//version = '1.0.0'
+
+jar {
+	baseName = 'BosstrovesRevenge'
+	manifest {
+		attributes 'Main-Class': 'Main'
+	}
+}
+
