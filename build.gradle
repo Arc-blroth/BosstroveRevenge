@@ -1,6 +1,7 @@
 
 plugins {
     id 'java-library'
+    id 'application'
 }
 
 dependencies {
@@ -25,12 +26,15 @@ repositories {
     
 }
 
-//version = '1.0.0'
+version = '1.0.0'
+
+mainClassName = 'Main'
 
 jar {
 	baseName = 'BosstrovesRevenge'
 	manifest {
 		attributes 'Main-Class': 'Main'
 	}
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 

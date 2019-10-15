@@ -8,3 +8,9 @@
  */
 
 rootProject.name = 'BosstrovesRevenge'
+
+buildCache {
+    local {
+        directory = "${settingsDir}/build-cache"
+    }
+}
