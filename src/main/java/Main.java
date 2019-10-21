@@ -22,11 +22,10 @@ import java.net.*;
 class Main {
   public static void main(String[] args) throws Exception {
 
-    Logger.getLogger("org.jline").setLevel(Level.OFF);
+    Logger.getLogger("org.jline").setLevel(Level.ALL);
     AnsiConsole.systemInstall();
 
     System.out.println("Loading...");
-    System.out.println(ArcAnsi.ansi().clearScreen().moveCursor(1, 1).resetAll());
     BosstroveRevenge.get().start();
     
   }

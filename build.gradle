@@ -1,12 +1,15 @@
 
 plugins {
+    id 'java'
     id 'java-library'
     id 'application'
 }
 
 dependencies {
-	implementation 'org.jline:jline:3.12.1'
+	implementation 'net.java.dev.jna:jna:5.4.0'
 	implementation 'org.fusesource.jansi:jansi:1.18'
+	implementation 'org.jline:jline-terminal-jansi:3.12.1'
+	implementation 'org.jline:jline-terminal-jna:3.12.1'
 }
 
 sourceSets {
@@ -35,6 +38,6 @@ jar {
 	manifest {
 		attributes 'Main-Class': 'Main'
 	}
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 

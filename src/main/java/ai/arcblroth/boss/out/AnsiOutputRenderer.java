@@ -5,14 +5,37 @@ import org.jline.terminal.*;
 import ai.arcblroth.boss.render.*;
 import java.util.concurrent.*;
 import java.awt.Color;
+import java.io.IOException;
 
 public class AnsiOutputRenderer implements OutputRenderer {
 
   private static final String PIXEL_CHAR = "\u2580";
-  private final Terminal terminal;
+  private Terminal terminal;
+public static final int OUTPUT_HEIGHT = 128;
+public static final int OUTPUT_WIDTH = 96;
 
-  public AnsiOutputRenderer(Terminal t) {
-    this.terminal = t;
+  public AnsiOutputRenderer() {
+    try {
+		this.terminal = TerminalBuilder.builder()
+		        .name("Bosstrove's Revenge")
+		        .jansi(true)
+		        .jna(true)
+		        .nativeSignals(true)
+		        .signalHandler(true ? Terminal.SignalHandler.SIG_DFL : Terminal.SignalHandler.SIG_IGN)
+		        .build();
+		try {
+			if(System.getProperty("os.name").toLowerCase().contains("win")) {
+				Runtime.getRuntime().exec("cmd /C mode " + OUTPUT_WIDTH + "," + OUTPUT_HEIGHT/2);
+			} else {
+				terminal.setSize(new Size(OUTPUT_HEIGHT, OUTPUT_WIDTH));
+			}
+		} catch(Exception e) {
+			System.err.println("WARN: Could not resize terminal");
+		}
+ 	} catch (IOException e) {
+	      System.err.println("Could not init terminal, aborting launch...");
+	      System.exit(-1);
+	}
   }
 
   public void render(PixelGrid pg) {

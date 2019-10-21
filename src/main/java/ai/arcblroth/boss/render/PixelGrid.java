@@ -15,7 +15,7 @@ public class PixelGrid extends ConcurrentHashMap<Integer, ConcurrentHashMap<Inte
     for(int hi = 0; hi < height; hi++) {
       ConcurrentHashMap<Integer, Color> row = new ConcurrentHashMap<Integer, Color>();
       for(int wi = 0; wi < width; wi++) {
-        row.put(wi, Color.BLACK);
+        row.put(wi, Color.WHITE);
       }
       this.put(hi, row);
     }
