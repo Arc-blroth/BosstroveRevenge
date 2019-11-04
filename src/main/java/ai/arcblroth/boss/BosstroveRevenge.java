@@ -25,8 +25,9 @@ public class BosstroveRevenge extends Thread {
 
     PixelGrid reallyBadGrid = new PixelGrid(AnsiOutputRenderer.OUTPUT_WIDTH, AnsiOutputRenderer.OUTPUT_HEIGHT);
     reallyBadGrid.setPixel(1, 1, Color.white);
-    renderer.render(reallyBadGrid);
-    
+    while(true) {
+    	renderer.render(reallyBadGrid);
+    }
   }
 
 
