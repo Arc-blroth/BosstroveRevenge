@@ -2,6 +2,7 @@ package ai.arcblroth.boss;
 
 import java.awt.Color;
 
+import org.fusesource.jansi.AnsiConsole;
 import org.jline.terminal.*;
 
 import ai.arcblroth.boss.out.*;
@@ -24,7 +25,7 @@ public class BosstroveRevenge extends Thread {
   public void run() {
 
     PixelGrid reallyBadGrid = new PixelGrid(AnsiOutputRenderer.OUTPUT_WIDTH, AnsiOutputRenderer.OUTPUT_HEIGHT);
-    reallyBadGrid.setPixel(1, 1, Color.white);
+    reallyBadGrid.setPixel(1, 1, Color.blue);
     while(true) {
     	renderer.render(reallyBadGrid);
     }

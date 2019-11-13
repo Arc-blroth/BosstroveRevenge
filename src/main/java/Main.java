@@ -23,7 +23,6 @@ class Main {
   public static void main(String[] args) throws Exception {
 
     Logger.getLogger("org.jline").setLevel(Level.ALL);
-    AnsiConsole.systemInstall();
 
     System.out.println("Loading...");
     BosstroveRevenge.get().start();
