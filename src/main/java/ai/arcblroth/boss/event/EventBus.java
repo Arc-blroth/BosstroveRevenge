@@ -2,6 +2,7 @@ package ai.arcblroth.boss.event;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 
@@ -29,8 +30,17 @@ public class EventBus extends Thread {
 		}
 	}
 	
-	public void subscribe(Object o) {
-		
+	public <T> void subscribe(Class<T> clazz) {
+		for(Method method : clazz.getMethods()) {
+			if(method.isAnnotationPresent(EventBusSubscriber.class)) {
+				if (Modifier.isStatic(method.getModifiers())) {
+					//Since method is static, there are no implict parameters
+					if(method.getParameterCount() == 1) {
+						subscribers.add(method);
+					}
+				}
+			}
+		}
 	}
 	
 }
