@@ -8,6 +8,7 @@ import org.jline.terminal.*;
 import ai.arcblroth.boss.BosstroveRevenge;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.util.PadUtils;
+import ai.arcblroth.boss.util.ThreadUtils;
 
 import java.util.concurrent.*;
 import java.awt.Color;
@@ -55,6 +56,7 @@ public class AnsiOutputRenderer implements OutputRenderer {
  	} catch (Exception e) {
 	      System.err.println("Could not init terminal, aborting launch...");
 	      e.printStackTrace();
+	      ThreadUtils.waitForever();
 	      System.exit(-1);
 	}
   }
@@ -62,12 +64,16 @@ public class AnsiOutputRenderer implements OutputRenderer {
   public void render(PixelGrid pg) {
 	Size s = terminal.getSize();
 	String leftPad = PadUtils.leftPad("", (s.getColumns() - pg.getWidth()) / 2);
-	String blankLines = PadUtils.stringTimes(PadUtils.stringTimes(" ", s.getColumns()) + "\n", (s.getRows() - pg.getHeight()/2) / 2);
-    ArcAnsi ansiBuilder = ArcAnsi.ansi()
+	String blankLines = PadUtils.stringTimes(
+			PadUtils.stringTimes(" ", s.getColumns()) + "\n",
+			(int)Math.floor(((double)s.getRows() - (double)pg.getHeight()/2D) / 2D));
+    
+	ArcAnsi ansiBuilder = ArcAnsi.ansi()
     		.resetAll()
     		.moveCursor(1, 1)
     		.resetAll()
     		.append(blankLines);
+	
     for(int rowNum = 0; rowNum < (pg.getHeight()/2)*2; rowNum += 2) {
       ArcAnsi rowBuilder = ArcAnsi.ansi();
       rowBuilder.append(leftPad);
@@ -81,6 +87,7 @@ public class AnsiOutputRenderer implements OutputRenderer {
       ansiBuilder.append(leftPad + " \n");
     }
     ansiBuilder.resetAll().append(blankLines);
+    
     if(terminal.getType() != Terminal.TYPE_DUMB) {
 		terminal.writer().print(ansiBuilder);
 	} else {
