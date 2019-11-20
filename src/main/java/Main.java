@@ -5,6 +5,7 @@ import java.util.logging.*;
 import ai.arcblroth.boss.*;
 import ai.arcblroth.boss.out.*;
 import java.awt.Color;
+import java.io.File;
 import java.net.*;
 import java.nio.file.Paths;
 import java.net.*;
@@ -20,12 +21,31 @@ import java.net.*;
  * Only code in ai.arcblroth is my own work :)
  */
 class Main {
-  public static void main(String[] args) throws Exception {
+	private static final String IS_RELAUNCHED = "ai.arcblroth.boss.out.AnsiOutputRenderer.isRelaunched";
 
-    Logger.getLogger("org.jline").setLevel(Level.ALL);
+	public static void main(String[] args) throws Exception {
 
-    System.out.println("Loading...");
-    BosstroveRevenge.get().start();
-    
-  }
+		Logger.getLogger("org.jline").setLevel(Level.ALL);
+		try {
+			if (System.getProperty("os.name").toLowerCase().contains("win")
+					&& System.getProperty(IS_RELAUNCHED) == null) {
+				new ProcessBuilder("C:\\Windows\\System32\\cmd", "/K", "start", "Bosstrove's Revenge",
+						// "echo", "off",
+						// "&", "mode", (OUTPUT_WIDTH + "," + OUTPUT_HEIGHT/2),
+						// "&",
+						System.getProperty("java.home") + File.separator + "bin" + File.separator + "java",
+						"-D" + IS_RELAUNCHED + "=true", "-cp",
+						System.getProperty("java.class.path") + File.pathSeparator + BosstroveRevenge.class
+								.getProtectionDomain().getCodeSource().getLocation().toURI().getPath(),
+						"Main").start();
+				System.exit(0);
+			} else {
+				System.out.println("Loading...");
+				BosstroveRevenge.get().start();
+			}
+		} catch (Exception e) {
+			Logger.getGlobal().log(Level.SEVERE, "FATAL ERROR", e);
+		}
+
+	}
 }

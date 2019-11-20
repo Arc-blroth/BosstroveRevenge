@@ -6,10 +6,14 @@ plugins {
 }
 
 dependencies {
+	//Terminal Utils
 	implementation 'net.java.dev.jna:jna:5.4.0'
 	implementation 'org.fusesource.jansi:jansi:1.18'
 	implementation 'org.jline:jline-terminal-jansi:3.12.1'
 	implementation 'org.jline:jline-terminal-jna:3.12.1'
+	
+	//Texture Loaders
+	implementation 'ar.com.hjg:pngj:2.1.0'
 }
 
 sourceSets {
