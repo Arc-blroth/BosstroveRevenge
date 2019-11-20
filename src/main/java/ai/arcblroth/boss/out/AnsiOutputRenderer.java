@@ -6,6 +6,9 @@ import org.fusesource.jansi.Ansi.Erase;
 import org.jline.terminal.*;
 
 import ai.arcblroth.boss.BosstroveRevenge;
+import ai.arcblroth.boss.event.AutoSubscribeClass;
+import ai.arcblroth.boss.event.EventBusSubscriber;
+import ai.arcblroth.boss.event.TestEvent;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.ThreadUtils;
@@ -15,6 +18,7 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 
+@AutoSubscribeClass
 public class AnsiOutputRenderer implements OutputRenderer {
 
 	private static final String PIXEL_CHAR = "\u2580";
@@ -39,7 +43,7 @@ public class AnsiOutputRenderer implements OutputRenderer {
 			System.exit(-1);
 		}
 	}
-
+	
 	public void render(PixelGrid pg) {
 		Size s = terminal.getSize();
 		if (s.getColumns() >= pg.getWidth() && s.getRows() >= pg.getHeight() / 2) {
@@ -72,9 +76,9 @@ public class AnsiOutputRenderer implements OutputRenderer {
 					.a(String.format("Screen resolution too small [%s×%s]", s.getColumns(), s.getRows()))
 					.eraseScreen(Erase.FORWARD).toString();
 			if (terminal.getType() != Terminal.TYPE_DUMB) {
-				terminal.writer().print(toPrint);
+				terminal.writer().print(toPrint + "\n");
 			} else {
-				System.out.print(toPrint);
+				System.out.print(toPrint + "\n");
 			}
 		}
 	}

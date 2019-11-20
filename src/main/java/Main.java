@@ -24,7 +24,7 @@ class Main {
 	private static final String IS_RELAUNCHED = "ai.arcblroth.boss.out.AnsiOutputRenderer.isRelaunched";
 
 	public static void main(String[] args) throws Exception {
-
+		//System.setProperty(IS_RELAUNCHED, "true");
 		Logger.getLogger("org.jline").setLevel(Level.ALL);
 		try {
 			if (System.getProperty("os.name").toLowerCase().contains("win")
