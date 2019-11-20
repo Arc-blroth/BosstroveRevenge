@@ -5,7 +5,7 @@ import org.fusesource.jansi.AnsiConsole;
 import org.fusesource.jansi.Ansi.Erase;
 import org.jline.terminal.*;
 
-import ai.arcblroth.boss.BosstroveRevenge;
+import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.event.AutoSubscribeClass;
 import ai.arcblroth.boss.event.EventBusSubscriber;
 import ai.arcblroth.boss.event.TestEvent;
@@ -42,6 +42,11 @@ public class AnsiOutputRenderer implements OutputRenderer {
 			e.printStackTrace();
 			System.exit(-1);
 		}
+	}
+	
+	@EventBusSubscriber
+	public static void test(TestEvent te) {
+		System.out.println("YEET");
 	}
 	
 	public void render(PixelGrid pg) {

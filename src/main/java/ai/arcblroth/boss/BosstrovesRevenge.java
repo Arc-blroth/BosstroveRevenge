@@ -14,13 +14,13 @@ import ai.arcblroth.boss.out.*;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.util.PadUtils;
 
-public final class BosstroveRevenge extends Thread {
+public final class BosstrovesRevenge extends Thread {
 	
 	private EventBus globalEventBus;
 	private SubscribingClassLoader globalSubscribingClassLoader;
 
 	// Allows us to set the INSTANCE to final but not actually set it.
-	protected static final BosstroveRevenge INSTANCE;
+	protected static final BosstrovesRevenge INSTANCE;
 	static {
 		INSTANCE = null;
 	}
@@ -28,14 +28,14 @@ public final class BosstroveRevenge extends Thread {
 	public static final String TITLE = "Bosstrove's Revenge";
 	private OutputRenderer renderer;
 
-	private BosstroveRevenge(EventBus globalEventBus) throws Exception {
+	private BosstrovesRevenge(EventBus globalEventBus) throws Exception {
 		if (INSTANCE != null)
 			throw new IllegalStateException("Class has already been initilized!");
 		this.globalEventBus = globalEventBus;
 		setName(TITLE + "-Main");
 
 		//Sets the final INSTANCE to this, and then sets it to final again
-		Field instance = BosstroveRevenge.class.getDeclaredField("INSTANCE");
+		Field instance = BosstrovesRevenge.class.getDeclaredField("INSTANCE");
 		instance.setAccessible(true);
 		Field modifiersField = Field.class.getDeclaredField("modifiers");
 		modifiersField.setAccessible(true);
@@ -46,7 +46,7 @@ public final class BosstroveRevenge extends Thread {
 		instance.setAccessible(false);
 	}
 
-	public static BosstroveRevenge get() {
+	public static BosstrovesRevenge get() {
 		if (INSTANCE == null)
 			throw new IllegalStateException("Class is not initilized yet!");
 		return INSTANCE;
@@ -57,9 +57,7 @@ public final class BosstroveRevenge extends Thread {
 	}
 
 	public void run() {
-		System.out.println(Thread.currentThread().getContextClassLoader().getClass().getName());
 		this.renderer = new AnsiOutputRenderer();
-		System.out.println(AnsiOutputRenderer.class.getClassLoader().getClass().getName());
 		System.out.println(ArcAnsi.ansi().clearScreen().moveCursor(1, 1).resetAll());
 
 		PixelGrid reallyBadGrid = new PixelGrid(AnsiOutputRenderer.OUTPUT_WIDTH, AnsiOutputRenderer.OUTPUT_HEIGHT);

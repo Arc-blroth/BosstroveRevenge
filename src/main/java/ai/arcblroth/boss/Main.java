@@ -26,9 +26,15 @@ import java.net.*;
  */
 class Main {
 	private static final String IS_RELAUNCHED = "ai.arcblroth.boss.out.AnsiOutputRenderer.isRelaunched";
+	private static final String brClassName = "ai.arcblroth.boss.BosstrovesRevenge";
 
 	public static void main(String[] args) throws Exception {
-		//System.setProperty(IS_RELAUNCHED, "true");
+		//[00:00:00][Logger/LEVEL]: Message
+		System.setProperty( 
+			"java.util.logging.SimpleFormatter.format",
+			"[%1$tT][%3$s/%4$s]: %5$s %n"
+		);
+		System.setProperty(IS_RELAUNCHED, "true");
 		Logger.getLogger("org.jline").setLevel(Level.ALL);
 		try {
 			if (System.getProperty("os.name").toLowerCase().contains("win")
@@ -41,7 +47,7 @@ class Main {
 						"-D" + IS_RELAUNCHED + "=true", "-cp",
 						System.getProperty("java.class.path") + File.pathSeparator + Main.class
 								.getProtectionDomain().getCodeSource().getLocation().toURI().getPath(),
-						"Main").start();
+						Main.class.getName()).start();
 				System.exit(0);
 			} else {
 				System.out.println("Loading...");
@@ -51,7 +57,7 @@ class Main {
 				//This method, however, forces the global* variables to be static.
 				EventBus globalEventBus = new EventBus();
 				ClassLoader globalSubscribingClassLoader = new SubscribingClassLoader(Main.class.getClassLoader(), globalEventBus);
-				Class<?> brClazz = globalSubscribingClassLoader.loadClass("ai.arcblroth.boss.BosstroveRevenge");
+				Class<?> brClazz = globalSubscribingClassLoader.loadClass(brClassName);
 				Constructor<?> brConstruct = brClazz.getDeclaredConstructor(EventBus.class);
 				brConstruct.setAccessible(true);
 				Object br = brConstruct.newInstance(globalEventBus);
