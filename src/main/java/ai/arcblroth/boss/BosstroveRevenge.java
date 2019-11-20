@@ -1,6 +1,8 @@
 package ai.arcblroth.boss;
 
 import java.awt.Color;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 import org.fusesource.jansi.AnsiConsole;
 import org.jline.terminal.*;
@@ -12,45 +14,58 @@ import ai.arcblroth.boss.out.*;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.util.PadUtils;
 
-public class BosstroveRevenge extends Thread {
+public final class BosstroveRevenge extends Thread {
 	
-	private static EventBus globalEventBus;
-	private static SubscribingClassLoader globalSubscribingClassLoader;
-	
+	private EventBus globalEventBus;
+	private SubscribingClassLoader globalSubscribingClassLoader;
+
+	// Allows us to set the INSTANCE to final but not actually set it.
+	protected static final BosstroveRevenge INSTANCE;
 	static {
-		//It's crucial that the EventBus is loaded as soon as possible,
-		//so that the SubscribingClassLoader can be implemented as soon as possible.
-		//This method, however, forces the global* variables to be static.
-		globalEventBus = new EventBus();
-		ClassLoader originalLoader = BosstroveRevenge.class.getClassLoader();
-		globalSubscribingClassLoader = new SubscribingClassLoader(originalLoader, globalEventBus);
+		INSTANCE = null;
 	}
-	
-	private static final BosstroveRevenge INSTANCE = new BosstroveRevenge();
-	public  static final String TITLE = "Bosstrove's Revenge";
+
+	public static final String TITLE = "Bosstrove's Revenge";
 	private OutputRenderer renderer;
 
-	private BosstroveRevenge() {
-		setContextClassLoader(globalSubscribingClassLoader);
+	private BosstroveRevenge(EventBus globalEventBus) throws Exception {
+		if (INSTANCE != null)
+			throw new IllegalStateException("Class has already been initilized!");
+		this.globalEventBus = globalEventBus;
 		setName(TITLE + "-Main");
+
+		//Sets the final INSTANCE to this, and then sets it to final again
+		Field instance = BosstroveRevenge.class.getDeclaredField("INSTANCE");
+		instance.setAccessible(true);
+		Field modifiersField = Field.class.getDeclaredField("modifiers");
+		modifiersField.setAccessible(true);
+		modifiersField.setInt(instance, instance.getModifiers() & ~Modifier.FINAL);
+		instance.set(null, this);
+		modifiersField.setInt(instance, instance.getModifiers() &  Modifier.FINAL);
+		modifiersField.setAccessible(false);
+		instance.setAccessible(false);
 	}
 
 	public static BosstroveRevenge get() {
+		if (INSTANCE == null)
+			throw new IllegalStateException("Class is not initilized yet!");
 		return INSTANCE;
 	}
 
 	public EventBus getGlobalEventBus() {
 		return globalEventBus;
 	}
-	
+
 	public void run() {
+		System.out.println(Thread.currentThread().getContextClassLoader().getClass().getName());
 		this.renderer = new AnsiOutputRenderer();
+		System.out.println(AnsiOutputRenderer.class.getClassLoader().getClass().getName());
 		System.out.println(ArcAnsi.ansi().clearScreen().moveCursor(1, 1).resetAll());
-		
+
 		PixelGrid reallyBadGrid = new PixelGrid(AnsiOutputRenderer.OUTPUT_WIDTH, AnsiOutputRenderer.OUTPUT_HEIGHT);
 		reallyBadGrid.setPixel(1, 1, Color.blue);
 		while (true) {
-			renderer.render(reallyBadGrid);
+			// renderer.render(reallyBadGrid);
 			getGlobalEventBus().fireEvent(new TestEvent());
 		}
 	}
