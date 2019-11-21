@@ -43,12 +43,12 @@ public class AnsiOutputRenderer implements OutputRenderer {
 			System.exit(-1);
 		}
 	}
-	
+
 	@EventBusSubscriber
 	public static void test(TestEvent te) {
 		System.out.println("YEET");
 	}
-	
+
 	public void render(PixelGrid pg) {
 		Size s = terminal.getSize();
 		if (s.getColumns() >= pg.getWidth() && s.getRows() >= pg.getHeight() / 2) {

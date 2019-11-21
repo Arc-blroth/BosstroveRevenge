@@ -15,14 +15,20 @@ import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.util.PadUtils;
 
 public final class BosstrovesRevenge extends Thread {
-	
-	private EventBus globalEventBus;
-	private SubscribingClassLoader globalSubscribingClassLoader;
 
-	// Allows us to set the INSTANCE to final but not actually set it.
+	private EventBus globalEventBus;
+
+	// Set the INSTANCE to final
 	protected static final BosstrovesRevenge INSTANCE;
 	static {
-		INSTANCE = null;
+		BosstrovesRevenge preInst = null;
+		try {
+			preInst = new BosstrovesRevenge(new EventBus());
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+		INSTANCE = preInst;
 	}
 
 	public static final String TITLE = "Bosstrove's Revenge";
@@ -31,19 +37,14 @@ public final class BosstrovesRevenge extends Thread {
 	private BosstrovesRevenge(EventBus globalEventBus) throws Exception {
 		if (INSTANCE != null)
 			throw new IllegalStateException("Class has already been initilized!");
-		this.globalEventBus = globalEventBus;
-		setName(TITLE + "-Main");
 
-		//Sets the final INSTANCE to this, and then sets it to final again
-		Field instance = BosstrovesRevenge.class.getDeclaredField("INSTANCE");
-		instance.setAccessible(true);
-		Field modifiersField = Field.class.getDeclaredField("modifiers");
-		modifiersField.setAccessible(true);
-		modifiersField.setInt(instance, instance.getModifiers() & ~Modifier.FINAL);
-		instance.set(null, this);
-		modifiersField.setInt(instance, instance.getModifiers() &  Modifier.FINAL);
-		modifiersField.setAccessible(false);
-		instance.setAccessible(false);
+		setName(TITLE + " Main");
+
+		// Register the EventBus subscribing hook
+		this.globalEventBus = globalEventBus;
+		((SubscribingClassLoader) Main.class.getClassLoader()).addHook((clazz) -> {
+			globalEventBus.subscribe(clazz);
+		});
 	}
 
 	public static BosstrovesRevenge get() {

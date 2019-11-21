@@ -9,41 +9,42 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class EventBus extends Thread {
-	
+
 	private static int GLOBAL_ID_COUNTER = 0;
 	private int ID;
 	private Logger logger;
 	private ArrayList<Method> subscribers = new ArrayList<Method>();
 	private ArrayList<Class<?>> subscribedClasses = new ArrayList<Class<?>>();
-	
+
 	public EventBus() {
 		super("EventBus-" + ++GLOBAL_ID_COUNTER);
 		ID = GLOBAL_ID_COUNTER;
 		logger = Logger.getLogger("EventBus-" + ID);
 	}
-	
+
 	public void fireEvent(IEvent e) {
-		for(Method sub : subscribers) {
+		for (Method sub : subscribers) {
 			Parameter[] args = sub.getParameters();
-			if(args.length == 1 && args[0].getType().equals(e.getClass())) {
+			if (args.length == 1 && args[0].getType().equals(e.getClass())) {
 				try {
-					logger.log(Level.FINE, "Invoking method: " + sub.getClass().getName() + "::" + sub.getName());
+					logger.log(Level.INFO, "Invoking method: " + sub.getClass().getName() + "::" + sub.getName());
 					sub.invoke(null, e);
 				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
-					//Shut it up!
-					logger.log(Level.FINE, "Method invocation failed: " + sub.getClass().getName() + "::" + sub.getName(), e1);
+					// Shut it up!
+					logger.log(Level.INFO,
+							"Method invocation failed: " + sub.getClass().getName() + "::" + sub.getName(), e1);
 				}
 			}
 		}
 	}
-	
+
 	public <T> void subscribe(Class<T> clazz) {
-		if(!subscribedClasses.contains(clazz)) {
-			for(Method method : clazz.getMethods()) {
-				if(method.isAnnotationPresent(EventBusSubscriber.class)) {
+		if (!subscribedClasses.contains(clazz)) {
+			for (Method method : clazz.getMethods()) {
+				if (method.isAnnotationPresent(EventBusSubscriber.class)) {
 					if (Modifier.isStatic(method.getModifiers())) {
-						//Since method is static, there are no implict parameters
-						if(method.getParameterCount() == 1) {
+						// Since method is static, there are no implict parameters
+						if (method.getParameterCount() == 1) {
 							logger.log(Level.FINE, "Subscribed method " + clazz.getName() + "::" + method.getName());
 							subscribers.add(method);
 						}
@@ -53,5 +54,5 @@ public class EventBus extends Thread {
 			subscribedClasses.add(clazz);
 		}
 	}
-	
+
 }

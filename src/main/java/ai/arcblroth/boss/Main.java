@@ -1,6 +1,8 @@
 package ai.arcblroth.boss;
+
 import org.fusesource.jansi.*;
 
+import java.util.Locale;
 import java.util.logging.*;
 
 import ai.arcblroth.boss.*;
@@ -25,44 +27,65 @@ import java.net.*;
  * Only code in ai.arcblroth is my own work :)
  */
 class Main {
-	private static final String IS_RELAUNCHED = "ai.arcblroth.boss.out.AnsiOutputRenderer.isRelaunched";
+	private static final String IS_RELAUNCHED = "ai.arcblroth.boss.Main.IS_RELAUNCHED";
+	private static final String FORCE_NOWINDOWS = "ai.arcblroth.boss.Main.FORCE_NOWINDOWS";
+	private static final String FORCE_NOSUBSCRIBINGCLASSLOADER = "ai.arcblroth.boss.Main.FORCE_NOSUBSCRIBINGCLASSLOADER";
 	private static final String brClassName = "ai.arcblroth.boss.BosstrovesRevenge";
 
+	// Taken from the jansi source:
+	// https://github.com/fusesource/jansi/blob/master/jansi/src/main/java/org/fusesource/jansi/AnsiConsole.java
+	// ------------------
+	static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase(Locale.ENGLISH).contains("win");
+
+	static final boolean IS_CYGWIN = IS_WINDOWS && System.getenv("PWD") != null && System.getenv("PWD").startsWith("/")
+			&& !"cygwin".equals(System.getenv("TERM"));
+
+	static final boolean IS_MINGW_XTERM = IS_WINDOWS && System.getenv("MSYSTEM") != null
+			&& System.getenv("MSYSTEM").startsWith("MINGW") && "xterm".equals(System.getenv("TERM"));
+	// ------------------
+
 	public static void main(String[] args) throws Exception {
-		//[00:00:00][Logger/LEVEL]: Message
-		System.setProperty( 
-			"java.util.logging.SimpleFormatter.format",
-			"[%1$tT][%3$s/%4$s]: %5$s %n"
-		);
-		System.setProperty(IS_RELAUNCHED, "true");
-		Logger.getLogger("org.jline").setLevel(Level.ALL);
+
+		System.setProperty(FORCE_NOWINDOWS, "true");
+		System.setProperty(FORCE_NOSUBSCRIBINGCLASSLOADER, "true");
+
+		// [00:00:00][Logger/LEVEL]: Message
+		System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tT][%3$s/%4$s]: %5$s %6$s%n");
+		Logger.getLogger("org.jline").setLevel(Level.OFF);
+
 		try {
-			if (System.getProperty("os.name").toLowerCase().contains("win")
-					&& System.getProperty(IS_RELAUNCHED) == null) {
-				new ProcessBuilder("C:\\Windows\\System32\\cmd", "/K", "start", "Bosstrove's Revenge",
-						// "echo", "off",
-						// "&", "mode", (OUTPUT_WIDTH + "," + OUTPUT_HEIGHT/2),
-						// "&",
-						System.getProperty("java.home") + File.separator + "bin" + File.separator + "java",
-						"-D" + IS_RELAUNCHED + "=true", "-cp",
-						System.getProperty("java.class.path") + File.pathSeparator + Main.class
-								.getProtectionDomain().getCodeSource().getLocation().toURI().getPath(),
-						Main.class.getName()).start();
-				System.exit(0);
+			if (System.getProperty(IS_RELAUNCHED) == null) {
+				String javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
+				String classPath = System.getProperty("java.class.path") + File.pathSeparator
+						+ Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+				String switchRelaunched = "-D" + IS_RELAUNCHED + 
+						(System.getProperty(FORCE_NOSUBSCRIBINGCLASSLOADER) != null ? "=true" : "=false");
+				String switchSubscribingClassLoader = "-Djava.system.class.loader="
+						+ SubscribingClassLoader.class.getName();
+				String className = Main.class.getName();
+
+				if (IS_WINDOWS && !IS_CYGWIN && !IS_MINGW_XTERM && System.getProperty(FORCE_NOWINDOWS) == null) {
+					new ProcessBuilder("C:\\Windows\\System32\\cmd", "/K", "start", "Bosstrove's Revenge",
+							// "echo", "off", "&", "mode", (OUTPUT_WIDTH + "," + OUTPUT_HEIGHT/2), "&",
+							javaExe, switchRelaunched, switchSubscribingClassLoader, "-cp", classPath, className)
+									.start();
+					System.exit(0);
+				} else {
+					new ProcessBuilder(javaExe, switchRelaunched, switchSubscribingClassLoader, "-cp", classPath,
+							className).inheritIO().start();
+					System.exit(0);
+				}
 			} else {
 				System.out.println("Loading...");
-				
-				//It's crucial that the EventBus is loaded as soon as possible,
-				//so that the SubscribingClassLoader can be implemented as soon as possible.
-				//This method, however, forces the global* variables to be static.
-				EventBus globalEventBus = new EventBus();
-				ClassLoader globalSubscribingClassLoader = new SubscribingClassLoader(Main.class.getClassLoader(), globalEventBus);
-				Class<?> brClazz = globalSubscribingClassLoader.loadClass(brClassName);
-				Constructor<?> brConstruct = brClazz.getDeclaredConstructor(EventBus.class);
-				brConstruct.setAccessible(true);
-				Object br = brConstruct.newInstance(globalEventBus);
-				brConstruct.setAccessible(false);
-				brClazz.getMethod("start").invoke(br);
+
+				// It's crucial that the SubscribingClassLoader is set, otherwise no hooks will
+				// work.
+				if (!(Main.class.getClassLoader() instanceof SubscribingClassLoader)) {
+					throw new IllegalStateException("The system class loader should be set:"
+							+ " -Djava.system.class.loader=" + SubscribingClassLoader.class.getName());
+				} else {
+					BosstrovesRevenge.get().start();
+				}
 			}
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, "FATAL ERROR", e);
