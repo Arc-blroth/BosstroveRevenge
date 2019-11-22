@@ -7,7 +7,7 @@ import org.jline.terminal.*;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.event.AutoSubscribeClass;
-import ai.arcblroth.boss.event.EventBusSubscriber;
+import ai.arcblroth.boss.event.SubscribeEvent;
 import ai.arcblroth.boss.event.TestEvent;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.util.PadUtils;
@@ -42,11 +42,6 @@ public class AnsiOutputRenderer implements OutputRenderer {
 			e.printStackTrace();
 			System.exit(-1);
 		}
-	}
-
-	@EventBusSubscriber
-	public static void test(TestEvent te) {
-		System.out.println("YEET");
 	}
 
 	public void render(PixelGrid pg) {

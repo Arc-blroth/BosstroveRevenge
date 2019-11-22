@@ -35,12 +35,12 @@ repositories {
 
 version = '1.0.0'
 
-mainClassName = 'Main'
+mainClassName = 'ai.arcblroth.boss.Main'
 
 jar {
 	baseName = 'BosstrovesRevenge'
 	manifest {
-		attributes 'Main-Class': 'Main'
+		attributes 'Main-Class': 'ai.arcblroth.boss.Main'
 	}
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }

@@ -45,6 +45,8 @@ public final class BosstrovesRevenge extends Thread {
 		((SubscribingClassLoader) Main.class.getClassLoader()).addHook((clazz) -> {
 			globalEventBus.subscribe(clazz);
 		});
+		
+		this.renderer = new AnsiOutputRenderer();
 	}
 
 	public static BosstrovesRevenge get() {
@@ -53,20 +55,17 @@ public final class BosstrovesRevenge extends Thread {
 		return INSTANCE;
 	}
 
-	public EventBus getGlobalEventBus() {
-		return globalEventBus;
-	}
-
 	public void run() {
-		this.renderer = new AnsiOutputRenderer();
 		System.out.println(ArcAnsi.ansi().clearScreen().moveCursor(1, 1).resetAll());
 
 		PixelGrid reallyBadGrid = new PixelGrid(AnsiOutputRenderer.OUTPUT_WIDTH, AnsiOutputRenderer.OUTPUT_HEIGHT);
-		reallyBadGrid.setPixel(1, 1, Color.blue);
+		reallyBadGrid.setPixel(1, 1, new Color(66, 185, 245));
 		while (true) {
-			// renderer.render(reallyBadGrid);
-			getGlobalEventBus().fireEvent(new TestEvent());
+			renderer.render(reallyBadGrid);
 		}
 	}
 
+	public EventBus getGlobalEventBus() {
+		return globalEventBus;
+	}
 }

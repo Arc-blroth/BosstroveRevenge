@@ -46,20 +46,21 @@ class Main {
 
 	public static void main(String[] args) throws Exception {
 
-		System.setProperty(FORCE_NOWINDOWS, "true");
-		System.setProperty(FORCE_NOSUBSCRIBINGCLASSLOADER, "true");
+		// System.setProperty(FORCE_NOWINDOWS, "true");
+		// System.setProperty(FORCE_NOSUBSCRIBINGCLASSLOADER, "true");
 
 		// [00:00:00][Logger/LEVEL]: Message
 		System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tT][%3$s/%4$s]: %5$s %6$s%n");
 		Logger.getLogger("org.jline").setLevel(Level.OFF);
 
 		try {
-			if (System.getProperty(IS_RELAUNCHED) == null) {
+			if (System.getProperty(IS_RELAUNCHED) == null
+					&& System.getProperty(FORCE_NOSUBSCRIBINGCLASSLOADER) == null) {
 				String javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 				String classPath = System.getProperty("java.class.path") + File.pathSeparator
 						+ Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-				String switchRelaunched = "-D" + IS_RELAUNCHED + 
-						(System.getProperty(FORCE_NOSUBSCRIBINGCLASSLOADER) != null ? "=true" : "=false");
+				String switchRelaunched = "-D" + IS_RELAUNCHED
+						+ (System.getProperty(FORCE_NOSUBSCRIBINGCLASSLOADER) != null ? "=true" : "=false");
 				String switchSubscribingClassLoader = "-Djava.system.class.loader="
 						+ SubscribingClassLoader.class.getName();
 				String className = Main.class.getName();

@@ -19,7 +19,7 @@ import ai.arcblroth.boss.event.EventBus;
 public class SubscribingClassLoader extends ClassLoader {
 
 	private static final String SPEC_VENDER = "Arc'blroth";
-	private static final List<String> PROHIBITED_PACKAGE_NAMES = Arrays.asList("java", "javax");
+	private static final List<String> PROHIBITED_PACKAGE_NAMES = Arrays.asList("java", "javax", "sun");
 	private static final Logger subClassLoaderLogger = Logger.getLogger("SubscribingClassLoader");
 	private ArrayList<Consumer<Class<?>>> hooks = new ArrayList<Consumer<Class<?>>>();
 
@@ -61,7 +61,7 @@ public class SubscribingClassLoader extends ClassLoader {
 	}
 
 	private Class<?> loadClass(byte[] classData, String name, boolean resolve) {
-		Class<?> clazz = defineClass(name, classData, 0, classData.length);
+		Class<?> clazz = defineClass(name, classData, 0, classData.length, this.getClass().getProtectionDomain());
 		if (clazz != null) {
 			if (clazz.getPackage() == null) {
 				definePackage(name.replaceAll("\\.\\w+$", ""), null, null, SPEC_VENDER, null, null, null, null);

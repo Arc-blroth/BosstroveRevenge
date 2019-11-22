@@ -5,6 +5,8 @@ import java.lang.annotation.Target;
 
 @Retention(java.lang.annotation.RetentionPolicy.RUNTIME)
 @Target(java.lang.annotation.ElementType.METHOD)
-public @interface EventBusSubscriber {
-
+public @interface SubscribeEvent {
+	
+	public EventPriority priority() default EventPriority.NORMAL;
+	
 }

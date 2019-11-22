@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -13,7 +14,8 @@ public class EventBus extends Thread {
 	private static int GLOBAL_ID_COUNTER = 0;
 	private int ID;
 	private Logger logger;
-	private ArrayList<Method> subscribers = new ArrayList<Method>();
+	private HashMap<Class<? extends IEvent>, ArrayList<Method>> subscribers 
+		= new HashMap<Class<? extends IEvent>, ArrayList<Method>>();
 	private ArrayList<Class<?>> subscribedClasses = new ArrayList<Class<?>>();
 
 	public EventBus() {
@@ -23,7 +25,7 @@ public class EventBus extends Thread {
 	}
 
 	public void fireEvent(IEvent e) {
-		for (Method sub : subscribers) {
+		for (Method sub : subscribers.get(e.getClass())) {
 			Parameter[] args = sub.getParameters();
 			if (args.length == 1 && args[0].getType().equals(e.getClass())) {
 				try {
@@ -41,12 +43,15 @@ public class EventBus extends Thread {
 	public <T> void subscribe(Class<T> clazz) {
 		if (!subscribedClasses.contains(clazz)) {
 			for (Method method : clazz.getMethods()) {
-				if (method.isAnnotationPresent(EventBusSubscriber.class)) {
+				if (method.isAnnotationPresent(SubscribeEvent.class)) {
 					if (Modifier.isStatic(method.getModifiers())) {
 						// Since method is static, there are no implict parameters
 						if (method.getParameterCount() == 1) {
+							if(!subscribers.containsKey(method.getParameterTypes()[0])) {
+								subscribers.put((Class<? extends IEvent>)method.getParameterTypes()[0]);
+							}
 							logger.log(Level.FINE, "Subscribed method " + clazz.getName() + "::" + method.getName());
-							subscribers.add(method);
+							subscribers.get(method.getParameterTypes()[0]).add(method);
 						}
 					}
 				}
