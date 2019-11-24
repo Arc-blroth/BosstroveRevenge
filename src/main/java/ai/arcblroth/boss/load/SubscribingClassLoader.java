@@ -25,6 +25,8 @@ public class SubscribingClassLoader extends ClassLoader {
 
 	public SubscribingClassLoader(ClassLoader parent) {
 		super(parent);
+		// [00:00:00][Logger/LEVEL]: Message
+		System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tT][%3$s/%4$s]: %5$s %6$s%n");
 	}
 
 	@Override

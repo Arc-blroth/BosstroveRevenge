@@ -12,7 +12,10 @@ import ai.arcblroth.boss.event.TestEvent;
 import ai.arcblroth.boss.load.SubscribingClassLoader;
 import ai.arcblroth.boss.out.*;
 import ai.arcblroth.boss.render.*;
+import ai.arcblroth.boss.resource.PNGLoader;
+import ai.arcblroth.boss.resource.ResourceLocation;
 import ai.arcblroth.boss.util.PadUtils;
+import ai.arcblroth.boss.util.ThreadUtils;
 
 public final class BosstrovesRevenge extends Thread {
 
@@ -56,16 +59,15 @@ public final class BosstrovesRevenge extends Thread {
 	}
 
 	public void run() {
-		System.out.println(ArcAnsi.ansi().clearScreen().moveCursor(1, 1).resetAll());
+		renderer.clear();
 
-		PixelGrid reallyBadGrid = new PixelGrid(AnsiOutputRenderer.OUTPUT_WIDTH, AnsiOutputRenderer.OUTPUT_HEIGHT);
-		reallyBadGrid.setPixel(1, 1, new Color(66, 185, 245));
+		PixelGrid reallyBadGrid = PNGLoader.loadPNG(new ResourceLocation("yeet.png"));
 		while (true) {
 			renderer.render(reallyBadGrid);
 		}
 	}
 
-	public EventBus getGlobalEventBus() {
+	public EventBus getEventBus() {
 		return globalEventBus;
 	}
 }

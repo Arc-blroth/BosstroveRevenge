@@ -18,13 +18,13 @@ import java.awt.Color;
 import java.io.File;
 import java.io.IOException;
 
-@AutoSubscribeClass
 public class AnsiOutputRenderer implements OutputRenderer {
 
 	private static final String PIXEL_CHAR = "\u2580";
 	private Terminal terminal;
 	public static final int OUTPUT_HEIGHT = 96;
 	public static final int OUTPUT_WIDTH = 128;
+	private static final ArcAnsi CLEAR = ArcAnsi.ansi().clearScreen().moveCursor(1, 1).resetAll();
 
 	public AnsiOutputRenderer() {
 		try {
@@ -47,11 +47,13 @@ public class AnsiOutputRenderer implements OutputRenderer {
 	public void render(PixelGrid pg) {
 		Size s = terminal.getSize();
 		if (s.getColumns() >= pg.getWidth() && s.getRows() >= pg.getHeight() / 2) {
-			String leftPad = PadUtils.leftPad("",
-					(int) Math.floor(((double) s.getColumns() - (double) pg.getWidth()) / 2D));
-			String blankLines = PadUtils.stringTimes(PadUtils.stringTimes(" ", s.getColumns()) + "\n",
-					(int) Math.floor(((double) s.getRows() - (double) pg.getHeight() / 2D) / 2D));
-			ArcAnsi ansiBuilder = ArcAnsi.ansi().resetAll().moveCursor(0, 0).resetAll().append(blankLines);
+			double leftPadSpaces = (s.getColumns() - pg.getWidth()) / 2D;
+			double topPadSpaces = (s.getRows() - pg.getHeight() / 2D) / 2D;
+			String leftPad = PadUtils.leftPad("", (int)Math.ceil(leftPadSpaces) - 1);
+			String rightPad = PadUtils.leftPad("", (int)Math.floor(leftPadSpaces));
+			String blankLinesTop = PadUtils.stringTimes(PadUtils.stringTimes(" ", s.getColumns()) + "\n", (int)Math.ceil(topPadSpaces) - 1);
+			String blankLinesBottom = PadUtils.stringTimes(PadUtils.stringTimes(" ", s.getColumns()) + "\n", (int)Math.floor(topPadSpaces));
+			ArcAnsi ansiBuilder = ArcAnsi.ansi().resetAll().moveCursor(0, 0).resetAll().append(blankLinesTop);
 			for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
 				ArcAnsi rowBuilder = ArcAnsi.ansi();
 				rowBuilder.append(leftPad);
@@ -62,9 +64,9 @@ public class AnsiOutputRenderer implements OutputRenderer {
 				}
 				rowBuilder.resetAll();
 				ansiBuilder.append(rowBuilder.toString());
-				ansiBuilder.append(leftPad + " \n");
+				ansiBuilder.append(rightPad + " \n");
 			}
-			ansiBuilder.resetAll().append(blankLines);
+			ansiBuilder.resetAll().append(blankLinesBottom);
 			if (terminal.getType() != Terminal.TYPE_DUMB) {
 				terminal.writer().print(ansiBuilder);
 			} else {
@@ -80,6 +82,14 @@ public class AnsiOutputRenderer implements OutputRenderer {
 			} else {
 				System.out.print(toPrint + "\n");
 			}
+		}
+	}
+	
+	public void clear() {
+		if (terminal.getType() != Terminal.TYPE_DUMB) {
+			terminal.writer().print(CLEAR);
+		} else {
+			System.out.print(CLEAR);
 		}
 	}
 

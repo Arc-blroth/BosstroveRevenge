@@ -5,5 +5,6 @@ import ai.arcblroth.boss.render.*;
 public interface OutputRenderer {
 
 	public void render(PixelGrid pg);
+	public void clear();
 
 }
