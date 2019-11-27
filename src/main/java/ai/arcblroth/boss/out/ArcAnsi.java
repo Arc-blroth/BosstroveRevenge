@@ -1,6 +1,7 @@
 package ai.arcblroth.boss.out;
 
-import java.awt.Color;
+import ai.arcblroth.boss.render.Color;
+import ai.arcblroth.boss.util.TextureUtils;
 
 public class ArcAnsi {
 
@@ -169,7 +170,8 @@ public class ArcAnsi {
 	}
 
 	public ArcAnsi fgColor(Color color24bit) {
-		sb.append(ESC + "38;2;" + color24bit.getRed() + ";" + color24bit.getGreen() + ";" + color24bit.getBlue() + 'm');
+		color24bit = TextureUtils.interpolate(AnsiOutputRenderer.RESET_COLOR, color24bit, color24bit.getAlpha() / 255D);
+		sb.append(ESC + "38;2;" + color24bit.getRed() + ";" + color24bit.getGreen() + ";" + color24bit.getBlue() +'m');
 		return this;
 	}
 
@@ -203,6 +205,7 @@ public class ArcAnsi {
 	}
 
 	public ArcAnsi bgColor(Color color24bit) {
+		color24bit = TextureUtils.interpolate(AnsiOutputRenderer.RESET_COLOR, color24bit, color24bit.getAlpha() / 255D);
 		sb.append(ESC + "48;2;" + color24bit.getRed() + ";" + color24bit.getGreen() + ";" + color24bit.getBlue() + 'm');
 		return this;
 	}

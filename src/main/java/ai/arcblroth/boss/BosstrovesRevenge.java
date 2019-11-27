@@ -1,21 +1,12 @@
 package ai.arcblroth.boss;
 
-import java.awt.Color;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
-import org.fusesource.jansi.AnsiConsole;
-import org.jline.terminal.*;
-
 import ai.arcblroth.boss.event.EventBus;
-import ai.arcblroth.boss.event.TestEvent;
 import ai.arcblroth.boss.load.SubscribingClassLoader;
 import ai.arcblroth.boss.out.*;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.resource.PNGLoader;
 import ai.arcblroth.boss.resource.ResourceLocation;
-import ai.arcblroth.boss.util.PadUtils;
-import ai.arcblroth.boss.util.ThreadUtils;
+import ai.arcblroth.boss.util.TextureUtils;
 
 public final class BosstrovesRevenge extends Thread {
 
@@ -61,7 +52,7 @@ public final class BosstrovesRevenge extends Thread {
 	public void run() {
 		renderer.clear();
 
-		PixelGrid reallyBadGrid = PNGLoader.loadPNG(new ResourceLocation("yeet.png"));
+		PixelGrid reallyBadGrid = TextureUtils.tintColor(PNGLoader.loadPNG(new ResourceLocation("bitmap.png")), Color.CYAN);
 		while (true) {
 			renderer.render(reallyBadGrid);
 		}

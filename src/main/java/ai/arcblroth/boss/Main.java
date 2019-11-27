@@ -1,20 +1,10 @@
 package ai.arcblroth.boss;
 
-import org.fusesource.jansi.*;
-
 import java.util.Locale;
 import java.util.logging.*;
 
-import ai.arcblroth.boss.*;
-import ai.arcblroth.boss.event.EventBus;
 import ai.arcblroth.boss.load.SubscribingClassLoader;
-import ai.arcblroth.boss.out.*;
-import java.awt.Color;
 import java.io.File;
-import java.lang.reflect.Constructor;
-import java.net.*;
-import java.nio.file.Paths;
-import java.net.*;
 
 /*
  * A note on external libraries:
@@ -26,10 +16,11 @@ import java.net.*;
  *
  * Only code in ai.arcblroth is my own work :)
  */
-class Main {
-	private static final String IS_RELAUNCHED = "ai.arcblroth.boss.Main.IS_RELAUNCHED";
-	private static final String FORCE_NOWINDOWS = "ai.arcblroth.boss.Main.FORCE_NOWINDOWS";
-	private static final String FORCE_NOSUBSCRIBINGCLASSLOADER = "ai.arcblroth.boss.Main.FORCE_NOSUBSCRIBINGCLASSLOADER";
+public class Main {
+	public static final String IS_RELAUNCHED = "ai.arcblroth.boss.Main.IS_RELAUNCHED";
+	public static final String FORCE_NOWINDOWS = "ai.arcblroth.boss.Main.FORCE_NOWINDOWS";
+	public static final String FORCE_NOSUBSCRIBINGCLASSLOADER = "ai.arcblroth.boss.Main.FORCE_NOSUBSCRIBINGCLASSLOADER";
+	public static final String FORCE_NORENDER = "ai.arcblroth.boss.Main.FORCE_NORENDER";
 	private static final String brClassName = "ai.arcblroth.boss.BosstrovesRevenge";
 
 	// Taken from the jansi source:
@@ -48,6 +39,7 @@ class Main {
 
 		//System.setProperty(FORCE_NOWINDOWS, "true");
 		//System.setProperty(FORCE_NOSUBSCRIBINGCLASSLOADER, "true");
+		//System.setProperty(FORCE_NORENDER, "true");
 
 		// Note that this is also set in SubscribingClassLoader since that also logs things.
 		// [00:00:00][Logger/LEVEL]: Message

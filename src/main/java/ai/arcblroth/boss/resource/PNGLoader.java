@@ -1,10 +1,10 @@
 package ai.arcblroth.boss.resource;
 
-import java.awt.Color;
 import java.io.File;
 import java.net.URISyntaxException;
 
 import ai.arcblroth.boss.render.Texture;
+import ai.arcblroth.boss.render.Color;
 import ar.com.hjg.pngj.IImageLine;
 import ar.com.hjg.pngj.ImageLineInt;
 import ar.com.hjg.pngj.PngReader;
@@ -20,7 +20,18 @@ public final class PNGLoader {
 				IImageLine ill = pngr.readRow();
 				int[] scanline = ((ImageLineInt) ill).getScanline();
 				for (int col = 0; col < pngr.imgInfo.cols; col++) {
-					t.setPixel(col, row, new Color(scanline[col * channels], scanline[col * channels + 1], scanline[col * channels + 2]));
+					if(pngr.imgInfo.alpha) {
+						t.setPixel(col, row, new Color(
+								scanline[col * channels],
+								scanline[col * channels + 1],
+								scanline[col * channels + 2],
+								scanline[col * channels + 3]));
+					} else {
+						t.setPixel(col, row, new Color(
+								scanline[col * channels],
+								scanline[col * channels + 1],
+								scanline[col * channels + 2]));
+					}
 				}
 			}
 			pngr.end();

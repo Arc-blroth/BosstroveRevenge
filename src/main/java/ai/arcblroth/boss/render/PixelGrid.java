@@ -1,7 +1,7 @@
 package ai.arcblroth.boss.render;
 
 import java.util.concurrent.*;
-import java.awt.Color;
+import ai.arcblroth.boss.render.Color;
 
 public class PixelGrid extends ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, Color>> {
 
