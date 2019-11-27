@@ -1,6 +1,7 @@
 package ai.arcblroth.boss.resource;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URISyntaxException;
 
 import ai.arcblroth.boss.render.Texture;
@@ -13,7 +14,7 @@ public final class PNGLoader {
 
 	public static Texture loadPNG(ResourceLocation resourceLocation) throws NullPointerException {
 		try {
-			PngReader pngr = new PngReader(resourceLocation.toFile());
+			PngReader pngr = new PngReader(resourceLocation.resolve().openStream());
 			Texture t = new Texture(pngr.imgInfo.cols, pngr.imgInfo.rows);
 			int channels = pngr.imgInfo.channels;
 			for (int row = 0; row < pngr.imgInfo.rows; row++) {
@@ -38,9 +39,9 @@ public final class PNGLoader {
 			return t;
 		} catch (NullPointerException e) {
 			throw e;
-		} catch (URISyntaxException e) {
+		}  catch (IOException e) {
 			NullPointerException npe = new NullPointerException(
-					"Could not locate PNG resource " + resourceLocation.toString());
+					"Could not read PNG resource " + resourceLocation.toString());
 			npe.initCause(e);
 			throw npe;
 		}

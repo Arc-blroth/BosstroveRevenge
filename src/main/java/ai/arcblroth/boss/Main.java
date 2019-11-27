@@ -4,6 +4,8 @@ import java.util.Locale;
 import java.util.logging.*;
 
 import ai.arcblroth.boss.load.SubscribingClassLoader;
+import ai.arcblroth.boss.util.ThreadUtils;
+
 import java.io.File;
 
 /*
@@ -83,6 +85,7 @@ public class Main {
 			}
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, "FATAL ERROR", e);
+			ThreadUtils.waitForever();
 		}
 
 	}

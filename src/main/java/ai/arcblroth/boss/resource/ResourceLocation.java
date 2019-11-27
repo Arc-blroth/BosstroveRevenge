@@ -30,11 +30,6 @@ public class ResourceLocation {
 		return resolved;
 	}
 
-	public File toFile() throws NullPointerException, URISyntaxException {
-		URL resolved = resolve();
-		return Paths.get(resolved.toURI()).toFile();
-	}
-
 	@Override
 	public String toString() {
 		return path;
