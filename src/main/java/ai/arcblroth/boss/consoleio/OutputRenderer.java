@@ -1,4 +1,4 @@
-package ai.arcblroth.boss.out;
+package ai.arcblroth.boss.consoleio;
 
 import ai.arcblroth.boss.render.*;
 

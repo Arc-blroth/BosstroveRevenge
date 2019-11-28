@@ -1,16 +1,17 @@
-package ai.arcblroth.boss.out;
+package ai.arcblroth.boss.consoleio;
 
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
 import org.fusesource.jansi.Ansi.Erase;
 import org.jline.terminal.*;
+import org.jline.terminal.Terminal.MouseTracking;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.Main;
+import ai.arcblroth.boss.consoleio.ArcAnsi.Color34;
 import ai.arcblroth.boss.event.AutoSubscribeClass;
 import ai.arcblroth.boss.event.SubscribeEvent;
 import ai.arcblroth.boss.event.TestEvent;
-import ai.arcblroth.boss.out.ArcAnsi.Color34;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.ThreadUtils;
@@ -36,9 +37,10 @@ public class AnsiOutputRenderer implements OutputRenderer {
 			if (!System.getProperty("os.name").toLowerCase().contains("win")) {
 				terminal.setSize(new Size(OUTPUT_HEIGHT, OUTPUT_WIDTH));
 			} else {
-				// Runtime.getRuntime().exec("C:\\Windows\\System32\\cmd /C mode " +
-				// OUTPUT_WIDTH + "," + OUTPUT_HEIGHT/2);
+				
 			}
+			terminal.trackMouse(MouseTracking.Button);
+			terminal.enterRawMode();
 		} catch (Exception e) {
 			System.err.println("Could not init terminal, aborting launch...");
 			e.printStackTrace();
@@ -108,6 +110,10 @@ public class AnsiOutputRenderer implements OutputRenderer {
 				System.out.print(CLEAR);
 			}
 		}
+	}
+	
+	public Terminal getTerminal() {
+		return terminal;
 	}
 
 }

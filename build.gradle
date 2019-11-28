@@ -6,6 +6,8 @@ plugins {
 }
 
 dependencies {
+	testImplementation 'junit:junit:4.12'
+	
 	//Terminal Utils
 	implementation 'net.java.dev.jna:jna:5.4.0'
 	implementation 'org.fusesource.jansi:jansi:1.18'

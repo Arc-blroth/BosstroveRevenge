@@ -1,8 +1,8 @@
 package ai.arcblroth.boss;
 
+import ai.arcblroth.boss.consoleio.*;
 import ai.arcblroth.boss.event.EventBus;
 import ai.arcblroth.boss.load.SubscribingClassLoader;
-import ai.arcblroth.boss.out.*;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.resource.PNGLoader;
 import ai.arcblroth.boss.resource.ResourceLocation;
@@ -26,7 +26,7 @@ public final class BosstrovesRevenge extends Thread {
 	}
 
 	public static final String TITLE = "Bosstrove's Revenge";
-	private OutputRenderer renderer;
+	private AnsiOutputRenderer renderer;
 
 	private BosstrovesRevenge(EventBus globalEventBus) throws Exception {
 		if (INSTANCE != null)
@@ -40,6 +40,8 @@ public final class BosstrovesRevenge extends Thread {
 			globalEventBus.subscribe(clazz);
 		});
 		
+		//Register input hook
+		
 		this.renderer = new AnsiOutputRenderer();
 	}
 
@@ -52,7 +54,7 @@ public final class BosstrovesRevenge extends Thread {
 	public void run() {
 		renderer.clear();
 
-		PixelGrid reallyBadGrid = TextureUtils.tintColor(PNGLoader.loadPNG(new ResourceLocation("bitmap.png")), Color.CYAN);
+		PixelGrid reallyBadGrid = TextureUtils.tintColor(PNGLoader.loadPNG(new ResourceLocation("bitmap.png")), new Color(41, 187, 255));
 		while (true) {
 			renderer.render(reallyBadGrid);
 		}
