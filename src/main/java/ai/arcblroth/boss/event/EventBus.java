@@ -1,12 +1,10 @@
 package ai.arcblroth.boss.event;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,7 +51,6 @@ public class EventBus {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public <T> void subscribe(Class<T> clazz) {
 		try {
 			if (!subscribedClasses.contains(clazz)) {

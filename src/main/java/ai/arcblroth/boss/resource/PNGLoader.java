@@ -1,9 +1,6 @@
 package ai.arcblroth.boss.resource;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
-
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.render.Color;
 import ar.com.hjg.pngj.IImageLine;

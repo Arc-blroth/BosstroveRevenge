@@ -3,18 +3,11 @@ package ai.arcblroth.boss.load;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.logging.Logger;
-
-import ai.arcblroth.boss.event.AutoSubscribeClass;
-import ai.arcblroth.boss.event.EventBus;
 
 public class SubscribingClassLoader extends ClassLoader {
 

@@ -23,7 +23,6 @@ public class Main {
 	public static final String FORCE_NOWINDOWS = "ai.arcblroth.boss.Main.FORCE_NOWINDOWS";
 	public static final String FORCE_NOSUBSCRIBINGCLASSLOADER = "ai.arcblroth.boss.Main.FORCE_NOSUBSCRIBINGCLASSLOADER";
 	public static final String FORCE_NORENDER = "ai.arcblroth.boss.Main.FORCE_NORENDER";
-	private static final String brClassName = "ai.arcblroth.boss.BosstrovesRevenge";
 
 	// Taken from the jansi source:
 	// https://github.com/fusesource/jansi/blob/master/jansi/src/main/java/org/fusesource/jansi/AnsiConsole.java

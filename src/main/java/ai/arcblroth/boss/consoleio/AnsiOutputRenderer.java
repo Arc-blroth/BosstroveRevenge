@@ -1,26 +1,14 @@
 package ai.arcblroth.boss.consoleio;
 
 import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.AnsiConsole;
 import org.fusesource.jansi.Ansi.Erase;
 import org.jline.terminal.*;
-import org.jline.terminal.Terminal.MouseTracking;
-
-import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.Main;
-import ai.arcblroth.boss.consoleio.ArcAnsi.Color34;
-import ai.arcblroth.boss.event.AutoSubscribeClass;
-import ai.arcblroth.boss.event.SubscribeEvent;
-import ai.arcblroth.boss.event.TestEvent;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.util.PadUtils;
-import ai.arcblroth.boss.util.ThreadUtils;
-
 import java.util.concurrent.*;
-import java.io.File;
-import java.io.IOException;
 
-public class AnsiOutputRenderer implements OutputRenderer {
+public class AnsiOutputRenderer implements IOutputRenderer {
 
 	private static final String PIXEL_CHAR = "\u2580";
 	private Terminal terminal;
@@ -39,7 +27,6 @@ public class AnsiOutputRenderer implements OutputRenderer {
 			} else {
 				
 			}
-			terminal.trackMouse(MouseTracking.Button);
 			terminal.enterRawMode();
 		} catch (Exception e) {
 			System.err.println("Could not init terminal, aborting launch...");
