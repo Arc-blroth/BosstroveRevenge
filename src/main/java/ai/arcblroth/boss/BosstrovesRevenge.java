@@ -1,12 +1,12 @@
 package ai.arcblroth.boss;
 
 import ai.arcblroth.boss.consoleio.*;
+import ai.arcblroth.boss.engine.IEngine;
+import ai.arcblroth.boss.engine.StepEvent;
+import ai.arcblroth.boss.event.AutoSubscribeClass;
 import ai.arcblroth.boss.event.EventBus;
+import ai.arcblroth.boss.load.LoadEngine;
 import ai.arcblroth.boss.load.SubscribingClassLoader;
-import ai.arcblroth.boss.render.*;
-import ai.arcblroth.boss.resource.PNGLoader;
-import ai.arcblroth.boss.resource.ResourceLocation;
-import ai.arcblroth.boss.util.TextureUtils;
 
 public final class BosstrovesRevenge extends Thread {
 
@@ -25,7 +25,8 @@ public final class BosstrovesRevenge extends Thread {
 
 	public static final String TITLE = "Bosstrove's Revenge";
 	private EventBus globalEventBus;
-	private AnsiOutputRenderer renderer;
+	private AnsiOutputRenderer outputRenderer;
+	private IEngine engine;
 
 	private BosstrovesRevenge(EventBus globalEventBus) throws Exception {
 		if (INSTANCE != null)
@@ -36,13 +37,15 @@ public final class BosstrovesRevenge extends Thread {
 		// Register the EventBus subscribing hook
 		this.globalEventBus = globalEventBus;
 		((SubscribingClassLoader) Main.class.getClassLoader()).addHook((clazz) -> {
-			globalEventBus.subscribe(clazz);
+			if(clazz.isAnnotationPresent(AutoSubscribeClass.class)) {
+				globalEventBus.subscribe(clazz);
+			}
 		});
 		
 		//Register input hook
 		globalEventBus.subscribe(ConsoleInputHandler.class);
 		
-		this.renderer = new AnsiOutputRenderer();
+		this.outputRenderer = new AnsiOutputRenderer();
 	}
 
 	public static BosstrovesRevenge get() {
@@ -52,12 +55,16 @@ public final class BosstrovesRevenge extends Thread {
 	}
 
 	public void run() {
-		renderer.clear();
-
-		PixelGrid reallyBadGrid = TextureUtils.tintColor(PNGLoader.loadPNG(new ResourceLocation("bitmap.png")), new Color(41, 187, 255));
+		outputRenderer.clear();
+		
+		//the first Engine initilizes all assets and classes
+		this.engine = new LoadEngine();
+		globalEventBus.subscribe(engine, engine.getClass());
+		
 		while (true) {
-			renderer.render(reallyBadGrid);
-			globalEventBus.fireEvent(new ConsoleInputEvent(renderer.getTerminal()));
+			globalEventBus.fireEvent(new StepEvent());
+			outputRenderer.render(engine.getRenderer().render());
+			globalEventBus.fireEvent(new ConsoleInputEvent(outputRenderer.getTerminal()));
 		}
 	}
 

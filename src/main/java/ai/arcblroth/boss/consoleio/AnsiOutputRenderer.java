@@ -36,57 +36,59 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 	}
 
 	public void render(PixelGrid pg) {
-		if(!(System.getProperty(Main.FORCE_NORENDER) != null && System.getProperty(Main.FORCE_NORENDER).equals("true"))) {
-			Size s = terminal.getSize();
-			if (s.getColumns() >= pg.getWidth() && s.getRows() >= pg.getHeight() / 2) {
-				
-				double leftPadSpaces = (s.getColumns() - pg.getWidth()) / 2D;
-				double topPadSpaces = (s.getRows() - pg.getHeight() / 2D) / 2D;
-				
-				String leftPad = PadUtils.leftPad("", (int)Math.ceil(leftPadSpaces) - 1);
-				String rightPad = PadUtils.leftPad("", (int)Math.floor(leftPadSpaces));
-				String linePad = PadUtils.stringTimes(" ", s.getColumns());
-				String blankLinesTop = PadUtils.stringTimes(linePad + "\n", (int)Math.ceil(topPadSpaces) - 1);
-				String blankLinesBottom = PadUtils.stringTimes(linePad + "\n", (int)Math.floor(topPadSpaces));
-				
-				//The top lines
-				ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(RESET_COLOR).append(blankLinesTop);
-				
-				//Print out each row like a printer would
-				for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
-					ArcAnsi rowBuilder = ArcAnsi.ansi();
-					rowBuilder.bgColor(RESET_COLOR).append(leftPad);
-					ConcurrentHashMap<Integer, Color> row1 = pg.get(rowNum);
-					ConcurrentHashMap<Integer, Color> row2 = pg.get(rowNum + 1);
-					for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
-						rowBuilder.fgColor(row1.get(colNum)).bgColor(row2.get(colNum)).append(PIXEL_CHAR);
+		//if(pg != null) {
+			if(!(System.getProperty(Main.FORCE_NORENDER) != null && System.getProperty(Main.FORCE_NORENDER).equals("true"))) {
+				Size s = terminal.getSize();
+				if (s.getColumns() >= pg.getWidth() && s.getRows() >= pg.getHeight() / 2) {
+					
+					double leftPadSpaces = (s.getColumns() - pg.getWidth()) / 2D;
+					double topPadSpaces = (s.getRows() - pg.getHeight() / 2D) / 2D;
+					
+					String leftPad = PadUtils.leftPad("", (int)Math.ceil(leftPadSpaces) - 1);
+					String rightPad = PadUtils.leftPad("", (int)Math.floor(leftPadSpaces));
+					String linePad = PadUtils.stringTimes(" ", s.getColumns());
+					String blankLinesTop = PadUtils.stringTimes(linePad + "\n", (int)Math.ceil(topPadSpaces) - 1);
+					String blankLinesBottom = PadUtils.stringTimes(linePad + "\n", (int)Math.floor(topPadSpaces));
+					
+					//The top lines
+					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(RESET_COLOR).append(blankLinesTop);
+					
+					//Print out each row like a printer would
+					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
+						ArcAnsi rowBuilder = ArcAnsi.ansi();
+						rowBuilder.bgColor(RESET_COLOR).append(leftPad);
+						ConcurrentHashMap<Integer, Color> row1 = pg.get(rowNum);
+						ConcurrentHashMap<Integer, Color> row2 = pg.get(rowNum + 1);
+						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
+							rowBuilder.fgColor(row1.get(colNum)).bgColor(row2.get(colNum)).append(PIXEL_CHAR);
+						}
+						rowBuilder.resetAll().bgColor(RESET_COLOR);
+						ansiBuilder.append(rowBuilder.toString());
+						ansiBuilder.append(rightPad + " \n");
 					}
-					rowBuilder.resetAll().bgColor(RESET_COLOR);
-					ansiBuilder.append(rowBuilder.toString());
-					ansiBuilder.append(rightPad + " \n");
-				}
-				
-				//The bottom lines
-				ansiBuilder.resetAll().bgColor(RESET_COLOR).append(blankLinesBottom).append(linePad).moveCursorLeft(s.getColumns());
-				
-				//PRINT
-				if (terminal.getType() != Terminal.TYPE_DUMB) {
-					terminal.writer().print(ansiBuilder);
+					
+					//The bottom lines
+					ansiBuilder.resetAll().bgColor(RESET_COLOR).append(blankLinesBottom).append(linePad).moveCursorLeft(s.getColumns());
+					
+					//PRINT
+					if (terminal.getType() != Terminal.TYPE_DUMB) {
+						terminal.writer().print(ansiBuilder);
+					} else {
+						System.out.print(Ansi.ansi().eraseScreen(Erase.ALL).reset());
+						System.out.print(ansiBuilder);
+					}
 				} else {
-					System.out.print(Ansi.ansi().eraseScreen(Erase.ALL).reset());
-					System.out.print(ansiBuilder);
-				}
-			} else {
-				String toPrint = Ansi.ansi().cursor(1, 1).reset()
-						.a(String.format("Screen resolution too small [%s×%s]", s.getColumns(), s.getRows()))
-						.eraseScreen(Erase.FORWARD).toString();
-				if (terminal.getType() != Terminal.TYPE_DUMB) {
-					terminal.writer().print(toPrint + "\n");
-				} else {
-					System.out.print(toPrint + "\n");
+					String toPrint = Ansi.ansi().cursor(1, 1).reset()
+							.a(String.format("Screen resolution too small [%s×%s]", s.getColumns(), s.getRows()))
+							.eraseScreen(Erase.FORWARD).toString();
+					if (terminal.getType() != Terminal.TYPE_DUMB) {
+						terminal.writer().print(toPrint + "\n");
+					} else {
+						System.out.print(toPrint + "\n");
+					}
 				}
 			}
-		}
+		//}
 	}
 	
 	public void clear() {

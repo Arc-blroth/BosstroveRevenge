@@ -50,16 +50,13 @@ public class EventBus {
 			}
 		}
 	}
-
-	public <T> void subscribe(Class<T> clazz) {
+	
+	public <T> void subscribe(T instance, Class<? extends T> clazz) {
 		try {
 			if (!subscribedClasses.contains(clazz)) {
 				for (Method method : clazz.getMethods()) {
 					if (method.isAnnotationPresent(SubscribeEvent.class)) {
 						if(!subscribers.containsKey(method.getParameterTypes()[0])) {
-							//We'll have to construct an instance of the class.
-							//If there's no default constructor this may fail.
-							T instance = clazz.newInstance();
 							subscribers.put(method.getParameterTypes()[0], 
 									new Pair<T, ArrayList<Method>>(instance, new ArrayList<Method>()));
 						}
@@ -79,8 +76,22 @@ public class EventBus {
 				subscribedClasses.add(clazz);
 			}
 		} catch (Exception e) {
+			logger.log(Level.INFO, "Could not subscribe class " + clazz.getName());
+		}
+	}
+
+	public <T> void subscribe(Class<T> clazz) {
+		try {
+			if (!subscribedClasses.contains(clazz)) {
+				//We'll have to construct an instance of the class.
+				//If there's no default constructor this may fail.
+				T instance = clazz.newInstance();
+				subscribe(instance, clazz);
+			}
+		} catch (Exception e) {
 			logger.log(Level.FINE, "Could not subscribe class " + clazz.getName());
 		}
+			
 	}
 
 }
