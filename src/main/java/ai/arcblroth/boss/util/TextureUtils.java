@@ -31,6 +31,14 @@ public class TextureUtils {
 				c1HSB[3] + between * (c2HSB[3] - c1HSB[3]));
 	}
 	
+	public static Color interpolateRGB(Color color1, Color color2, double between) {
+		return new Color(
+				(int)Math.round(color1.getRed() + between * (color2.getRed() - color1.getRed())),
+				(int)Math.round(color1.getGreen() + between * (color2.getGreen() - color1.getGreen())),
+				(int)Math.round(color1.getBlue() + between * (color2.getBlue() - color1.getBlue()))
+		);
+	}
+	
 	public static PixelGrid tintColor(PixelGrid in, Color tint) {
 		//Don't modify original
 		in = new PixelGrid(in);
@@ -39,6 +47,25 @@ public class TextureUtils {
 		for (int rowNum = 0; rowNum < in.getHeight(); rowNum++) {
 			for (int colNum = 0; colNum < in.getWidth(); colNum++) {
 				Color interpolated = interpolate(in.getPixel(colNum, rowNum), solidTint, tintAlpha/255D);
+				in.setPixel(colNum, rowNum, new Color(
+						interpolated.getRed(),
+						interpolated.getGreen(),
+						interpolated.getBlue(),
+						in.getPixel(colNum, rowNum).getAlpha()
+				));
+			}
+		}
+		return in;
+	}
+	
+	public static PixelGrid tintColorRGB(PixelGrid in, Color tint) {
+		//Don't modify original
+		in = new PixelGrid(in);
+		Color solidTint = new Color(tint.getRed(), tint.getGreen(), tint.getBlue());
+		int tintAlpha = tint.getAlpha();
+		for (int rowNum = 0; rowNum < in.getHeight(); rowNum++) {
+			for (int colNum = 0; colNum < in.getWidth(); colNum++) {
+				Color interpolated = interpolateRGB(in.getPixel(colNum, rowNum), solidTint, tintAlpha/255D);
 				in.setPixel(colNum, rowNum, new Color(
 						interpolated.getRed(),
 						interpolated.getGreen(),

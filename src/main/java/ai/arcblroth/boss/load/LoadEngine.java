@@ -27,7 +27,7 @@ public class LoadEngine implements IEngine {
 	private PixelGrid logo;
 	
 	public LoadEngine() {
-		origLogo = TextureUtils.tintColor(PNGLoader.loadPNG(new ResourceLocation("bitmap.png")), new Color(41, 187, 255));
+		origLogo = TextureUtils.tintColor(PNGLoader.loadPNG(new ResourceLocation("bitmap.png")), new Color(41, 166, 255));
 		logo = new PixelGrid(origLogo);
 		reallyBadGrid = new PixelAndTextGrid(logo.getWidth(), logo.getHeight() + arbitraryPaddingHeight);
 		reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
@@ -43,10 +43,10 @@ public class LoadEngine implements IEngine {
 		} else {
 			if(doneFadeoutAnimation <= 1) {
 				doneFadeoutAnimation += 0.05;
-				logo = TextureUtils.tintColor(origLogo, new Color(
+				logo = TextureUtils.tintColorRGB(origLogo, new Color(
 						OutputDefaults.RESET_COLOR.getRed(),
 						OutputDefaults.RESET_COLOR.getGreen(),
-						OutputDefaults.RESET_COLOR.getBlue() + 1,
+						OutputDefaults.RESET_COLOR.getBlue(),
 						(int)Math.round(doneFadeoutAnimation * 255)
 				));
 				reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
@@ -78,11 +78,11 @@ public class LoadEngine implements IEngine {
 						String.format("Loading - %.0f%%", loadPercent * 100)
 						, reallyBadGrid.getWidth())),
 				OutputDefaults.RESET_COLOR,
-				TextureUtils.interpolate(
+				TextureUtils.interpolateRGB(
 						new Color(40, 237, 63),
 						new Color(
 							OutputDefaults.RESET_COLOR.getRed(),
-							OutputDefaults.RESET_COLOR.getGreen() + 1,
+							OutputDefaults.RESET_COLOR.getGreen(),
 							OutputDefaults.RESET_COLOR.getBlue()
 						),
 						doneFadeoutAnimation
