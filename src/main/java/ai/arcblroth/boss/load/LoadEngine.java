@@ -21,19 +21,13 @@ public class LoadEngine implements IEngine {
 	private double loadPercent = 0;
 	private PixelAndTextGrid reallyBadGrid;
 	private int arbitraryPaddingHeight = 8 * 2;
+	private PixelGrid logo;
 	
 	public LoadEngine() {
-		PixelGrid logo = TextureUtils.tintColor(PNGLoader.loadPNG(new ResourceLocation("bitmap.png")), new Color(41, 187, 255));
+		logo = TextureUtils.tintColor(PNGLoader.loadPNG(new ResourceLocation("bitmap.png")), new Color(41, 187, 255));
 		reallyBadGrid = new PixelAndTextGrid(logo.getWidth(), logo.getHeight() + arbitraryPaddingHeight);
 		reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
-		reallyBadGrid.setCharacterRow(
-				logo.getHeight() + arbitraryPaddingHeight - 2,
-				PadUtils.stringToArrayList(PadUtils.centerPad(
-						String.format("Loading - %.0f%%", loadPercent * 100)
-						, reallyBadGrid.getWidth())),
-				Color.BLACK,
-				new Color(40, 237, 63)
-		);
+		updateStatus();
 	}
 	
 	@Override
@@ -45,7 +39,8 @@ public class LoadEngine implements IEngine {
 	@Override
 	@SubscribeEvent
 	public void handleKeyInput(KeyInputEvent e) {
-		
+		loadPercent = e.getKey();
+		updateStatus();
 	}
 
 	@Override
@@ -56,6 +51,17 @@ public class LoadEngine implements IEngine {
 				return reallyBadGrid;
 			}
 		};
+	}
+	
+	private void updateStatus() {
+		reallyBadGrid.setCharacterRow(
+				logo.getHeight() + arbitraryPaddingHeight - 2,
+				PadUtils.stringToArrayList(PadUtils.centerPad(
+						String.format("Loading - %.0f%%", loadPercent * 100)
+						, reallyBadGrid.getWidth())),
+				Color.BLACK,
+				new Color(40, 237, 63)
+		);
 	}
 
 }

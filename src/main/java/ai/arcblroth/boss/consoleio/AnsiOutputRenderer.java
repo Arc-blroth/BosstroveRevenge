@@ -6,6 +6,7 @@ import org.jline.terminal.*;
 import ai.arcblroth.boss.Main;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.util.PadUtils;
+import ai.arcblroth.boss.util.Pair;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -61,10 +62,12 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
 						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
 						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
-							rowBuilder.fgColor(row1.get(colNum)).bgColor(row2.get(colNum)).append(
-									  rowTxt.get(colNum) != OutputDefaults.RESET_CHAR 
-									? rowTxt.get(colNum).toString()
-									: PIXEL_CHAR);
+							if(rowTxt.get(colNum) == OutputDefaults.RESET_CHAR) {
+								rowBuilder.fgColor(row1.get(colNum)).bgColor(row2.get(colNum)).append(PIXEL_CHAR);
+							} else {
+								Pair<Color, Color> colors = pg.getColorsAt(colNum, rowNum);
+								rowBuilder.fgColor(colors.getFirst()).bgColor(colors.getSecond()).append(rowTxt.get(colNum).toString());
+							}
 						}
 						rowBuilder.resetAll().bgColor(OutputDefaults.RESET_COLOR);
 						ansiBuilder.append(rowBuilder.toString());
