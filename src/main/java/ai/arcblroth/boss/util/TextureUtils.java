@@ -32,4 +32,17 @@ public class TextureUtils {
 		return in;
 	}
 	
+	public static PixelGrid overlay(PixelGrid src, PixelGrid dest) {
+		return overlay(src, dest, 0, 0);
+	}
+	
+	public static PixelGrid overlay(PixelGrid src, PixelGrid dest, int xOffset, int yOffset) {
+		for(int y = yOffset; y < dest.getHeight(); y++) {
+			for(int x = xOffset; x < dest.getWidth(); x++) {
+				dest.setPixel(x, y, src.getPixel(x - xOffset, y - yOffset));
+			}
+		}
+		return dest;
+	}
+	
 }

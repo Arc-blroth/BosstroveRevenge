@@ -1,38 +1,47 @@
 package ai.arcblroth.boss.render;
 
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.*;
+
+import ai.arcblroth.boss.consoleio.OutputDefaults;
 import ai.arcblroth.boss.render.Color;
 
-public class PixelGrid extends ConcurrentHashMap<Integer, ConcurrentHashMap<Integer, Color>> {
+public class PixelGrid {
 
+	private ArrayList<ArrayList<Color>> grid;
 	private int width, height;
 
 	public PixelGrid(int width, int height) {
+		this.grid = new ArrayList<ArrayList<Color>>(height);
 		this.width = width;
 		this.height = height;
 
 		// Init the grid to just pure black
 		for (int hi = 0; hi < height; hi++) {
-			ConcurrentHashMap<Integer, Color> row = new ConcurrentHashMap<Integer, Color>();
+			ArrayList<Color> row = new ArrayList<Color>(width);
 			for (int wi = 0; wi < width; wi++) {
-				row.put(wi, Color.BLACK);
+				row.add(OutputDefaults.RESET_COLOR);
 			}
-			this.put(hi, row);
+			grid.add(row);
 		}
 	}
 
 	public Color getPixel(int x, int y) {
 		if (isCoordinateValid(x, y))
-			return this.get(y).get(x);
+			return grid.get(y).get(x);
 		else
-			return Color.BLACK;
+			return OutputDefaults.RESET_COLOR;
 	}
 
 	public void setPixel(int x, int y, Color c) {
 		if (isCoordinateValid(x, y)) {
-			this.get(y).remove(x);
-			this.get(y).put(x, c);
+			grid.get(y).set(x, c);
 		}
+	}
+
+	public ArrayList<Color> getRow(int rowNum) {
+		return grid.get(rowNum);
 	}
 
 	public int getWidth() {

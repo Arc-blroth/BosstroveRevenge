@@ -1,6 +1,7 @@
 package ai.arcblroth.boss.util;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class PadUtils {
 
@@ -26,9 +27,9 @@ public class PadUtils {
 		return leftPad(line, length, ' ');
 	}
 
-	public static <T> ArrayList<T> leftPad(ArrayList<T> array, int length, T padder) {
+	public static <T> List<T> leftPad(List<T> array, int length, T padder) {
 		// Clone the array since these methods should not modify original
-		array = deepCloneArrayList(array);
+		array = deepCloneList(array);
 		if (length <= 0)
 			return array;
 		else if (array.size() < length) {
@@ -59,9 +60,9 @@ public class PadUtils {
 			return line;
 	}
 
-	public static <T> ArrayList<T> rightPad(ArrayList<T> array, int length, T padder) {
+	public static <T> List<T> rightPad(List<T> array, int length, T padder) {
 		// Clone the array since these methods should not modify original
-		array = deepCloneArrayList(array);
+		array = deepCloneList(array);
 		if (length <= 0)
 			return array;
 		else if (array.size() < length) {
@@ -90,12 +91,28 @@ public class PadUtils {
 		int toRight = (int) Math.floor(((float) length - (float) line.length()) / 2F);
 		return rightPad(leftPad(line, line.length() + toLeft, padder), line.length() + toLeft + toRight, padder);
 	}
+	
+	public static <T> List<T> centerPad(List<T> array, int length, T padder)  {
+		// Clone the array since these methods should not modify original
+		array = deepCloneList(array);
+		if (length <= 0)
+			return array;
+		else if (array.size() < length) {
+			int toLeft = (int) Math.ceil(((float) length - (float) array.size()) / 2F);
+			int toRight = (int) Math.floor(((float) length - (float) array.size()) / 2F);
+			int size = array.size(); // Because the size will change
+			return rightPad(leftPad(array, size + toLeft, padder), size + toLeft + toRight, padder);
+		} else if (array.size() > length) {
+			return new ArrayList<T>(array.subList(0, length));
+		} else
+			return array;
+	}
 
 	public static String centerPad(String line, int length) {
 		return centerPad(line, length, ' ');
 	}
 
-	public static <T> ArrayList<T> deepCloneArrayList(ArrayList<T> array) {
+	public static <T> List<T> deepCloneList(List<T> array) {
 		ArrayList<T> newArray = new ArrayList<T>();
 		for (T t : array) {
 			if (t instanceof Cloneable) {
@@ -113,6 +130,14 @@ public class PadUtils {
 			b.append(in);
 		}
 		return b.toString();
+	}
+	
+	public static ArrayList<Character> stringToArrayList(String in) {
+		ArrayList<Character> array = new ArrayList<Character>(in.length());
+		for(char c : in.toCharArray()) {
+			array.add(c);
+		}
+		return array;
 	}
 
 }

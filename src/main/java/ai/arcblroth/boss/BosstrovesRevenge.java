@@ -1,5 +1,8 @@
 package ai.arcblroth.boss;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import ai.arcblroth.boss.consoleio.*;
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.StepEvent;
@@ -7,6 +10,7 @@ import ai.arcblroth.boss.event.AutoSubscribeClass;
 import ai.arcblroth.boss.event.EventBus;
 import ai.arcblroth.boss.load.LoadEngine;
 import ai.arcblroth.boss.load.SubscribingClassLoader;
+import ai.arcblroth.boss.util.ThreadUtils;
 
 public final class BosstrovesRevenge extends Thread {
 
@@ -55,16 +59,21 @@ public final class BosstrovesRevenge extends Thread {
 	}
 
 	public void run() {
-		outputRenderer.clear();
-		
-		//the first Engine initilizes all assets and classes
-		this.engine = new LoadEngine();
-		globalEventBus.subscribe(engine, engine.getClass());
-		
-		while (true) {
-			globalEventBus.fireEvent(new StepEvent());
-			outputRenderer.render(engine.getRenderer().render());
-			globalEventBus.fireEvent(new ConsoleInputEvent(outputRenderer.getTerminal()));
+		try {
+			outputRenderer.clear();
+			
+			//the first Engine initilizes all assets and classes
+			this.engine = new LoadEngine();
+			globalEventBus.subscribe(engine, engine.getClass());
+			
+			while (true) {
+				globalEventBus.fireEvent(new StepEvent());
+				outputRenderer.render(engine.getRenderer().render());
+				globalEventBus.fireEvent(new ConsoleInputEvent(outputRenderer.getTerminal()));
+			}
+		} catch (Throwable e) {
+			Logger.getGlobal().log(Level.SEVERE, "FATAL ERROR", e);
+			ThreadUtils.waitForever();
 		}
 	}
 

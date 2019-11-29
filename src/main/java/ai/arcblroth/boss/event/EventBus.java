@@ -93,5 +93,9 @@ public class EventBus {
 		}
 			
 	}
+	
+	public <T> boolean unsubscribe(Class<T> clazz) {
+		return subscribedClasses.remove(clazz);
+	}
 
 }

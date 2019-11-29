@@ -6,24 +6,24 @@ import org.jline.terminal.*;
 import ai.arcblroth.boss.Main;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.util.PadUtils;
+
+import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.*;
 
 public class AnsiOutputRenderer implements IOutputRenderer {
 
 	private static final String PIXEL_CHAR = "\u2580";
 	private Terminal terminal;
-	public static final int OUTPUT_HEIGHT = 96;
-	public static final int OUTPUT_WIDTH = 128;
-	private static final ArcAnsi CLEAR = ArcAnsi.ansi().clearScreen().moveCursor(1, 1).resetAll();
-	public static final Color RESET_COLOR = Color.BLACK;
-
+	private static final ArcAnsi CLEAR = ArcAnsi.ansi().moveCursor(0, 0).clearScreen().resetAll();
+	
 	public AnsiOutputRenderer() {
 		try {
 			this.terminal = TerminalBuilder.builder().name("Bosstrove's Revenge").jansi(true).jna(true)
 					.nativeSignals(true)
 					.signalHandler(true ? Terminal.SignalHandler.SIG_DFL : Terminal.SignalHandler.SIG_IGN).build();
 			if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-				terminal.setSize(new Size(OUTPUT_HEIGHT, OUTPUT_WIDTH));
+				terminal.setSize(new Size(OutputDefaults.OUTPUT_HEIGHT, OutputDefaults.OUTPUT_WIDTH));
 			} else {
 				
 			}
@@ -35,7 +35,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 		}
 	}
 
-	public void render(PixelGrid pg) {
+	public void render(PixelAndTextGrid pg) {
 		//if(pg != null) {
 			if(!(System.getProperty(Main.FORCE_NORENDER) != null && System.getProperty(Main.FORCE_NORENDER).equals("true"))) {
 				Size s = terminal.getSize();
@@ -51,24 +51,28 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					String blankLinesBottom = PadUtils.stringTimes(linePad + "\n", (int)Math.floor(topPadSpaces));
 					
 					//The top lines
-					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(RESET_COLOR).append(blankLinesTop);
+					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(OutputDefaults.RESET_COLOR).append(blankLinesTop);
 					
 					//Print out each row like a printer would
 					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
 						ArcAnsi rowBuilder = ArcAnsi.ansi();
-						rowBuilder.bgColor(RESET_COLOR).append(leftPad);
-						ConcurrentHashMap<Integer, Color> row1 = pg.get(rowNum);
-						ConcurrentHashMap<Integer, Color> row2 = pg.get(rowNum + 1);
+						rowBuilder.bgColor(OutputDefaults.RESET_COLOR).append(leftPad);
+						ArrayList<Color> row1 = pg.getRow(rowNum);
+						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
+						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
 						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
-							rowBuilder.fgColor(row1.get(colNum)).bgColor(row2.get(colNum)).append(PIXEL_CHAR);
+							rowBuilder.fgColor(row1.get(colNum)).bgColor(row2.get(colNum)).append(
+									  rowTxt.get(colNum) != OutputDefaults.RESET_CHAR 
+									? rowTxt.get(colNum).toString()
+									: PIXEL_CHAR);
 						}
-						rowBuilder.resetAll().bgColor(RESET_COLOR);
+						rowBuilder.resetAll().bgColor(OutputDefaults.RESET_COLOR);
 						ansiBuilder.append(rowBuilder.toString());
 						ansiBuilder.append(rightPad + " \n");
 					}
 					
 					//The bottom lines
-					ansiBuilder.resetAll().bgColor(RESET_COLOR).append(blankLinesBottom).append(linePad).moveCursorLeft(s.getColumns());
+					ansiBuilder.resetAll().bgColor(OutputDefaults.RESET_COLOR).append(blankLinesBottom).append(linePad).moveCursorLeft(s.getColumns());
 					
 					//PRINT
 					if (terminal.getType() != Terminal.TYPE_DUMB) {
