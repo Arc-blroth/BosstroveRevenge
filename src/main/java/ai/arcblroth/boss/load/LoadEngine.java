@@ -18,7 +18,7 @@ import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.TextureUtils;
 
 public class LoadEngine implements IEngine {
-	
+
 	private double loadPercent = 0;
 	private double doneFadeoutAnimation = 0;
 	private PixelAndTextGrid reallyBadGrid;
@@ -31,7 +31,6 @@ public class LoadEngine implements IEngine {
 		logo = new PixelGrid(origLogo);
 		reallyBadGrid = new PixelAndTextGrid(logo.getWidth(), logo.getHeight() + arbitraryPaddingHeight);
 		reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
-		updateStatus();
 	}
 	
 	@Override
@@ -39,7 +38,6 @@ public class LoadEngine implements IEngine {
 	public void step(StepEvent e) {
 		if(loadPercent < 1) {
 			loadPercent += 0.01;
-			updateStatus();
 		} else {
 			if(doneFadeoutAnimation <= 1) {
 				doneFadeoutAnimation += 0.05;
@@ -50,9 +48,9 @@ public class LoadEngine implements IEngine {
 						(int)Math.round(doneFadeoutAnimation * 255)
 				));
 				reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
-				updateStatus();
 			}
 		}
+		updateStatus();
 	}
 
 	@Override
@@ -73,18 +71,14 @@ public class LoadEngine implements IEngine {
 	
 	private void updateStatus() {
 		reallyBadGrid.setCharacterRow(
-				logo.getHeight() + arbitraryPaddingHeight - 2,
+				logo.getHeight() +  arbitraryPaddingHeight - 2,
 				PadUtils.stringToArrayList(PadUtils.centerPad(
-						String.format("Loading - %.0f%%", loadPercent * 100)
-						, reallyBadGrid.getWidth())),
+						String.format("Loading - %.0f%%", loadPercent * 100),
+						reallyBadGrid.getWidth())),
 				OutputDefaults.RESET_COLOR,
 				TextureUtils.interpolateRGB(
 						new Color(40, 237, 63),
-						new Color(
-							OutputDefaults.RESET_COLOR.getRed(),
-							OutputDefaults.RESET_COLOR.getGreen(),
-							OutputDefaults.RESET_COLOR.getBlue()
-						),
+						OutputDefaults.RESET_COLOR,
 						doneFadeoutAnimation
 				)
 		);

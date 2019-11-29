@@ -16,6 +16,9 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 
 	private static final String PIXEL_CHAR = "\u2580";
 	private Terminal terminal;
+	private static final boolean SHOW_FPS = true;
+	private double fps = 1;
+	private long lastRenderTime;
 	private static final ArcAnsi CLEAR = ArcAnsi.ansi().moveCursor(0, 0).clearScreenAndBuffer().resetAll();
 	
 	public AnsiOutputRenderer() {
@@ -29,6 +32,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 				
 			}
 			terminal.enterRawMode();
+			lastRenderTime = System.currentTimeMillis();
 		} catch (Exception e) {
 			System.err.println("Could not init terminal, aborting launch...");
 			e.printStackTrace();
@@ -48,11 +52,13 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					String leftPad = PadUtils.leftPad("", (int)Math.ceil(leftPadSpaces) - 1);
 					String rightPad = PadUtils.leftPad("", (int)Math.floor(leftPadSpaces));
 					String linePad = PadUtils.stringTimes(" ", s.getColumns());
-					String blankLinesTop = PadUtils.stringTimes(linePad + "\n", (int)Math.ceil(topPadSpaces) - 1);
+					String blankLinesTop = PadUtils.stringTimes(linePad + "\n", (int)Math.ceil(topPadSpaces) - (SHOW_FPS ? 2 : 1));
 					String blankLinesBottom = PadUtils.stringTimes(linePad + "\n", (int)Math.floor(topPadSpaces));
 					
 					//The top lines
-					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(OutputDefaults.RESET_COLOR).append(blankLinesTop);
+					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(OutputDefaults.RESET_COLOR);
+					if(SHOW_FPS) ansiBuilder.append(PadUtils.rightPad(String.format("%.0f FPS", fps), s.getColumns()));
+					ansiBuilder.append(blankLinesTop);
 					
 					//Print out each row like a printer would
 					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
@@ -94,6 +100,11 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 						System.out.print(toPrint + "\n");
 					}
 				}
+				
+				//FPS Benchmarking
+				long currTime = System.currentTimeMillis();
+				fps = 1000D / (currTime - lastRenderTime);
+				lastRenderTime = currTime;
 			}
 		//}
 	}
@@ -110,6 +121,10 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 	
 	public Terminal getTerminal() {
 		return terminal;
+	}
+	
+	public double getFps() {
+		return fps;
 	}
 
 }
