@@ -16,7 +16,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 
 	private static final String PIXEL_CHAR = "\u2580";
 	private Terminal terminal;
-	private static final ArcAnsi CLEAR = ArcAnsi.ansi().moveCursor(0, 0).clearScreen().resetAll();
+	private static final ArcAnsi CLEAR = ArcAnsi.ansi().moveCursor(0, 0).clearScreenAndBuffer().resetAll();
 	
 	public AnsiOutputRenderer() {
 		try {
@@ -81,7 +81,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					if (terminal.getType() != Terminal.TYPE_DUMB) {
 						terminal.writer().print(ansiBuilder);
 					} else {
-						System.out.print(Ansi.ansi().eraseScreen(Erase.ALL).reset());
+						System.out.print(CLEAR);
 						System.out.print(ansiBuilder);
 					}
 				} else {

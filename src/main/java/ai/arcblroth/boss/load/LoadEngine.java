@@ -39,8 +39,7 @@ public class LoadEngine implements IEngine {
 	@Override
 	@SubscribeEvent
 	public void handleKeyInput(KeyInputEvent e) {
-		loadPercent = e.getKey();
-		updateStatus();
+		
 	}
 
 	@Override
