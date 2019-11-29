@@ -6,16 +6,34 @@ import ai.arcblroth.boss.render.PixelGrid;
 public class TextureUtils {
 	
 	public static Color interpolate(Color color1, Color color2, double between) {
+		return interpolate(color1, color2, between, false);
+	}
+	
+	public static Color interpolate(Color color1, Color color2, double between, boolean lerp) {
 		double[] c1HSB = color1.getAsHSBA();
 		double[] c2HSB = color2.getAsHSBA();
+		
+		double finalHue = c1HSB[0] + between * (c2HSB[0] - c1HSB[0]);
+		
+		//Color lerping
+		if(lerp) {
+			double delta = c2HSB[0] - c1HSB[0];
+			if(delta > 0.5) {
+				c1HSB[0] = c1HSB[0] + 1;
+				finalHue = Math.abs((c1HSB[0] + between * (c2HSB[0] - c1HSB[0])) % 1);
+			}
+		}
+		
 		return Color.getFromHSBA(
-				c1HSB[0] + between * (c2HSB[0] - c1HSB[0]),
+				finalHue,
 				c1HSB[1] + between * (c2HSB[1] - c1HSB[1]),
 				c1HSB[2] + between * (c2HSB[2] - c1HSB[2]),
 				c1HSB[3] + between * (c2HSB[3] - c1HSB[3]));
 	}
 	
 	public static PixelGrid tintColor(PixelGrid in, Color tint) {
+		//Don't modify original
+		in = new PixelGrid(in);
 		Color solidTint = new Color(tint.getRed(), tint.getGreen(), tint.getBlue());
 		int tintAlpha = tint.getAlpha();
 		for (int rowNum = 0; rowNum < in.getHeight(); rowNum++) {
