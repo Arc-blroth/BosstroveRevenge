@@ -3,6 +3,7 @@ package ai.arcblroth.boss.load;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ai.arcblroth.boss.consoleio.OutputDefaults;
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.event.SubscribeEvent;
@@ -19,12 +20,15 @@ import ai.arcblroth.boss.util.TextureUtils;
 public class LoadEngine implements IEngine {
 	
 	private double loadPercent = 0;
+	private double doneFadeoutAnimation = 0;
 	private PixelAndTextGrid reallyBadGrid;
 	private int arbitraryPaddingHeight = 8 * 2;
+	private PixelGrid origLogo;
 	private PixelGrid logo;
 	
 	public LoadEngine() {
-		logo = TextureUtils.tintColor(PNGLoader.loadPNG(new ResourceLocation("bitmap.png")), new Color(41, 187, 255));
+		origLogo = TextureUtils.tintColor(PNGLoader.loadPNG(new ResourceLocation("bitmap.png")), new Color(41, 187, 255));
+		logo = new PixelGrid(origLogo);
 		reallyBadGrid = new PixelAndTextGrid(logo.getWidth(), logo.getHeight() + arbitraryPaddingHeight);
 		reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
 		updateStatus();
@@ -33,7 +37,22 @@ public class LoadEngine implements IEngine {
 	@Override
 	@SubscribeEvent
 	public void step(StepEvent e) {
-		
+		if(loadPercent < 1) {
+			loadPercent += 0.01;
+			updateStatus();
+		} else {
+			if(doneFadeoutAnimation <= 1) {
+				doneFadeoutAnimation += 0.05;
+				logo = TextureUtils.tintColor(origLogo, new Color(
+						OutputDefaults.RESET_COLOR.getRed(),
+						OutputDefaults.RESET_COLOR.getGreen(),
+						OutputDefaults.RESET_COLOR.getBlue() + 1,
+						(int)Math.round(doneFadeoutAnimation * 255)
+				));
+				reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
+				updateStatus();
+			}
+		}
 	}
 
 	@Override
@@ -58,8 +77,16 @@ public class LoadEngine implements IEngine {
 				PadUtils.stringToArrayList(PadUtils.centerPad(
 						String.format("Loading - %.0f%%", loadPercent * 100)
 						, reallyBadGrid.getWidth())),
-				Color.BLACK,
-				new Color(40, 237, 63)
+				OutputDefaults.RESET_COLOR,
+				TextureUtils.interpolate(
+						new Color(40, 237, 63),
+						new Color(
+							OutputDefaults.RESET_COLOR.getRed(),
+							OutputDefaults.RESET_COLOR.getGreen() + 1,
+							OutputDefaults.RESET_COLOR.getBlue()
+						),
+						doneFadeoutAnimation
+				)
 		);
 	}
 

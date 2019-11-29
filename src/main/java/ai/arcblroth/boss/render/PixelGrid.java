@@ -11,7 +11,17 @@ public class PixelGrid {
 
 	private ArrayList<ArrayList<Color>> grid;
 	private int width, height;
-
+	
+	public PixelGrid(PixelGrid pg) {
+		this(pg.getWidth(), pg.getHeight());
+		
+		for (int hi = 0; hi < getHeight(); hi++) {
+			for (int wi = 0; wi < getWidth(); wi++) {
+				this.setPixel(wi, hi, pg.getPixel(wi, hi));
+			}
+		}
+	}
+	
 	public PixelGrid(int width, int height) {
 		this.grid = new ArrayList<ArrayList<Color>>(height);
 		this.width = width;
