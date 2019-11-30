@@ -20,7 +20,7 @@ public class ConsoleInputHandler {
 	}
 	
 	@SubscribeEvent
-	public void handleInput(ConsoleInputEvent cie) {
+	public void handleInput(ConsoleInputEvent cie) throws Throwable {
 		Terminal t = cie.getTerminal();
 		NonBlockingReader nbe = t.reader();
 		try {

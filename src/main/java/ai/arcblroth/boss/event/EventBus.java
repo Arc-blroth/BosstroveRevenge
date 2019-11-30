@@ -30,7 +30,7 @@ public class EventBus {
 		this.logger = Logger.getLogger("EventBus-" + ID);
 	}
 
-	public void fireEvent(IEvent e) {
+	public void fireEvent(IEvent e) throws Throwable {
 		if(subscribers.containsKey(e.getClass())) {
 			if (subscribers.get(e.getClass()) != null) {
 				Object instance = subscribers.get(e.getClass()).getFirst();
@@ -38,12 +38,14 @@ public class EventBus {
 					Parameter[] args = sub.getParameters();
 					if (args.length == 1 && args[0].getType().equals(e.getClass())) {
 						try {
-							logger.log(Level.FINE, "Invoking method: " + sub.getClass().getName() + "::" + sub.getName());
+							logger.log(Level.FINE, "Invoking method: " + sub.getClass().getName() + "." + sub.getName());
 							sub.invoke(instance, e);
-						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+						} catch (IllegalAccessException e1) {
 							// Shut it up!
 							logger.log(Level.FINE,
-									"Method invocation failed: " + sub.getClass().getName() + "::" + sub.getName(), e1);
+									"Method invocation failed: " + sub.getClass().getName() + "." + sub.getName(), e1);
+						} catch (InvocationTargetException e1) {
+							throw e1.getCause();
 						}
 					}
 				}

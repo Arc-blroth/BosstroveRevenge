@@ -72,7 +72,11 @@ public final class BosstrovesRevenge extends Thread {
 				globalEventBus.fireEvent(new ConsoleInputEvent(outputRenderer.getTerminal()));
 			}
 		} catch (Throwable e) {
-			Logger.getGlobal().log(Level.SEVERE, "FATAL ERROR", e);
+			if(!(System.getProperty(Main.FORCE_NORENDER) != null && System.getProperty(Main.FORCE_NORENDER).equals("true"))) {
+				outputRenderer.displayFatalError(e);
+			} else {
+				Logger.getGlobal().log(Level.SEVERE, "FATAL ERROR", e);
+			}
 			ThreadUtils.waitForever();
 		}
 	}

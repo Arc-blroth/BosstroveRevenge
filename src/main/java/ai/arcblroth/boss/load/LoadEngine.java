@@ -22,7 +22,7 @@ public class LoadEngine implements IEngine {
 	private double loadPercent = 0;
 	private double doneFadeoutAnimation = 0;
 	private PixelAndTextGrid reallyBadGrid;
-	private int arbitraryPaddingHeight = 8 * 2;
+	private static final int arbitraryPaddingHeight = 8 * 2;
 	private PixelGrid origLogo;
 	private PixelGrid logo;
 	
@@ -49,6 +49,7 @@ public class LoadEngine implements IEngine {
 				));
 				reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
 			}
+			throw new RuntimeException("Test");
 		}
 		updateStatus();
 	}

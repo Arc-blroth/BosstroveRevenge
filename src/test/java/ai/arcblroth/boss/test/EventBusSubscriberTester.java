@@ -9,7 +9,7 @@ import ai.arcblroth.boss.event.SubscribeEvent;
 public class EventBusSubscriberTester {
 	
 	@Test
-	public void test() {
+	public void test() throws Throwable {
 		EventBus eb = new EventBus();
 		eb.subscribe(EventBusSubscriberTester.class);
 		eb.fireEvent(new TestEvent("testing123"));

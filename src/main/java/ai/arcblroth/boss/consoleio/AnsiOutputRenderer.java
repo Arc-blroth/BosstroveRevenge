@@ -4,6 +4,7 @@ import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Erase;
 import org.jline.terminal.*;
 import ai.arcblroth.boss.Main;
+import ai.arcblroth.boss.crash.CrashReportGenerator;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.Pair;
@@ -16,6 +17,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 	
 	private static final String PIXEL_CHAR = "\u2580";
 	private Terminal terminal;
+	private Throwable error;
 	
 	private static final boolean SHOW_FPS = true;
 	private double fps = 1;
@@ -118,6 +120,15 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 				lastRenderTime = currTime;
 			}
 		//}
+	}
+
+	public void displayFatalError(Throwable e) {
+		error = e;
+		System.out.print(ArcAnsi.ansi()
+				.moveCursor(1, 1).bgColor(Color.WHITE).fgColor(Color.RED)
+				.clearScreenAndBuffer().clearScreen()
+				.moveCursor(1, 1).bgColor(Color.WHITE).fgColor(Color.RED));
+		System.out.print(CrashReportGenerator.generateCrashReport(e));
 	}
 	
 	public void clear() {
