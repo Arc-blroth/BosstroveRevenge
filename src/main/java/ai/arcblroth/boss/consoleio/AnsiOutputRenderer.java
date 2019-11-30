@@ -13,12 +13,15 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 public class AnsiOutputRenderer implements IOutputRenderer {
-
+	
 	private static final String PIXEL_CHAR = "\u2580";
 	private Terminal terminal;
+	
 	private static final boolean SHOW_FPS = true;
 	private double fps = 1;
 	private long lastRenderTime;
+	private static final long BYTES_IN_MEGABYTE = 1000000;
+	
 	private static final ArcAnsi CLEAR = ArcAnsi.ansi().moveCursor(0, 0).clearScreenAndBuffer().resetAll();
 	
 	public AnsiOutputRenderer() {
@@ -56,8 +59,16 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					String blankLinesBottom = PadUtils.stringTimes(linePad + "\n", (int)Math.floor(topPadSpaces));
 					
 					//The top lines
-					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(OutputDefaults.RESET_COLOR);
-					if(SHOW_FPS) ansiBuilder.append(PadUtils.rightPad(String.format("%.0f FPS", fps), s.getColumns()));
+					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(OutputDefaults.RESET_COLOR).fgColor(Color.WHITE);
+					
+					//FPS + memory
+					if(SHOW_FPS) {
+						ansiBuilder.append(PadUtils.rightPad(String.format("%.0f FPS", fps), (int)Math.floor(s.getColumns() / 2D)));
+						ansiBuilder.append(PadUtils.leftPad(String.format("%s MB / %s MB", 
+								Runtime.getRuntime().freeMemory() / BYTES_IN_MEGABYTE,
+								Runtime.getRuntime().totalMemory() / BYTES_IN_MEGABYTE
+						), (int)Math.ceil(s.getColumns() / 2D)));
+					}
 					ansiBuilder.append(blankLinesTop);
 					
 					//Print out each row like a printer would

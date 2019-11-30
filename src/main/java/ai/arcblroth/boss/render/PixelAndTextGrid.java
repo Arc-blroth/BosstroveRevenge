@@ -2,8 +2,6 @@ package ai.arcblroth.boss.render;
 
 import java.util.ArrayList;
 
-import org.junit.Assert;
-
 import ai.arcblroth.boss.consoleio.OutputDefaults;
 import ai.arcblroth.boss.util.Pair;
 
