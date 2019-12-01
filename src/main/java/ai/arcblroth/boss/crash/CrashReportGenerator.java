@@ -18,7 +18,7 @@ public class CrashReportGenerator {
 			"The game is a lie.",
 			"Crash sequence initiated",
 			"I can't crash you without getting closer!",
-			"99% - [insert www.nooooooooooooooo.com button]"
+			"[insert www.nooooooooooooooo.com button]"
 	};
 	
 	private CrashReportGenerator() {}

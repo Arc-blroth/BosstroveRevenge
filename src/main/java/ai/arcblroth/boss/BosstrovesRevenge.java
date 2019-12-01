@@ -63,8 +63,7 @@ public final class BosstrovesRevenge extends Thread {
 			outputRenderer.clear();
 			
 			//the first Engine initilizes all assets and classes
-			this.engine = new LoadEngine();
-			globalEventBus.subscribe(engine, engine.getClass());
+			setEngine(new LoadEngine());
 			
 			while (true) {
 				globalEventBus.fireEvent(new StepEvent());
@@ -83,5 +82,13 @@ public final class BosstrovesRevenge extends Thread {
 
 	public EventBus getEventBus() {
 		return globalEventBus;
+	}
+	
+	public void setEngine(IEngine e) {
+		if(this.engine != null) {
+			globalEventBus.unsubscribe(engine.getClass());
+		}
+		this.engine = e;
+		globalEventBus.subscribe(e, e.getClass());
 	}
 }

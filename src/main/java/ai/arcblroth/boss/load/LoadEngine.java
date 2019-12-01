@@ -3,10 +3,12 @@ package ai.arcblroth.boss.load;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.consoleio.OutputDefaults;
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.event.SubscribeEvent;
+import ai.arcblroth.boss.game.WorldEngine;
 import ai.arcblroth.boss.in.KeyInputEvent;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.IRenderer;
@@ -19,9 +21,11 @@ import ai.arcblroth.boss.util.TextureUtils;
 
 public class LoadEngine implements IEngine {
 
-	private double loadPercent = 0;
+	private double loadPercent = 1;
 	private double doneFadeoutAnimation = 0;
+	
 	private PixelAndTextGrid reallyBadGrid;
+	private IRenderer renderer;
 	private static final int arbitraryPaddingHeight = 8 * 2;
 	private PixelGrid origLogo;
 	private PixelGrid logo;
@@ -31,13 +35,19 @@ public class LoadEngine implements IEngine {
 		logo = new PixelGrid(origLogo);
 		reallyBadGrid = new PixelAndTextGrid(logo.getWidth(), logo.getHeight() + arbitraryPaddingHeight);
 		reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
+		renderer = new IRenderer() {
+			@Override
+			public PixelAndTextGrid render() {
+				return reallyBadGrid;
+			}
+		};
 	}
 	
 	@Override
 	@SubscribeEvent
 	public void step(StepEvent e) {
 		if(loadPercent < 1) {
-			loadPercent += 0.01;
+			loadPercent += 0.1;
 		} else {
 			if(doneFadeoutAnimation <= 1) {
 				doneFadeoutAnimation += 0.05;
@@ -48,8 +58,10 @@ public class LoadEngine implements IEngine {
 						(int)Math.round(doneFadeoutAnimation * 255)
 				));
 				reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
+			} else {
+				WorldEngine wee = new WorldEngine();
+				BosstrovesRevenge.get().setEngine(wee);
 			}
-			throw new RuntimeException("Test");
 		}
 		updateStatus();
 	}
@@ -62,19 +74,14 @@ public class LoadEngine implements IEngine {
 
 	@Override
 	public IRenderer getRenderer() {
-		return new IRenderer() {
-			@Override
-			public PixelAndTextGrid render() {
-				return reallyBadGrid;
-			}
-		};
+		return renderer;
 	}
 	
 	private void updateStatus() {
 		reallyBadGrid.setCharacterRow(
 				logo.getHeight() +  arbitraryPaddingHeight - 2,
 				PadUtils.stringToArrayList(PadUtils.centerPad(
-						String.format("Loading - %.0f%%", loadPercent * 100),
+						String.format("Loading - %.0f%%", Math.min(loadPercent * 100, 100)),
 						reallyBadGrid.getWidth())),
 				OutputDefaults.RESET_COLOR,
 				TextureUtils.interpolateRGB(

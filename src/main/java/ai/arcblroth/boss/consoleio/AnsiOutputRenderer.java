@@ -49,7 +49,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 		//if(pg != null) {
 			if(!(System.getProperty(Main.FORCE_NORENDER) != null && System.getProperty(Main.FORCE_NORENDER).equals("true"))) {
 				Size s = terminal.getSize();
-				if (s.getColumns() >= pg.getWidth() && s.getRows() >= pg.getHeight() / 2) {
+				if (terminal.getType().equals(Terminal.TYPE_DUMB) || (s.getColumns() >= pg.getWidth() && s.getRows() >= pg.getHeight() / 2)) {
 					
 					double leftPadSpaces = (s.getColumns() - pg.getWidth()) / 2D;
 					double topPadSpaces = (s.getRows() - pg.getHeight() / 2D) / 2D;
