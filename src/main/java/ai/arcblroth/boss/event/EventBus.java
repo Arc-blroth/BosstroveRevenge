@@ -5,6 +5,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,9 +18,10 @@ public class EventBus {
 	private static int GLOBAL_ID_COUNTER = 0;
 	private int ID;
 	private Logger logger;
-	//This HashMap maps a Class to an instance of that class and the subscribed methods of that class.
-	private ConcurrentHashMap<Class<?>, Pair<?, ArrayList<Method>>> subscribers = new ConcurrentHashMap<Class<?>, Pair<?, ArrayList<Method>>>();
-	private ArrayList<Class<?>> subscribedClasses = new ArrayList<Class<?>>();
+	//This HashMap maps an Event to its subscribed classes and methods
+	private ConcurrentHashMap<Class<?>, ConcurrentHashMap<Class<?>, ArrayList<Method>>> subscribers = new ConcurrentHashMap<>();
+	//This HashMap stores all Subscribed classes, and instances of those classes
+	private ConcurrentHashMap<Class<?>, Object> subscribedClasses = new ConcurrentHashMap<>();
 
 	public EventBus() {
 		this(++GLOBAL_ID_COUNTER);
@@ -30,22 +33,24 @@ public class EventBus {
 		this.logger = Logger.getLogger("EventBus-" + ID);
 	}
 
-	public void fireEvent(IEvent e) throws Throwable {
+	@SuppressWarnings("unchecked")
+	public synchronized void fireEvent(IEvent e) throws Throwable {
 		if(subscribers.containsKey(e.getClass())) {
 			if (subscribers.get(e.getClass()) != null) {
-				Object instance = subscribers.get(e.getClass()).getFirst();
-				for (Method sub : subscribers.get(e.getClass()).getSecond()) {
-					Parameter[] args = sub.getParameters();
-					if (args.length == 1 && args[0].getType().equals(e.getClass())) {
-						try {
-							logger.log(Level.FINE, "Invoking method: " + sub.getClass().getName() + "." + sub.getName());
-							sub.invoke(instance, e);
-						} catch (IllegalAccessException e1) {
-							// Shut it up!
-							logger.log(Level.FINE,
-									"Method invocation failed: " + sub.getClass().getName() + "." + sub.getName(), e1);
-						} catch (InvocationTargetException e1) {
-							throw e1.getCause();
+				for (ArrayList<Method> subs : subscribers.get(e.getClass()).values()) {
+					for (Method sub : (ArrayList<Method>)subs) {
+						Parameter[] args = sub.getParameters();
+						if (args.length == 1 && args[0].getType().equals(e.getClass())) {
+							try {
+								logger.log(Level.FINE, "Invoking method: " + sub.getDeclaringClass().getName() + "." + sub.getName());
+								sub.invoke(subscribedClasses.get(sub.getDeclaringClass()), e);
+							} catch (IllegalAccessException e1) {
+								// Shut it up!
+								logger.log(Level.FINE,
+										"Method invocation failed: " + sub.getDeclaringClass().getName() + "." + sub.getName(), e1);
+							} catch (InvocationTargetException e1) {
+								throw e1.getCause();
+							}
 						}
 					}
 				}
@@ -53,36 +58,37 @@ public class EventBus {
 		}
 	}
 	
-	public <T> void subscribe(T instance, Class<? extends T> clazz) {
+	public synchronized <T> void subscribe(T instance, Class<? extends T> clazz) {
 		try {
 			if (!subscribedClasses.contains(clazz)) {
 				for (Method method : clazz.getMethods()) {
 					if (method.isAnnotationPresent(SubscribeEvent.class)) {
-						if(!subscribers.containsKey(method.getParameterTypes()[0])) {
-							subscribers.put(method.getParameterTypes()[0], 
-									new Pair<T, ArrayList<Method>>(instance, new ArrayList<Method>()));
+						if(subscribers.get(method.getParameterTypes()[0]) == null) {
+							subscribers.put(method.getParameterTypes()[0], new ConcurrentHashMap<Class<?>, ArrayList<Method>>());
 						}
-						
+						if(subscribers.get(method.getParameterTypes()[0]).get(clazz) == null) {
+							subscribers.get(method.getParameterTypes()[0]).put(clazz, new ArrayList<Method>());
+						}
 						if (Modifier.isStatic(method.getModifiers())) {
 							// Since method is static, there are no implict parameters
 							if (method.getParameterCount() == 1) {
 								logger.log(Level.FINE, "Subscribed method " + clazz.getName() + "::" + method.getName());
-								subscribers.get(method.getParameterTypes()[0]).getSecond().add(method);
+								subscribers.get(method.getParameterTypes()[0]).get(clazz).add(method);
 							}
 						} else if(method.getParameterCount() == 1) {
 								logger.log(Level.FINE, "Subscribed method " + clazz.getName() + "." + method.getName());
-								subscribers.get(method.getParameterTypes()[0]).getSecond().add(method);
+								subscribers.get(method.getParameterTypes()[0]).get(clazz).add(method);
 						}
 					}
 				}
-				subscribedClasses.add(clazz);
+				subscribedClasses.put(clazz, instance);
 			}
 		} catch (Exception e) {
-			logger.log(Level.INFO, "Could not subscribe class " + clazz.getName());
+			logger.log(Level.FINE, "Could not subscribe class " + clazz.getName(), e);
 		}
 	}
 
-	public <T> void subscribe(Class<T> clazz) {
+	public synchronized <T> void subscribe(Class<T> clazz) {
 		try {
 			if (!subscribedClasses.contains(clazz)) {
 				//We'll have to construct an instance of the class.
@@ -91,13 +97,15 @@ public class EventBus {
 				subscribe(instance, clazz);
 			}
 		} catch (Exception e) {
-			logger.log(Level.FINE, "Could not subscribe class " + clazz.getName());
+			logger.log(Level.FINE, "Could not subscribe class " + clazz.getName(), e);
 		}
 			
 	}
 	
-	public <T> boolean unsubscribe(Class<T> clazz) {
-		return subscribedClasses.remove(clazz);
+	public synchronized <T> void unsubscribe(Class<T> clazz) {
+		subscribedClasses.remove(clazz);
+		subscribers.values().removeIf((map) -> map.containsKey(clazz));
+		logger.log(Level.FINE, "Unsubscribed class " + clazz.getName());
 	}
 
 }
