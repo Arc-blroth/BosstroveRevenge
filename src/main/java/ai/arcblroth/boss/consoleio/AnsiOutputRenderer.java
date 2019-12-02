@@ -6,6 +6,7 @@ import org.jline.terminal.*;
 import ai.arcblroth.boss.Main;
 import ai.arcblroth.boss.crash.CrashReportGenerator;
 import ai.arcblroth.boss.render.*;
+import ai.arcblroth.boss.util.OutputDefaults;
 import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.Pair;
 

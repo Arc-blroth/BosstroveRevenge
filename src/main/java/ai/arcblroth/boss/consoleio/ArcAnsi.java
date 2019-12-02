@@ -1,6 +1,7 @@
 package ai.arcblroth.boss.consoleio;
 
 import ai.arcblroth.boss.render.Color;
+import ai.arcblroth.boss.util.OutputDefaults;
 import ai.arcblroth.boss.util.TextureUtils;
 
 public class ArcAnsi {

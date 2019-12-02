@@ -9,9 +9,9 @@ import ar.com.hjg.pngj.PngReader;
 
 public final class PNGLoader {
 
-	public static Texture loadPNG(ResourceLocation resourceLocation) throws NullPointerException {
+	public static Texture loadPNG(Resource resource) throws NullPointerException {
 		try {
-			PngReader pngr = new PngReader(resourceLocation.resolve().openStream());
+			PngReader pngr = new PngReader(resource.resolve().openStream());
 			Texture t = new Texture(pngr.imgInfo.cols, pngr.imgInfo.rows);
 			int channels = pngr.imgInfo.channels;
 			for (int row = 0; row < pngr.imgInfo.rows; row++) {
@@ -38,7 +38,7 @@ public final class PNGLoader {
 			throw e;
 		}  catch (IOException e) {
 			NullPointerException npe = new NullPointerException(
-					"Could not read PNG resource " + resourceLocation.toString());
+					"Could not read PNG resource " + resource.toString());
 			npe.initCause(e);
 			throw npe;
 		}

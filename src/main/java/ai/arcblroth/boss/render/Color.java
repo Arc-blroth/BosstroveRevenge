@@ -21,6 +21,8 @@ public class Color {
     public static final Color MAGENTA = new Color(255, 0, 255);
     public static final Color CYAN = new Color(0, 255, 255);
     public static final Color BLUE = new Color(0, 0, 255);
+
+    public static final Color TRANSPARENT = new Color(0, 0, 0, 0);
     
 	private final int colorValue;
 	

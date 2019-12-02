@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.*;
 
-import ai.arcblroth.boss.consoleio.OutputDefaults;
 import ai.arcblroth.boss.render.Color;
+import ai.arcblroth.boss.util.OutputDefaults;
 
 public class PixelGrid {
 
@@ -23,6 +23,8 @@ public class PixelGrid {
 	}
 	
 	public PixelGrid(int width, int height) {
+		if(width < 1 || height < 1) throw new IllegalArgumentException("PixelGrid width and height must be >1");
+		
 		this.grid = new ArrayList<ArrayList<Color>>(height);
 		this.width = width;
 		this.height = height;

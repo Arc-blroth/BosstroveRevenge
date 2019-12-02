@@ -1,4 +1,4 @@
-package ai.arcblroth.boss.consoleio;
+package ai.arcblroth.boss.util;
 
 import ai.arcblroth.boss.render.Color;
 

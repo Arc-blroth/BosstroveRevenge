@@ -3,11 +3,11 @@ package ai.arcblroth.boss.resource;
 import java.io.File;
 import java.net.URL;
 
-public class ResourceLocation {
+public class Resource {
 
 	private String path;
 
-	public ResourceLocation(String... path) {
+	public Resource(String... path) {
 		if (path == null || path.length <= 0)
 			throw new IllegalArgumentException("Must specify at least one path component.");
 		StringBuilder pathBuilder = new StringBuilder();
@@ -22,7 +22,7 @@ public class ResourceLocation {
 	public URL resolve() throws NullPointerException {
 		URL resolved = Thread.currentThread().getContextClassLoader().getResource(this.path);
 		if (resolved == null) {
-			throw new NullPointerException("ResourceLocation at " + path + " doesn't exist!");
+			throw new NullPointerException("Resource at " + path + " doesn't exist!");
 		}
 		return resolved;
 	}

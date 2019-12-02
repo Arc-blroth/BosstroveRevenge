@@ -4,24 +4,28 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
-import ai.arcblroth.boss.consoleio.OutputDefaults;
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.StepEvent;
+import ai.arcblroth.boss.engine.tile.EmptyFloorTile;
+import ai.arcblroth.boss.engine.tile.EmptyWallTile;
 import ai.arcblroth.boss.event.SubscribeEvent;
 import ai.arcblroth.boss.game.WorldEngine;
 import ai.arcblroth.boss.in.KeyInputEvent;
+import ai.arcblroth.boss.register.FloorTileRegistry;
+import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.IRenderer;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.render.PixelGrid;
 import ai.arcblroth.boss.resource.PNGLoader;
-import ai.arcblroth.boss.resource.ResourceLocation;
+import ai.arcblroth.boss.resource.Resource;
+import ai.arcblroth.boss.util.OutputDefaults;
 import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.TextureUtils;
 
 public class LoadEngine implements IEngine {
 
-	private double loadPercent = 1;
+	private double loadPercent = 0;
 	private double doneFadeoutAnimation = 0;
 	
 	private PixelAndTextGrid reallyBadGrid;
@@ -31,7 +35,7 @@ public class LoadEngine implements IEngine {
 	private PixelGrid logo;
 	
 	public LoadEngine() {
-		origLogo = TextureUtils.tintColor(PNGLoader.loadPNG(new ResourceLocation("bitmap.png")), new Color(41, 166, 255));
+		origLogo = TextureUtils.tintColor(PNGLoader.loadPNG(new Resource("bitmap.png")), new Color(41, 166, 255));
 		logo = new PixelGrid(origLogo);
 		reallyBadGrid = new PixelAndTextGrid(logo.getWidth(), logo.getHeight() + arbitraryPaddingHeight);
 		reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
@@ -47,6 +51,11 @@ public class LoadEngine implements IEngine {
 	@SubscribeEvent
 	public void step(StepEvent e) {
 		if(loadPercent < 1) {
+			//This will be changed later
+			if(loadPercent == 0.1) {
+				FloorTileRegistry.get().register("empty", new EmptyFloorTile());
+				WallTileRegistry.register("empty", new EmptyWallTile());
+			}
 			loadPercent += 0.1;
 		} else {
 			if(doneFadeoutAnimation <= 1) {

@@ -60,7 +60,7 @@ public class Main {
 				String className = Main.class.getName();
 
 				if (IS_WINDOWS && !IS_CYGWIN && !IS_MINGW_XTERM && System.getProperty(FORCE_NOWINDOWS) == null) {
-					new ProcessBuilder("C:\\Windows\\System32\\cmd", "/K", "start", "Bosstrove's Revenge",
+					new ProcessBuilder("C:\\Windows\\System32\\cmd", "/C", "start", "Bosstrove's Revenge",
 							// "echo", "off", "&", "mode", (OUTPUT_WIDTH + "," + OUTPUT_HEIGHT/2), "&",
 							javaExe, switchRelaunched, switchSubscribingClassLoader, "-cp", classPath, className)
 									.start();

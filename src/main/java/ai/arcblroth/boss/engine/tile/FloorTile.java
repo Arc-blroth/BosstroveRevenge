@@ -1,8 +1,11 @@
 package ai.arcblroth.boss.engine.tile;
 
+import ai.arcblroth.boss.engine.entity.IEntity;
+import ai.arcblroth.boss.in.Keybind;
+import ai.arcblroth.boss.register.IRegistrable;
 import ai.arcblroth.boss.render.Texture;
 
-public class FloorTile implements ITile {
+public class FloorTile implements ITile, IRegistrable<FloorTile> {
 
 	private Texture texture;
 
@@ -26,12 +29,17 @@ public class FloorTile implements ITile {
 	}
 
 	@Override
-	public void onPlayerHit(Side s) {
+	public void onEntityHit(IEntity entity, Side s) {
 		
 	}
 
 	@Override
-	public void onPlayerStep() {
+	public void onEntityStep(IEntity entity) {
+		
+	}
+
+	@Override
+	public void onPlayerInteract(Keybind keybind) {
 		
 	}
 

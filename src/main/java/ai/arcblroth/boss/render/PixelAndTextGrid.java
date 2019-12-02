@@ -2,7 +2,7 @@ package ai.arcblroth.boss.render;
 
 import java.util.ArrayList;
 
-import ai.arcblroth.boss.consoleio.OutputDefaults;
+import ai.arcblroth.boss.util.OutputDefaults;
 import ai.arcblroth.boss.util.Pair;
 
 public class PixelAndTextGrid extends PixelGrid {

@@ -32,7 +32,7 @@ public class WorldEngine implements IEngine {
 		return new IRenderer() {
 			@Override
 			public PixelAndTextGrid render() {
-				return new PixelAndTextGrid(10, 10);
+				return new PixelAndTextGrid(1, 1);
 			}
 		};
 	}
