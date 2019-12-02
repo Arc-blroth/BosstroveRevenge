@@ -6,12 +6,13 @@ import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.register.FloorTileRegistry;
+import ai.arcblroth.boss.register.WallTileRegistry;
 
 public class Room {
 	
 	private ArrayList<ArrayList<FloorTile>> floorTiles;
 	private ArrayList<ArrayList<WallTile>> wallTiles;
-	private ArrayList<? extends IEntity> entities;
+	private ArrayList<IEntity> entities;
 	private int width, height;
 	
 	public Room(int width, int height) {
@@ -25,11 +26,25 @@ public class Room {
 		
 		for(int y = 0; y < height; y++) {
 			floorTiles.add(new ArrayList<>(width));
+			wallTiles.add(new ArrayList<>(width));
 			for(int x = 0; x < width; x++) {
 				floorTiles.get(y).add(FloorTileRegistry.getTile("empty"));
+				wallTiles.get(y).add(WallTileRegistry.getTile("empty"));
 			}
 		}
-		
 	}
+
+	public ArrayList<IEntity> getEntities() {
+		return entities;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+	
 	
 }
