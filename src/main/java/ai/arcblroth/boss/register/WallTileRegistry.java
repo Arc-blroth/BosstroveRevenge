@@ -2,22 +2,27 @@ package ai.arcblroth.boss.register;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.WallTile;
 
-public class WallTileRegistry<T extends WallTile> extends ConcurrentHashMap<String, T> {
+public class WallTileRegistry extends ConcurrentHashMap<String, WallTile> {
 	
-	private static final WallTileRegistry<? extends WallTile> INSTANCE = new WallTileRegistry<>();
+	private static final WallTileRegistry INSTANCE = new WallTileRegistry();
 	
 	private WallTileRegistry() {
 		super();
 	}
 	
-	public static WallTileRegistry<? extends WallTile> get() {
+	public static WallTileRegistry get() {
 		return INSTANCE;
 	}
 	
 	public static WallTile getTile(String key) {
 		return INSTANCE.get(key);
+	}
+	
+	public static void register(String key, WallTile wallTile) {
+		INSTANCE.put(key, wallTile);
 	}
 	
 }

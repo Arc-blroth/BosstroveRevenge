@@ -53,7 +53,7 @@ public class LoadEngine implements IEngine {
 		if(loadPercent < 1) {
 			//This will be changed later
 			if(loadPercent == 0.1) {
-				FloorTileRegistry.get().register("empty", new EmptyFloorTile());
+				FloorTileRegistry.register("empty", new EmptyFloorTile());
 				WallTileRegistry.register("empty", new EmptyWallTile());
 			}
 			loadPercent += 0.1;
