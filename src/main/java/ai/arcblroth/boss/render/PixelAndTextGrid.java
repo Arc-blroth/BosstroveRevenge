@@ -2,7 +2,7 @@ package ai.arcblroth.boss.render;
 
 import java.util.ArrayList;
 
-import ai.arcblroth.boss.util.OutputDefaults;
+import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.Pair;
 
 public class PixelAndTextGrid extends PixelGrid {
@@ -29,7 +29,7 @@ public class PixelAndTextGrid extends PixelGrid {
 		for (int hi = 0; hi < height / 2; hi++) {
 			ArrayList<Character> row = new ArrayList<Character>();
 			for (int wi = 0; wi < width; wi++) {
-				row.add(OutputDefaults.RESET_CHAR);
+				row.add(StaticDefaults.RESET_CHAR);
 			}
 			textGrid.add(row);
 		}
@@ -37,7 +37,7 @@ public class PixelAndTextGrid extends PixelGrid {
 		for (int hi = 0; hi < height; hi++) {
 			ArrayList<Color> row = new ArrayList<Color>();
 			for (int wi = 0; wi < width; wi++) {
-				row.add(OutputDefaults.RESET_COLOR);
+				row.add(StaticDefaults.RESET_COLOR);
 			}
 			textColorGrid.add(row);
 		}
@@ -59,7 +59,7 @@ public class PixelAndTextGrid extends PixelGrid {
 		if(characterRow.size() != getWidth()) throw new IllegalArgumentException("Character row must be of the same width as the PixelGrid");
 		textGrid.set(rowNum / 2, characterRow);
 		for(int col = 0; col < getWidth(); col++) {
-			if(characterRow.get(col) != OutputDefaults.RESET_CHAR) {
+			if(characterRow.get(col) != StaticDefaults.RESET_CHAR) {
 				textColorGrid.get(rowNum / 2 * 2).set(col, fore);
 				textColorGrid.get(rowNum / 2 * 2 + 1).set(col, back);
 			}
@@ -71,7 +71,7 @@ public class PixelAndTextGrid extends PixelGrid {
 		if (isTextCoordinateValid(x, y))
 			return textGrid.get(y).get(x);
 		else
-			return OutputDefaults.RESET_CHAR;
+			return StaticDefaults.RESET_CHAR;
 	}
 	
 	public void setCharacter(int x, int y, char c) {
@@ -97,7 +97,7 @@ public class PixelAndTextGrid extends PixelGrid {
 					textColorGrid.get(y / 2 * 2).get(x),
 					textColorGrid.get(y / 2 * 2 + 1).get(x));
 		else
-			return new Pair<Color, Color>(OutputDefaults.RESET_COLOR, OutputDefaults.RESET_COLOR);
+			return new Pair<Color, Color>(StaticDefaults.RESET_COLOR, StaticDefaults.RESET_COLOR);
 	}
 
 	private boolean isTextCoordinateValid(int x, int y) {

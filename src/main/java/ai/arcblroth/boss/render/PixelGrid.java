@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.concurrent.*;
 
 import ai.arcblroth.boss.render.Color;
-import ai.arcblroth.boss.util.OutputDefaults;
+import ai.arcblroth.boss.util.StaticDefaults;
 
 public class PixelGrid {
 
@@ -33,7 +33,7 @@ public class PixelGrid {
 		for (int hi = 0; hi < height; hi++) {
 			ArrayList<Color> row = new ArrayList<Color>(width);
 			for (int wi = 0; wi < width; wi++) {
-				row.add(OutputDefaults.RESET_COLOR);
+				row.add(StaticDefaults.RESET_COLOR);
 			}
 			grid.add(row);
 		}
@@ -43,7 +43,7 @@ public class PixelGrid {
 		if (isCoordinateValid(x, y))
 			return grid.get(y).get(x);
 		else
-			return OutputDefaults.RESET_COLOR;
+			return StaticDefaults.RESET_COLOR;
 	}
 
 	public void setPixel(int x, int y, Color c) {

@@ -6,7 +6,7 @@ import org.jline.terminal.*;
 import ai.arcblroth.boss.Main;
 import ai.arcblroth.boss.crash.CrashReportGenerator;
 import ai.arcblroth.boss.render.*;
-import ai.arcblroth.boss.util.OutputDefaults;
+import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.Pair;
 
@@ -33,7 +33,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					.nativeSignals(true)
 					.signalHandler(true ? Terminal.SignalHandler.SIG_DFL : Terminal.SignalHandler.SIG_IGN).build();
 			if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-				terminal.setSize(new Size(OutputDefaults.OUTPUT_HEIGHT, OutputDefaults.OUTPUT_WIDTH));
+				terminal.setSize(new Size(StaticDefaults.OUTPUT_HEIGHT, StaticDefaults.OUTPUT_WIDTH));
 			} else {
 				
 			}
@@ -62,7 +62,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					String blankLinesBottom = PadUtils.stringTimes(linePad + "\n", (int)Math.floor(topPadSpaces));
 					
 					//The top lines
-					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(OutputDefaults.RESET_COLOR).fgColor(Color.WHITE);
+					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(StaticDefaults.RESET_COLOR).fgColor(Color.WHITE);
 					
 					//FPS + memory
 					if(SHOW_FPS) {
@@ -77,25 +77,25 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					//Print out each row like a printer would
 					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
 						ArcAnsi rowBuilder = ArcAnsi.ansi();
-						rowBuilder.bgColor(OutputDefaults.RESET_COLOR).append(leftPad);
+						rowBuilder.bgColor(StaticDefaults.RESET_COLOR).append(leftPad);
 						ArrayList<Color> row1 = pg.getRow(rowNum);
 						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
 						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
 						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
-							if(rowTxt.get(colNum) == OutputDefaults.RESET_CHAR) {
+							if(rowTxt.get(colNum) == StaticDefaults.RESET_CHAR) {
 								rowBuilder.fgColor(row1.get(colNum)).bgColor(row2.get(colNum)).append(PIXEL_CHAR);
 							} else {
 								Pair<Color, Color> colors = pg.getColorsAt(colNum, rowNum);
 								rowBuilder.fgColor(colors.getFirst()).bgColor(colors.getSecond()).append(rowTxt.get(colNum).toString());
 							}
 						}
-						rowBuilder.resetAll().bgColor(OutputDefaults.RESET_COLOR);
+						rowBuilder.resetAll().bgColor(StaticDefaults.RESET_COLOR);
 						ansiBuilder.append(rowBuilder.toString());
 						ansiBuilder.append(rightPad + " \n");
 					}
 					
 					//The bottom lines
-					ansiBuilder.resetAll().bgColor(OutputDefaults.RESET_COLOR).append(blankLinesBottom).append(linePad).moveCursorLeft(s.getColumns());
+					ansiBuilder.resetAll().bgColor(StaticDefaults.RESET_COLOR).append(blankLinesBottom).append(linePad).moveCursorLeft(s.getColumns());
 					
 					//PRINT
 					if (terminal.getType() != Terminal.TYPE_DUMB) {

@@ -13,7 +13,7 @@ public final class EmptyFloorTile extends FloorTile {
 		TEXTURE = new Texture(size, size);
 		for(int y = 0; y < size; y++) {
 			for(int x = 0; x < size; x++) {
-				TEXTURE.setPixel(x, y, Color.TRANSPARENT);
+				TEXTURE.setPixel(x, y, Color.WHITE);
 			}
 		}
 	}

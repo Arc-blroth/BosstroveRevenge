@@ -38,6 +38,14 @@ public class Room {
 		return entities;
 	}
 
+	public ArrayList<ArrayList<FloorTile>> getFloorTiles() {
+		return floorTiles;
+	}
+
+	public ArrayList<ArrayList<WallTile>> getWallTiles() {
+		return wallTiles;
+	}
+
 	public int getWidth() {
 		return width;
 	}
