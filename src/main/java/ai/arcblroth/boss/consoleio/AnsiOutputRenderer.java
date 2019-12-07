@@ -17,6 +17,7 @@ import java.util.concurrent.*;
 public class AnsiOutputRenderer implements IOutputRenderer {
 	
 	private static final String PIXEL_CHAR = "\u2580";
+	private static final String FULL_CHAR = "\u2588";
 	private Terminal terminal;
 	private Throwable error;
 	
@@ -77,17 +78,51 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					//Print out each row like a printer would
 					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
 						ArcAnsi rowBuilder = ArcAnsi.ansi();
-						rowBuilder.bgColor(StaticDefaults.RESET_COLOR).append(leftPad);
+						rowBuilder.bgColor(StaticDefaults.RESET_COLOR).fgColor(StaticDefaults.RESET_COLOR).append(leftPad);
 						ArrayList<Color> row1 = pg.getRow(rowNum);
 						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
 						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
+						
+						//Optimization 1: Don't reprint colors for every pixel.
+						Color previousFgColor = StaticDefaults.RESET_COLOR;
+						Color previousBgColor = StaticDefaults.RESET_COLOR;
+						
 						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
+
 							if(rowTxt.get(colNum) == StaticDefaults.RESET_CHAR) {
-								rowBuilder.fgColor(row1.get(colNum)).bgColor(row2.get(colNum)).append(PIXEL_CHAR);
+								String toPrint = PIXEL_CHAR;
+								
+								if(!previousFgColor.equals(row1.get(colNum))) {
+									previousFgColor = row1.get(colNum);
+									rowBuilder.fgColor(previousFgColor);
+								}
+								//Optimization 2: If both colors are the same,
+								//print a space instead of the normal character.
+								if(previousFgColor.equals(row2.get(colNum))) {
+									toPrint = FULL_CHAR;
+								} else {
+									if(previousBgColor != row1.get(colNum)) {
+										previousBgColor = row2.get(colNum);
+										rowBuilder.bgColor(previousBgColor);
+									}
+								}
+								
+								rowBuilder.append(toPrint);
 							} else {
 								Pair<Color, Color> colors = pg.getColorsAt(colNum, rowNum);
-								rowBuilder.fgColor(colors.getFirst()).bgColor(colors.getSecond()).append(rowTxt.get(colNum).toString());
+								if(previousFgColor != colors.getFirst()) {
+									previousFgColor = colors.getFirst();
+								}
+								if(previousBgColor != colors.getSecond()) {
+									previousBgColor = colors.getSecond();
+								}
+								
+								rowBuilder.fgColor(previousFgColor);
+								rowBuilder.bgColor(previousBgColor);
+								rowBuilder.append(rowTxt.get(colNum).toString());
 							}
+							
+							
 						}
 						rowBuilder.resetAll().bgColor(StaticDefaults.RESET_COLOR);
 						ansiBuilder.append(rowBuilder.toString());

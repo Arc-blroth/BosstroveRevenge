@@ -56,7 +56,7 @@ public class LoadEngine implements IEngine {
 				FloorTileRegistry.register("empty", new EmptyFloorTile());
 				WallTileRegistry.register("empty", new EmptyWallTile());
 			}
-			loadPercent += 0.1;
+			loadPercent += 0.01;
 		} else {
 			if(doneFadeoutAnimation <= 1) {
 				doneFadeoutAnimation += 0.05;
