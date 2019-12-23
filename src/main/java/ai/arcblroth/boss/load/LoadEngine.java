@@ -21,6 +21,7 @@ import ai.arcblroth.boss.resource.PNGLoader;
 import ai.arcblroth.boss.resource.Resource;
 import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.PadUtils;
+import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.TextureUtils;
 
 public class LoadEngine implements IEngine {
@@ -29,8 +30,9 @@ public class LoadEngine implements IEngine {
 	private static final Color satBlue = new Color(41, 166, 255);
 	private static final Color lightBlue = new Color(107, 190, 250);
 	
+	private LoadProcess loadProcess;
+	
 	private double blueInterpolation = 0;
-	private double loadPercent = 0;
 	private double doneFadeoutAnimation = 0;
 	
 	private PixelAndTextGrid reallyBadGrid;
@@ -49,25 +51,20 @@ public class LoadEngine implements IEngine {
 				return reallyBadGrid;
 			}
 		};
+		loadProcess = new LoadProcess();
+		loadProcess.start();
 	}
 	
 	@Override
 	@SubscribeEvent
 	public void step(StepEvent e) {
-		if(loadPercent < 1) {
-			//This will be changed later
-			if(loadPercent == 0.1) {
-				FloorTileRegistry.register("empty", new EmptyFloorTile());
-				WallTileRegistry.register("empty", new EmptyWallTile());
-			}
+		if(!loadProcess.isDone()) {
 			
 			blueInterpolation += 0.01;
 			if(blueInterpolation >= 1) blueInterpolation = -1;
 			logo = TextureUtils.tintColorRGB(origLogo, 
 					TextureUtils.interpolate(satBlue, lightBlue, Math.abs(blueInterpolation))
 			);
-			
-			loadPercent += 0.01;
 		} else {
 			if(doneFadeoutAnimation <= 1) {
 				doneFadeoutAnimation += 0.05;
@@ -98,10 +95,11 @@ public class LoadEngine implements IEngine {
 	
 	private void updateStatus() {
 		reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
+		Pair<Double, String> loadStatus = loadProcess.getProgressRecord();
 		reallyBadGrid.setCharacterRow(
 				logo.getHeight() +  arbitraryPaddingHeight - 2,
 				PadUtils.stringToArrayList(PadUtils.centerPad(
-						String.format("Loading - %.0f%%", Math.min(loadPercent * 100, 100)),
+						String.format("%s - %.0f%%", loadStatus.getSecond(), Math.min(loadStatus.getFirst() * 100, 100)),
 						reallyBadGrid.getWidth())),
 				StaticDefaults.RESET_COLOR,
 				TextureUtils.interpolateRGB(
