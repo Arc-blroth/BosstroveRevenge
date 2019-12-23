@@ -7,11 +7,12 @@ import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
+import ai.arcblroth.boss.util.Grid2D;
 
 public class Room {
 	
-	private ArrayList<ArrayList<FloorTile>> floorTiles;
-	private ArrayList<ArrayList<WallTile>> wallTiles;
+	private Grid2D<FloorTile> floorTiles;
+	private Grid2D<WallTile> wallTiles;
 	private ArrayList<IEntity> entities;
 	private int width, height;
 	
@@ -20,29 +21,20 @@ public class Room {
 		
 		this.width = width;
 		this.height = height;
-		this.floorTiles = new ArrayList<>(height);
-		this.wallTiles = new ArrayList<>(height);
+		this.floorTiles = new Grid2D<FloorTile>(width, height, FloorTileRegistry.getTile("empty"));
+		this.wallTiles = new Grid2D<WallTile>(width, height, WallTileRegistry.getTile("empty"));
 		this.entities = new ArrayList<>();
-		
-		for(int y = 0; y < height; y++) {
-			floorTiles.add(new ArrayList<>(width));
-			wallTiles.add(new ArrayList<>(width));
-			for(int x = 0; x < width; x++) {
-				floorTiles.get(y).add(FloorTileRegistry.getTile("empty"));
-				wallTiles.get(y).add(WallTileRegistry.getTile("empty"));
-			}
-		}
 	}
 
 	public ArrayList<IEntity> getEntities() {
 		return entities;
 	}
 
-	public ArrayList<ArrayList<FloorTile>> getFloorTiles() {
+	public Grid2D<FloorTile> getFloorTiles() {
 		return floorTiles;
 	}
 
-	public ArrayList<ArrayList<WallTile>> getWallTiles() {
+	public Grid2D<WallTile> getWallTiles() {
 		return wallTiles;
 	}
 
