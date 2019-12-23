@@ -84,7 +84,14 @@ public class TextureUtils {
 	public static PixelGrid overlay(PixelGrid src, PixelGrid dest, int xOffset, int yOffset) {
 		for(int y = yOffset; y < dest.getHeight(); y++) {
 			for(int x = xOffset; x < dest.getWidth(); x++) {
-				dest.setPixel(x, y, src.getPixel(x - xOffset, y - yOffset));
+				Color destPx = dest.getPixel(x - xOffset, y - yOffset);
+				Color srcPx = src.getPixel(x - xOffset, y - yOffset);
+				dest.setPixel(x, y, 
+						TextureUtils.interpolate(
+								destPx,
+								srcPx,
+								(destPx.getAlpha())/255D)
+				);
 			}
 		}
 		return dest;

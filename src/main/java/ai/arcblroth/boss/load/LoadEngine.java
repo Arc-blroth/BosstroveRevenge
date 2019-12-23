@@ -24,18 +24,22 @@ import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.TextureUtils;
 
 public class LoadEngine implements IEngine {
-
+	
+	private static final int arbitraryPaddingHeight = 8 * 2;
+	private static final Color satBlue = new Color(41, 166, 255);
+	private static final Color lightBlue = new Color(107, 190, 250);
+	
+	private double blueInterpolation = 0;
 	private double loadPercent = 0;
 	private double doneFadeoutAnimation = 0;
 	
 	private PixelAndTextGrid reallyBadGrid;
 	private IRenderer renderer;
-	private static final int arbitraryPaddingHeight = 8 * 2;
 	private PixelGrid origLogo;
 	private PixelGrid logo;
 	
 	public LoadEngine() {
-		origLogo = TextureUtils.tintColor(PNGLoader.loadPNG(new Resource("bitmap.png")), new Color(41, 166, 255));
+		origLogo = TextureUtils.tintColor(PNGLoader.loadPNG(new Resource("bitmap.png")), satBlue);
 		logo = new PixelGrid(origLogo);
 		reallyBadGrid = new PixelAndTextGrid(logo.getWidth(), logo.getHeight() + arbitraryPaddingHeight);
 		reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
@@ -56,6 +60,13 @@ public class LoadEngine implements IEngine {
 				FloorTileRegistry.register("empty", new EmptyFloorTile());
 				WallTileRegistry.register("empty", new EmptyWallTile());
 			}
+			
+			blueInterpolation += 0.01;
+			if(blueInterpolation >= 1) blueInterpolation = -1;
+			logo = TextureUtils.tintColorRGB(origLogo, 
+					TextureUtils.interpolate(satBlue, lightBlue, Math.abs(blueInterpolation))
+			);
+			
 			loadPercent += 0.01;
 		} else {
 			if(doneFadeoutAnimation <= 1) {
@@ -66,7 +77,6 @@ public class LoadEngine implements IEngine {
 						StaticDefaults.RESET_COLOR.getBlue(),
 						(int)Math.round(doneFadeoutAnimation * 255)
 				));
-				reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
 			} else {
 				WorldEngine wee = new WorldEngine();
 				BosstrovesRevenge.get().setEngine(wee);
@@ -87,6 +97,7 @@ public class LoadEngine implements IEngine {
 	}
 	
 	private void updateStatus() {
+		reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
 		reallyBadGrid.setCharacterRow(
 				logo.getHeight() +  arbitraryPaddingHeight - 2,
 				PadUtils.stringToArrayList(PadUtils.centerPad(
