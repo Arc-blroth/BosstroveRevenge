@@ -26,6 +26,8 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 	private long lastRenderTime;
 	private static final long BYTES_IN_MEGABYTE = 1000000;
 	
+	public String debugLine = "";
+	
 	private static final ArcAnsi CLEAR = ArcAnsi.ansi().moveCursor(0, 0).clearScreenAndBuffer().resetAll();
 	
 	public AnsiOutputRenderer() {
@@ -60,7 +62,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					String rightPad = PadUtils.leftPad("", (int)Math.floor(leftPadSpaces));
 					String linePad = PadUtils.stringTimes(" ", s.getColumns());
 					String blankLinesTop = PadUtils.stringTimes(linePad + "\n", (int)Math.ceil(topPadSpaces) - (SHOW_FPS ? 2 : 1));
-					String blankLinesBottom = PadUtils.stringTimes(linePad + "\n", (int)Math.floor(topPadSpaces));
+					String blankLinesBottom = PadUtils.stringTimes(linePad + "\n", (int)Math.floor(topPadSpaces) - 1);
 					
 					//The top lines
 					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(StaticDefaults.RESET_COLOR).fgColor(Color.WHITE);
@@ -130,7 +132,14 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					}
 					
 					//The bottom lines
-					ansiBuilder.resetAll().bgColor(StaticDefaults.RESET_COLOR).append(blankLinesBottom).append(linePad).moveCursorLeft(s.getColumns());
+					ansiBuilder.resetAll().bgColor(StaticDefaults.RESET_COLOR).append(blankLinesBottom).append(linePad).append("\n");
+					if(debugLine.length() > s.getColumns()) {
+						ansiBuilder.append(debugLine.substring(0, s.getColumns()));
+					} else {
+						ansiBuilder.append(debugLine);
+					}
+					ansiBuilder.append(PadUtils.stringTimes(" ", Math.max(0, s.getColumns() - debugLine.length())));
+					ansiBuilder.moveCursorLeft(s.getColumns());
 					
 					//PRINT
 					if (terminal.getType() != Terminal.TYPE_DUMB) {
@@ -156,6 +165,10 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 				lastRenderTime = currTime;
 			}
 		//}
+	}
+	
+	public void setDebugLine(String s) {
+		debugLine = s;
 	}
 
 	public void displayFatalError(Throwable e) {
