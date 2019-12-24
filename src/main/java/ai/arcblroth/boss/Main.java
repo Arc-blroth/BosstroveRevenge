@@ -3,6 +3,7 @@ package ai.arcblroth.boss;
 import java.util.Locale;
 import java.util.logging.*;
 
+import ai.arcblroth.boss.consoleio.AnsiOutputRenderer;
 import ai.arcblroth.boss.load.SubscribingClassLoader;
 import ai.arcblroth.boss.util.ThreadUtils;
 
@@ -79,6 +80,7 @@ public class Main {
 					throw new IllegalStateException("The system class loader should be set:"
 							+ " -Djava.system.class.loader=" + SubscribingClassLoader.class.getName());
 				} else {
+					BosstrovesRevenge.get().init(new AnsiOutputRenderer());
 					BosstrovesRevenge.get().start();
 				}
 			}

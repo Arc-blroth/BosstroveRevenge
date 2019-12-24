@@ -15,7 +15,7 @@ import ai.arcblroth.boss.util.ThreadUtils;
 public final class BosstrovesRevenge extends Thread {
 
 	// Set the INSTANCE to final
-	protected static final BosstrovesRevenge INSTANCE;
+	private static final BosstrovesRevenge INSTANCE;
 	static {
 		BosstrovesRevenge preInst = null;
 		try {
@@ -31,9 +31,30 @@ public final class BosstrovesRevenge extends Thread {
 	private boolean isRunning = true;
 	private EventBus globalEventBus;
 	private IOutputRenderer outputRenderer;
-	private final Thread renderThread;
+	private Thread renderThread;
 	private final Object renderLock = new Object();
 	private IEngine engine;
+
+	void init(IOutputRenderer renderer) {
+		//Render setup
+		if (outputRenderer != null)
+			throw new IllegalStateException("OutputRenderer has already been initilized!");
+		outputRenderer = renderer;
+		
+		renderThread = new Thread(() -> {
+			this.setName(TITLE + " Render Thread");
+			while(isRunning) {
+				try {
+					synchronized(renderLock) {
+						renderLock.wait();
+						outputRenderer.render(engine.getRenderer().render());
+					}
+				} catch (InterruptedException e) {
+					
+				}
+			}
+		});
+	}
 
 	private BosstrovesRevenge(EventBus globalEventBus) throws Exception {
 		if (INSTANCE != null)
@@ -51,22 +72,6 @@ public final class BosstrovesRevenge extends Thread {
 		
 		//Register input hook
 		globalEventBus.subscribe(ConsoleInputHandler.class);
-		
-		//Render setup
-		this.outputRenderer = new AnsiOutputRenderer();
-		renderThread = new Thread(() -> {
-			this.setName(TITLE + " Render Thread");
-			while(isRunning) {
-				try {
-					synchronized(renderLock) {
-						renderLock.wait();
-						outputRenderer.render(engine.getRenderer().render());
-					}
-				} catch (InterruptedException e) {
-					
-				}
-			}
-		});
 	}
 
 	public static BosstrovesRevenge get() {
