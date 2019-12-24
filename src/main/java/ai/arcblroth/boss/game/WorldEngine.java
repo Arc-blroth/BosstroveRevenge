@@ -29,8 +29,11 @@ public class WorldEngine implements IEngine {
 	@Override
 	@SubscribeEvent
 	public void handleKeyInput(KeyInputEvent e) {
-		// TODO Auto-generated method stub
-
+		if(e.getKey() == 'd') {
+			renderer.setRenderOffset(renderer.getRenderOffsetX() + 1, renderer.getRenderOffsetY());
+		} else if(e.getKey() == 'a') {
+			renderer.setRenderOffset(renderer.getRenderOffsetX() - 1, renderer.getRenderOffsetY());
+		}
 	}
 
 	@Override

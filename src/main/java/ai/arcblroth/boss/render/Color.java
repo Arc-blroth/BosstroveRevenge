@@ -90,9 +90,9 @@ public class Color {
     	if(h < 0) h += 360;
     	if(new Double(h).isNaN()) h = 0;
     	return new double[] {
-    			h / 100D / 360D,
-    			s * 100D / 255D,
-    			b * 100D / 255D,
+    			h / 360D,
+    			s / 255D,
+    			b / 255D,
     			getAlpha()};
     }
     
@@ -102,9 +102,9 @@ public class Color {
     
     public static Color getFromHSBA(double h, double s, double b, double a) {
     	int red = 0, green = 0, blue = 0;
-    	double newHue = h * 100D * 360D / 60D;
-    	double newSat = s * 255D / 100D;
-    	double newBri = b * 255D / 100D;
+    	double newHue = h * 360D / 60D;
+    	double newSat = s * 255D;
+    	double newBri = b * 255D;
     	if(newSat == 0D) {
     		red = (int)Math.round(newBri);
     		green = (int)Math.round(newBri);

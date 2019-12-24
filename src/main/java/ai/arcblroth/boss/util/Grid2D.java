@@ -43,6 +43,10 @@ public class Grid2D<T> {
 		checkBounds(x, y);
 		return grid.get(y).get(x);
 	}
+
+	public T getOrNull(int x, int y) {
+		return checkBoundsNicely(x, y) ? grid.get(y).get(x) : null;
+	}
 	
 	public ArrayList<T> getRow(int y) {
 		checkBounds(0, y);
@@ -68,7 +72,12 @@ public class Grid2D<T> {
 	}
 
 	private void checkBounds(int x, int y) throws IllegalArgumentException {
-		if(x < 0 || y < 0 || x > width || y > height) throw new IllegalArgumentException("Grid x and y out of bounds!");
+		if(x < 0 || y < 0 || x >= width || y >= height) throw new IllegalArgumentException("Grid x and y out of bounds!");
+	}
+	
+	private boolean checkBoundsNicely(int x, int y) {
+		if(x < 0 || y < 0 || x >= width || y >= height) return false;
+		else return true;
 	}
 	
 }

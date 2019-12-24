@@ -28,8 +28,11 @@ public final class BosstrovesRevenge extends Thread {
 	}
 
 	public static final String TITLE = "Bosstrove's Revenge";
+	private boolean isRunning = true;
 	private EventBus globalEventBus;
-	private AnsiOutputRenderer outputRenderer;
+	private IOutputRenderer outputRenderer;
+	private final Thread renderThread;
+	private final Object renderLock = new Object();
 	private IEngine engine;
 
 	private BosstrovesRevenge(EventBus globalEventBus) throws Exception {
@@ -49,7 +52,21 @@ public final class BosstrovesRevenge extends Thread {
 		//Register input hook
 		globalEventBus.subscribe(ConsoleInputHandler.class);
 		
+		//Render setup
 		this.outputRenderer = new AnsiOutputRenderer();
+		renderThread = new Thread(() -> {
+			this.setName(TITLE + " Render Thread");
+			while(isRunning) {
+				try {
+					synchronized(renderLock) {
+						renderLock.wait();
+						outputRenderer.render(engine.getRenderer().render());
+					}
+				} catch (InterruptedException e) {
+					
+				}
+			}
+		});
 	}
 
 	public static BosstrovesRevenge get() {
@@ -64,11 +81,16 @@ public final class BosstrovesRevenge extends Thread {
 			
 			//the first Engine initilizes all assets and classes
 			setEngine(new LoadEngine());
+			renderThread.start();
 			
-			while (true) {
+			while (isRunning) {
 				globalEventBus.fireEvent(new StepEvent());
-				outputRenderer.render(engine.getRenderer().render());
-				globalEventBus.fireEvent(new ConsoleInputEvent(outputRenderer.getTerminal()));
+				synchronized(renderLock) {
+					renderLock.notifyAll();
+				}
+				if(outputRenderer instanceof AnsiOutputRenderer) {
+					globalEventBus.fireEvent(new ConsoleInputEvent(((AnsiOutputRenderer) outputRenderer).getTerminal()));
+				}
 			}
 		} catch (Throwable e) {
 			if(!(System.getProperty(Main.FORCE_NORENDER) != null && System.getProperty(Main.FORCE_NORENDER).equals("true"))) {
@@ -82,6 +104,10 @@ public final class BosstrovesRevenge extends Thread {
 
 	public EventBus getEventBus() {
 		return globalEventBus;
+	}
+	
+	public void setOutputDebug(Object o) {
+		outputRenderer.setDebugLine(o.toString());
 	}
 	
 	public void setEngine(IEngine e) {
