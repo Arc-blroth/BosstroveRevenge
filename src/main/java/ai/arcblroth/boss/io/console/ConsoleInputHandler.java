@@ -19,9 +19,7 @@ public class ConsoleInputHandler {
 		this.logger = Logger.getLogger("ConsoleInputHandler");
 	}
 	
-	@SubscribeEvent
-	public void handleInput(ConsoleInputEvent cie) throws Throwable {
-		Terminal t = cie.getTerminal();
+	public void handleInput(Terminal t) throws Throwable {
 		NonBlockingReader nbe = t.reader();
 		try {
 			while(nbe.ready()) {

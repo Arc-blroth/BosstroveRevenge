@@ -44,6 +44,7 @@ public final class BosstrovesRevenge extends Thread {
 		
 		renderThread = new Thread(() -> {
 			this.setName(TITLE + " Render Thread");
+			outputRenderer.init();
 			while(isRunning) {
 				try {
 					synchronized(renderLock) {
@@ -94,9 +95,7 @@ public final class BosstrovesRevenge extends Thread {
 				synchronized(renderLock) {
 					renderLock.notifyAll();
 				}
-				if(outputRenderer instanceof AnsiOutputRenderer) {
-					globalEventBus.fireEvent(new ConsoleInputEvent(((AnsiOutputRenderer) outputRenderer).getTerminal()));
-				}
+				outputRenderer.pollInput();
 			}
 		} catch (Throwable e) {
 			if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
@@ -123,4 +122,10 @@ public final class BosstrovesRevenge extends Thread {
 		this.engine = e;
 		globalEventBus.subscribe(e, e.getClass());
 	}
+	
+	public void shutdown() {
+		isRunning = false;
+		outputRenderer.dispose();
+	}
+	
 }

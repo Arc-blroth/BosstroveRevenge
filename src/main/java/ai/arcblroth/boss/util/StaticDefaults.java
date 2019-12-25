@@ -8,6 +8,8 @@ public final class StaticDefaults {
 	
 	public static final int OUTPUT_HEIGHT = 96;
 	public static final int OUTPUT_WIDTH = 128;
+	public static final int CHARACTER_WIDTH = 8;
+	public static final int CHARACTER_HEIGHT = 16;
 	public static final Color RESET_COLOR = Color.BLACK;
 	public static final Character RESET_CHAR = ' ';
 	

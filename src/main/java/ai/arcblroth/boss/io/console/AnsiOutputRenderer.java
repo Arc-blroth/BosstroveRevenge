@@ -20,6 +20,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 	private static final String PIXEL_CHAR = "\u2580";
 	private static final String FULL_CHAR = "\u2588";
 	private Terminal terminal;
+	ConsoleInputHandler cih = new ConsoleInputHandler();
 	private Throwable error;
 	
 	private static final boolean SHOW_FPS = true;
@@ -48,6 +49,10 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 			e.printStackTrace();
 			System.exit(-1);
 		}
+	}
+	
+	public void init() {
+		
 	}
 
 	public void render(PixelAndTextGrid pg) {
@@ -197,6 +202,15 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 	
 	public double getFps() {
 		return fps;
+	}
+
+	@Override
+	public void pollInput() {
+		try {
+			cih.handleInput(terminal);
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
 	}
 
 }
