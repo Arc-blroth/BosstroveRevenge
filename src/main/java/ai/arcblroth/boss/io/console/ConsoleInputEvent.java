@@ -1,4 +1,4 @@
-package ai.arcblroth.boss.consoleio;
+package ai.arcblroth.boss.io.console;
 
 import org.jline.terminal.Terminal;
 

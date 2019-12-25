@@ -3,11 +3,12 @@ package ai.arcblroth.boss;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import ai.arcblroth.boss.consoleio.*;
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.event.AutoSubscribeClass;
 import ai.arcblroth.boss.event.EventBus;
+import ai.arcblroth.boss.io.IOutputRenderer;
+import ai.arcblroth.boss.io.console.*;
 import ai.arcblroth.boss.load.LoadEngine;
 import ai.arcblroth.boss.load.SubscribingClassLoader;
 import ai.arcblroth.boss.util.ThreadUtils;
@@ -60,11 +61,11 @@ public final class BosstrovesRevenge extends Thread {
 		if (INSTANCE != null)
 			throw new IllegalStateException("Class has already been initilized!");
 
-		setName(TITLE + " Main");
+		setName(TITLE + " Relauncher");
 
 		// Register the EventBus subscribing hook
 		this.globalEventBus = globalEventBus;
-		((SubscribingClassLoader) Main.class.getClassLoader()).addHook((clazz) -> {
+		((SubscribingClassLoader) Relauncher.class.getClassLoader()).addHook((clazz) -> {
 			if(clazz.isAnnotationPresent(AutoSubscribeClass.class)) {
 				globalEventBus.subscribe(clazz);
 			}
@@ -98,7 +99,7 @@ public final class BosstrovesRevenge extends Thread {
 				}
 			}
 		} catch (Throwable e) {
-			if(!(System.getProperty(Main.FORCE_NORENDER) != null && System.getProperty(Main.FORCE_NORENDER).equals("true"))) {
+			if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
 				outputRenderer.displayFatalError(e);
 			} else {
 				Logger.getGlobal().log(Level.SEVERE, "FATAL ERROR", e);

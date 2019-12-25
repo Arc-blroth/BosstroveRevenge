@@ -1,10 +1,11 @@
-package ai.arcblroth.boss.consoleio;
+package ai.arcblroth.boss.io.console;
 
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Erase;
 import org.jline.terminal.*;
-import ai.arcblroth.boss.Main;
+import ai.arcblroth.boss.Relauncher;
 import ai.arcblroth.boss.crash.CrashReportGenerator;
+import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.PadUtils;
@@ -51,7 +52,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 
 	public void render(PixelAndTextGrid pg) {
 		//if(pg != null) {
-			if(!(System.getProperty(Main.FORCE_NORENDER) != null && System.getProperty(Main.FORCE_NORENDER).equals("true"))) {
+			if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
 				Size s = terminal.getSize();
 				if (terminal.getType().equals(Terminal.TYPE_DUMB) || (s.getColumns() >= pg.getWidth() && s.getRows() >= pg.getHeight() / 2)) {
 					
@@ -181,7 +182,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 	}
 	
 	public void clear() {
-		if(!(System.getProperty(Main.FORCE_NORENDER) != null && System.getProperty(Main.FORCE_NORENDER).equals("true"))) {
+		if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
 			if (terminal.getType() != Terminal.TYPE_DUMB) {
 				terminal.writer().print(CLEAR);
 			} else {

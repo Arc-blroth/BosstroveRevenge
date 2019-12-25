@@ -3,27 +3,17 @@ package ai.arcblroth.boss;
 import java.util.Locale;
 import java.util.logging.*;
 
-import ai.arcblroth.boss.consoleio.AnsiOutputRenderer;
+import ai.arcblroth.boss.io.console.AnsiOutputRenderer;
 import ai.arcblroth.boss.load.SubscribingClassLoader;
 import ai.arcblroth.boss.util.ThreadUtils;
 
 import java.io.File;
 
-/*
- * A note on external libraries:
- * all code in org.jline and org.fusesource.jansi
- * were fetched from the external Maven repository,
- * since repl.it doesn't support build tools as of yet.
- * Interestingly, jline is technically already included in
- * jdk.jline, but that module is restricted to the Java 10 JDK.
- *
- * Only code in ai.arcblroth is my own work :)
- */
-public class Main {
-	public static final String IS_RELAUNCHED = "ai.arcblroth.boss.Main.IS_RELAUNCHED";
-	public static final String FORCE_NOWINDOWS = "ai.arcblroth.boss.Main.FORCE_NOWINDOWS";
-	public static final String FORCE_NOSUBSCRIBINGCLASSLOADER = "ai.arcblroth.boss.Main.FORCE_NOSUBSCRIBINGCLASSLOADER";
-	public static final String FORCE_NORENDER = "ai.arcblroth.boss.Main.FORCE_NORENDER";
+public class Relauncher {
+	public static final String IS_RELAUNCHED = "ai.arcblroth.boss.Relauncher.IS_RELAUNCHED";
+	public static final String FORCE_NOWINDOWS = "ai.arcblroth.boss.Relauncher.FORCE_NOWINDOWS";
+	public static final String FORCE_NOSUBSCRIBINGCLASSLOADER = "ai.arcblroth.boss.Relauncher.FORCE_NOSUBSCRIBINGCLASSLOADER";
+	public static final String FORCE_NORENDER = "ai.arcblroth.boss.Relauncher.FORCE_NORENDER";
 
 	// Taken from the jansi source:
 	// https://github.com/fusesource/jansi/blob/master/jansi/src/main/java/org/fusesource/jansi/AnsiConsole.java
@@ -37,7 +27,7 @@ public class Main {
 			&& System.getenv("MSYSTEM").startsWith("MINGW") && "xterm".equals(System.getenv("TERM"));
 	// ------------------
 
-	public static void main(String[] args) throws Exception {
+	public static <M> void relaunch(Class<M> main, Runnable afterRelaunch) throws Exception {
 
 		//System.setProperty(FORCE_NOWINDOWS, "true");
 		//System.setProperty(FORCE_NOSUBSCRIBINGCLASSLOADER, "true");
@@ -53,12 +43,12 @@ public class Main {
 					&& System.getProperty(FORCE_NOSUBSCRIBINGCLASSLOADER) == null) {
 				String javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 				String classPath = System.getProperty("java.class.path") + File.pathSeparator
-						+ Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+						+ Relauncher.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
 				String switchRelaunched = "-D" + IS_RELAUNCHED
 						+ (System.getProperty(FORCE_NOSUBSCRIBINGCLASSLOADER) != null ? "=true" : "=false");
 				String switchSubscribingClassLoader = "-Djava.system.class.loader="
 						+ SubscribingClassLoader.class.getName();
-				String className = Main.class.getName();
+				String className = main.getName();
 
 				if (IS_WINDOWS && !IS_CYGWIN && !IS_MINGW_XTERM && System.getProperty(FORCE_NOWINDOWS) == null) {
 					new ProcessBuilder("C:\\Windows\\System32\\cmd", "/C", "start", "Bosstrove's Revenge",
@@ -76,12 +66,11 @@ public class Main {
 
 				// It's crucial that the SubscribingClassLoader is set, otherwise no hooks will
 				// work.
-				if (!(Main.class.getClassLoader() instanceof SubscribingClassLoader)) {
+				if (!(Relauncher.class.getClassLoader() instanceof SubscribingClassLoader)) {
 					throw new IllegalStateException("The system class loader should be set:"
 							+ " -Djava.system.class.loader=" + SubscribingClassLoader.class.getName());
 				} else {
-					BosstrovesRevenge.get().init(new AnsiOutputRenderer());
-					BosstrovesRevenge.get().start();
+					afterRelaunch.run();
 				}
 			}
 		} catch (Exception e) {

@@ -1,8 +1,26 @@
+import org.gradle.internal.os.OperatingSystem
 
 plugins {
     id 'java'
     id 'java-library'
     id 'application'
+}
+
+project.ext.lwjglVersion = "3.2.3"
+
+switch (OperatingSystem.current()) {
+	case OperatingSystem.LINUX:
+		def osArch = System.getProperty("os.arch")
+		project.ext.lwjglNatives = osArch.startsWith("arm") || osArch.startsWith("aarch64")
+			? "natives-linux-${osArch.contains("64") || osArch.startsWith("armv8") ? "arm64" : "arm32"}"
+			: "natives-linux"
+		break
+	case OperatingSystem.MAC_OS:
+		project.ext.lwjglNatives = "natives-macos"
+		break
+	case OperatingSystem.WINDOWS:
+		project.ext.lwjglNatives = "natives-windows"
+		break
 }
 
 dependencies {
@@ -13,6 +31,20 @@ dependencies {
 	implementation 'org.fusesource.jansi:jansi:1.18'
 	implementation 'org.jline:jline-terminal-jansi:3.12.1'
 	implementation 'org.jline:jline-terminal-jna:3.12.1'
+	
+	//LWJGL, minimal libraries required for OpenGL ES and OpenAL
+	implementation "org.lwjgl:lwjgl:$lwjglVersion"
+	implementation "org.lwjgl:lwjgl-egl:$lwjglVersion"
+	implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
+	implementation "org.lwjgl:lwjgl-openal:$lwjglVersion"
+	implementation "org.lwjgl:lwjgl-opengles:$lwjglVersion"
+	implementation "org.lwjgl:lwjgl-stb:$lwjglVersion"
+	
+	runtimeOnly "org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives"
+	runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:$lwjglNatives"
+	runtimeOnly "org.lwjgl:lwjgl-openal:$lwjglVersion:$lwjglNatives"
+	runtimeOnly "org.lwjgl:lwjgl-opengles:$lwjglVersion:$lwjglNatives"
+	runtimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:$lwjglNatives"
 	
 	//Texture Loaders
 	implementation 'ar.com.hjg:pngj:2.1.0'
@@ -37,12 +69,12 @@ repositories {
 
 version = '1.0.0'
 
-mainClassName = 'ai.arcblroth.boss.Main'
+mainClassName = 'ai.arcblroth.boss.OpenGLMain'
 
 jar {
 	baseName = 'BosstrovesRevenge'
 	manifest {
-		attributes 'Main-Class': 'ai.arcblroth.boss.Main'
+		attributes 'Main-Class': 'ai.arcblroth.boss.OpenGLMain'
 	}
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
