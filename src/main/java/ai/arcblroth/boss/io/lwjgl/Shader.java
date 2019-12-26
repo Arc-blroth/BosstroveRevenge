@@ -3,15 +3,19 @@ package ai.arcblroth.boss.io.lwjgl;
 import static org.lwjgl.opengl.GL20.*;
 
 import java.io.IOException;
+import java.nio.FloatBuffer;
+
+import org.joml.Matrix4f;
+import org.lwjgl.system.MemoryStack;
 
 import ai.arcblroth.boss.resource.Resource;
 import ai.arcblroth.boss.resource.TextLoader;
 
-public class ShaderProgram {
+public class Shader {
 	
 	private int shaderProgramHandle;
 
-	public ShaderProgram(Resource vertShaderPath, Resource fragShaderPath) throws IOException, NullPointerException, IllegalStateException {
+	public Shader(Resource vertShaderPath, Resource fragShaderPath) throws IOException, NullPointerException, IllegalStateException {
 		String vertShaderSrc = TextLoader.loadTextFile(vertShaderPath);
 		String fragShaderSrc = TextLoader.loadTextFile(fragShaderPath);
 		
@@ -63,6 +67,14 @@ public class ShaderProgram {
 	
 	public int getHandle() {
 		return shaderProgramHandle;
+	}
+
+
+	public void setMatrix4f(String name, Matrix4f value) {
+		try (MemoryStack stack = MemoryStack.stackPush()) {
+			FloatBuffer buffer = value.get(stack.mallocFloat(16));
+			glUniformMatrix4fv(glGetUniformLocation(shaderProgramHandle, name), false, buffer);
+		}
 	}
 	
 }
