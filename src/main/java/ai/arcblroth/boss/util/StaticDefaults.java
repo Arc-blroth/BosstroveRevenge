@@ -13,7 +13,7 @@ public final class StaticDefaults {
 	public static final Color RESET_COLOR = Color.BLACK;
 	public static final Character RESET_CHAR = ' ';
 	
-	public static final int TILE_WIDTH = 16;
-	public static final int TILE_HEIGHT = 16;
+	public static final int TILE_WIDTH = 8;
+	public static final int TILE_HEIGHT = 8;
 
 }
