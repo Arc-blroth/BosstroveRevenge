@@ -52,7 +52,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 			shader = new Shader(new Resource("shader/pixel.vert"), new Resource("shader/pixel.frag"));
 		} catch (Exception e) {
 			e.printStackTrace();
-			BosstrovesRevenge.get().shutdown();
+			BosstrovesRevenge.get().shutdown(-1);
 		}
 		
 		model = new PixelModel();
@@ -131,13 +131,14 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 				glfwPollEvents();
 				
 				if(window.windowShouldClose()) {
-					BosstrovesRevenge.get().shutdown();
+					BosstrovesRevenge.get().shutdown(0);
 				}
 				
 				//FPS Benchmarking
 				long currTime = System.currentTimeMillis();
 				fps = 1000D / (currTime - lastRenderTime);
 				lastRenderTime = currTime;
+				System.out.printf("FPS: %.2f\n", fps);
 			}
 		//}
 	}

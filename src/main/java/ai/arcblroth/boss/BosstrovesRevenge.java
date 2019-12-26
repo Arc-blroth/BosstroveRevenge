@@ -30,11 +30,41 @@ public final class BosstrovesRevenge extends Thread {
 
 	public static final String TITLE = "Bosstrove's Revenge";
 	private boolean isRunning = true;
+	private boolean hasAlreadyShutdown = false;
 	private EventBus globalEventBus;
 	private IOutputRenderer outputRenderer;
 	private Thread renderThread;
 	private final Object renderLock = new Object();
 	private IEngine engine;
+
+	private BosstrovesRevenge(EventBus globalEventBus) throws Exception {
+		if (INSTANCE != null)
+			throw new IllegalStateException("Class has already been initilized!");
+
+		setName(TITLE + " Relauncher");
+
+		// Register the EventBus subscribing hook
+		this.globalEventBus = globalEventBus;
+		((SubscribingClassLoader) Relauncher.class.getClassLoader()).addHook((clazz) -> {
+			if(clazz.isAnnotationPresent(AutoSubscribeClass.class)) {
+				globalEventBus.subscribe(clazz);
+			}
+		});
+		
+		//Register input hook
+		globalEventBus.subscribe(ConsoleInputHandler.class);
+		
+		//Register shutdown hook
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			this.shutdown(0);
+		}));
+	}
+
+	public static BosstrovesRevenge get() {
+		if (INSTANCE == null)
+			throw new IllegalStateException("Class is not initilized yet!");
+		return INSTANCE;
+	}
 
 	void init(IOutputRenderer renderer) {
 		//Render setup
@@ -53,33 +83,11 @@ public final class BosstrovesRevenge extends Thread {
 					}
 				} catch (InterruptedException e) {
 					
+				} catch (Exception e) {
+					BosstrovesRevenge.get().handleRendererCrash(e);
 				}
 			}
 		});
-	}
-
-	private BosstrovesRevenge(EventBus globalEventBus) throws Exception {
-		if (INSTANCE != null)
-			throw new IllegalStateException("Class has already been initilized!");
-
-		setName(TITLE + " Relauncher");
-
-		// Register the EventBus subscribing hook
-		this.globalEventBus = globalEventBus;
-		((SubscribingClassLoader) Relauncher.class.getClassLoader()).addHook((clazz) -> {
-			if(clazz.isAnnotationPresent(AutoSubscribeClass.class)) {
-				globalEventBus.subscribe(clazz);
-			}
-		});
-		
-		//Register input hook
-		globalEventBus.subscribe(ConsoleInputHandler.class);
-	}
-
-	public static BosstrovesRevenge get() {
-		if (INSTANCE == null)
-			throw new IllegalStateException("Class is not initilized yet!");
-		return INSTANCE;
 	}
 
 	public void run() {
@@ -122,10 +130,19 @@ public final class BosstrovesRevenge extends Thread {
 		this.engine = e;
 		globalEventBus.subscribe(e, e.getClass());
 	}
+
+	private void handleRendererCrash(Exception e) {
+		Logger.getLogger("Main").log(Level.SEVERE, "Fatal exception in rendering loop: ", e);
+		shutdown(-1);
+	}
 	
-	public void shutdown() {
-		isRunning = false;
-		outputRenderer.dispose();
+	public void shutdown(int exitcode) {
+		if(!hasAlreadyShutdown) {
+			hasAlreadyShutdown = true;
+			isRunning = false;
+			outputRenderer.dispose();
+			System.exit(exitcode);
+		}
 	}
 	
 }
