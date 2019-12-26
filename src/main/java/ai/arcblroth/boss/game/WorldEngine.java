@@ -15,7 +15,7 @@ public class WorldEngine implements IEngine {
 	private Room room;
 
 	public WorldEngine() {
-		this.room = new Room(10, 10);
+		this.room = new Room(40, 40);
 		this.renderer = new WorldRenderer(room);
 	}
 	

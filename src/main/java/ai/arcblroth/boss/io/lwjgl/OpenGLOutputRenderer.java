@@ -83,13 +83,27 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 					int height = heightBuf.get();
 					float aspectRatio;
 					float pixelSize;
+					/*
+					           r a t i o * 2                        2 
+					    +- - - - - - - - - - - - -         +- - - - - - - - -
+					    |                                  |
+					    |                                r |
+					    |                                a |
+					  2 |                                t |
+					    |                                i |
+					    |                                o |
+					    |                                * |    
+					                                     2 | 
+					                                       |
+					                                       |
+					*/
 					if(width > height) {
 						aspectRatio = (float)width / (float)height;
-						pixelSize = aspectRatio * 2F / (float)StaticDefaults.OUTPUT_WIDTH;
+						pixelSize = 2F / (float)StaticDefaults.OUTPUT_HEIGHT;
 						shader.setMatrix4f("projection", new Matrix4f().ortho(-aspectRatio, aspectRatio, -1, 1, 0, 1));
 					} else {
 						aspectRatio = (float)height / (float)width;
-						pixelSize = aspectRatio * 2F / (float)StaticDefaults.OUTPUT_HEIGHT;
+						pixelSize = 2F / (float)StaticDefaults.OUTPUT_WIDTH;
 						shader.setMatrix4f("projection", new Matrix4f().ortho(-1, 1, -aspectRatio, aspectRatio, 0, 1));
 					}
 					Matrix4f scaledModelMatrix = new Matrix4f().scale(pixelSize, pixelSize, 1F);
@@ -103,20 +117,24 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 							
 							if(rowTxt.get(colNum) == StaticDefaults.RESET_CHAR) {
 								
-								shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
-										(-pg.getWidth()/2F + colNum),
-										(pg.getHeight()/2F - rowNum),
-										0
-								).scale(0.5F));
-								shader.setVector3f("color", rgbToVector(row1.get(colNum)));
-								model.render();
-								shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
-										(-pg.getWidth()/2F + colNum),
-										(pg.getHeight()/2F - rowNum - 1),
-										0
-								).scale(0.5F));
-								shader.setVector3f("color", rgbToVector(row2.get(colNum)));
-								model.render();
+								if(!row1.get(colNum).equals(StaticDefaults.RESET_COLOR)) {
+									shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
+											(-pg.getWidth()/2F + colNum),
+											(pg.getHeight()/2F - rowNum),
+											0
+									).scale(0.5F));
+									shader.setVector3f("color", rgbToVector(row1.get(colNum)));
+									model.render();
+								}
+								if(!row2.get(colNum).equals(StaticDefaults.RESET_COLOR)) {
+									shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
+											(-pg.getWidth()/2F + colNum),
+											(pg.getHeight()/2F - rowNum - 1),
+											0
+									).scale(0.5F));
+									shader.setVector3f("color", rgbToVector(row2.get(colNum)));
+									model.render();
+								}
 							} else {
 								
 							}
@@ -138,7 +156,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 				long currTime = System.currentTimeMillis();
 				fps = 1000D / (currTime - lastRenderTime);
 				lastRenderTime = currTime;
-				System.out.printf("FPS: %.2f\n", fps);
+				//System.out.printf("FPS: %.2f\n", fps);
 			}
 		//}
 	}
