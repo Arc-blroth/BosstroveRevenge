@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.FloatBuffer;
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.system.MemoryStack;
 
 import ai.arcblroth.boss.resource.Resource;
@@ -68,7 +69,10 @@ public class Shader {
 	public int getHandle() {
 		return shaderProgramHandle;
 	}
-
+	
+	public void setVector3f(String name, Vector3f value) {
+		glUniform3f(glGetUniformLocation(shaderProgramHandle, name), value.x, value.y, value.z);
+	}
 
 	public void setMatrix4f(String name, Matrix4f value) {
 		try (MemoryStack stack = MemoryStack.stackPush()) {

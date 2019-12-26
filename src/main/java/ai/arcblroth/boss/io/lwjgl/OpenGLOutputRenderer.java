@@ -1,10 +1,7 @@
 package ai.arcblroth.boss.io.lwjgl;
 
-import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWKeyCallback;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryUtil;
-
+import org.joml.Matrix4f;
+import org.lwjgl.system.MemoryStack;
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.Relauncher;
 import ai.arcblroth.boss.io.IOutputRenderer;
@@ -16,8 +13,10 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-import java.io.IOException;
-import java.nio.FloatBuffer;
+import static ai.arcblroth.boss.io.lwjgl.OpenGLUtils.*;
+
+import java.nio.IntBuffer;
+import java.util.ArrayList;
 
 public class OpenGLOutputRenderer implements IOutputRenderer {
 	
@@ -76,7 +75,56 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 				}
 				
 				glUseProgram(shader.getHandle());
-				model.render(window, shader);
+				try (MemoryStack stack = MemoryStack.stackPush()) {
+					IntBuffer widthBuf = stack.mallocInt(1);
+					IntBuffer heightBuf = stack.mallocInt(1);
+					glfwGetWindowSize(window.getHandle(), widthBuf, heightBuf);
+					int width = widthBuf.get();
+					int height = heightBuf.get();
+					float aspectRatio;
+					float pixelSize;
+					if(width > height) {
+						aspectRatio = (float)width / (float)height;
+						pixelSize = aspectRatio * 2F / (float)StaticDefaults.OUTPUT_WIDTH;
+						shader.setMatrix4f("projection", new Matrix4f().ortho(-aspectRatio, aspectRatio, -1, 1, 0, 1));
+					} else {
+						aspectRatio = (float)height / (float)width;
+						pixelSize = aspectRatio * 2F / (float)StaticDefaults.OUTPUT_HEIGHT;
+						shader.setMatrix4f("projection", new Matrix4f().ortho(-1, 1, -aspectRatio, aspectRatio, 0, 1));
+					}
+					Matrix4f scaledModelMatrix = new Matrix4f().scale(pixelSize, pixelSize, 1F);
+					
+					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
+						ArrayList<Color> row1 = pg.getRow(rowNum);
+						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
+						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
+						
+						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
+							
+							if(rowTxt.get(colNum) == StaticDefaults.RESET_CHAR) {
+								
+								shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
+										(-pg.getWidth()/2F + colNum),
+										(pg.getHeight()/2F - rowNum),
+										0
+								).scale(0.5F));
+								shader.setVector3f("color", rgbToVector(row1.get(colNum)));
+								model.render();
+								shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
+										(-pg.getWidth()/2F + colNum),
+										(pg.getHeight()/2F - rowNum - 1),
+										0
+								).scale(0.5F));
+								shader.setVector3f("color", rgbToVector(row2.get(colNum)));
+								model.render();
+							} else {
+								
+							}
+							
+						}
+					}
+					model.render();
+				}
 				
 				//RENDER!
 				glfwSwapBuffers(window.getHandle());
