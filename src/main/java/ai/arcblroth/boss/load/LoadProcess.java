@@ -5,6 +5,7 @@ import ai.arcblroth.boss.engine.tile.EmptyWallTile;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.util.Pair;
+import ai.arcblroth.boss.util.ThreadUtils;
 
 public class LoadProcess extends Thread {
 	
@@ -37,6 +38,7 @@ public class LoadProcess extends Thread {
 		phase = Phase.REGISTERING_TILES;
 		FloorTileRegistry.register("empty", new EmptyFloorTile());
 		WallTileRegistry.register("empty", new EmptyWallTile());
+		ThreadUtils.waitForever();
 		phase = Phase.DONE;
 		doneYet = true;
 	}

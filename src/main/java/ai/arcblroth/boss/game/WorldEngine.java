@@ -1,5 +1,6 @@
 package ai.arcblroth.boss.game;
 
+import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.StepEvent;
@@ -34,6 +35,7 @@ public class WorldEngine implements IEngine {
 		} else if(e.getKey() == 'a') {
 			renderer.setRenderOffset(renderer.getRenderOffsetX() - 1, renderer.getRenderOffsetY());
 		}
+		BosstrovesRevenge.get().setOutputDebug(e.getKey());
 	}
 
 	@Override

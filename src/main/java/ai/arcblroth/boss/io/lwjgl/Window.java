@@ -5,6 +5,8 @@ import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -71,6 +73,7 @@ public class Window {
         GL.createCapabilities();
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_TEXTURE_2D);
         glDepthFunc(GL_LESS);
         
         glfwShowWindow(windowHandle);

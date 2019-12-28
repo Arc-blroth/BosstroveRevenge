@@ -7,9 +7,13 @@ import ai.arcblroth.boss.Relauncher;
 import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.resource.Resource;
+import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
+import ai.arcblroth.boss.util.TextureUtils;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL20.glGetUniformLocation;
+import static org.lwjgl.opengl.GL20.glUniform1i;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
@@ -24,6 +28,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	private Window window;
 	private Shader shader;
 	private PixelModel model;
+	private StbFontManager fontManager;
 	
 	private static final boolean SHOW_FPS = true;
 	private double fps = 1;
@@ -50,6 +55,8 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 		
 		try {
 			shader = new Shader(new Resource("shader/pixel.vert"), new Resource("shader/pixel.frag"));
+			fontManager = new StbFontManager(new Resource("font/RobotoMono-Medium.ttf"));
+			fontManager.init();
 		} catch (Exception e) {
 			e.printStackTrace();
 			BosstrovesRevenge.get().shutdown(-1);
@@ -117,13 +124,15 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 							
 							if(rowTxt.get(colNum) == StaticDefaults.RESET_CHAR) {
 								
+								shader.setBool("useTexture", false);		
 								if(!row1.get(colNum).equals(StaticDefaults.RESET_COLOR)) {
 									shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
 											(-pg.getWidth()/2F + colNum),
 											(pg.getHeight()/2F - rowNum),
 											0
 									).scale(0.5F));
-									shader.setVector3f("color", rgbToVector(row1.get(colNum)));
+									shader.setVector4f("color", rgbToVector(
+											TextureUtils.interpolate(StaticDefaults.RESET_COLOR, row1.get(colNum), row1.get(colNum).getAlpha() / 255D)));
 									model.render();
 								}
 								if(!row2.get(colNum).equals(StaticDefaults.RESET_COLOR)) {
@@ -132,16 +141,26 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 											(pg.getHeight()/2F - rowNum - 1),
 											0
 									).scale(0.5F));
-									shader.setVector3f("color", rgbToVector(row2.get(colNum)));
+									shader.setVector4f("color", rgbToVector(
+											TextureUtils.interpolate(StaticDefaults.RESET_COLOR, row2.get(colNum), row2.get(colNum).getAlpha() / 255D)));
 									model.render();
 								}
 							} else {
-								
+								shader.setBool("useTexture", true);
+								glUniform1i(glGetUniformLocation(shader.getHandle(), "texture1"), 0);
+								shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
+										(-pg.getWidth()/2F + colNum),
+										(pg.getHeight()/2F - rowNum),
+										0
+								));
+								Pair<Color, Color> colors = pg.getColorsAt(colNum, rowNum);
+								shader.setVector4f("color", rgbToVector(
+										TextureUtils.interpolate(StaticDefaults.RESET_COLOR, colors.getFirst(), colors.getFirst().getAlpha() / 255D)));
+								fontManager.renderCharacter(rowTxt.get(colNum));
 							}
 							
 						}
 					}
-					model.render();
 				}
 				
 				//RENDER!
@@ -164,6 +183,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	@Override
 	public void dispose() {
 		model.dispose();
+		fontManager.dispose();
 		glfwMakeContextCurrent(NULL);
 		glfwDestroyWindow(window.getHandle());
 		glfwSetErrorCallback(null).free();

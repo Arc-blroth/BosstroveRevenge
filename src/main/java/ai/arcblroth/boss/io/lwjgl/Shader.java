@@ -7,18 +7,19 @@ import java.nio.FloatBuffer;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
 
 import ai.arcblroth.boss.resource.Resource;
-import ai.arcblroth.boss.resource.TextLoader;
+import ai.arcblroth.boss.resource.ResourceLoader;
 
 public class Shader {
 	
 	private int shaderProgramHandle;
 
 	public Shader(Resource vertShaderPath, Resource fragShaderPath) throws IOException, NullPointerException, IllegalStateException {
-		String vertShaderSrc = TextLoader.loadTextFile(vertShaderPath);
-		String fragShaderSrc = TextLoader.loadTextFile(fragShaderPath);
+		String vertShaderSrc = ResourceLoader.loadTextFile(vertShaderPath);
+		String fragShaderSrc = ResourceLoader.loadTextFile(fragShaderPath);
 		
 		int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		int fragShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -70,6 +71,10 @@ public class Shader {
 		return shaderProgramHandle;
 	}
 	
+	public void setVector4f(String name, Vector4f value) {
+		glUniform4f(glGetUniformLocation(shaderProgramHandle, name), value.x, value.y, value.z, value.w);
+	}
+	
 	public void setVector3f(String name, Vector3f value) {
 		glUniform3f(glGetUniformLocation(shaderProgramHandle, name), value.x, value.y, value.z);
 	}
@@ -79,6 +84,10 @@ public class Shader {
 			FloatBuffer buffer = value.get(stack.mallocFloat(16));
 			glUniformMatrix4fv(glGetUniformLocation(shaderProgramHandle, name), false, buffer);
 		}
+	}
+	
+	public void setBool(String name, boolean value) {
+		glUniform1i(glGetUniformLocation(shaderProgramHandle, name), value ? 1 : 0);
 	}
 	
 }

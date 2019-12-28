@@ -47,7 +47,7 @@ public class WorldRenderer implements IRenderer {
 					//pixelX and pixelY are in pixels
 					for(int pixelY = 0; pixelY < StaticDefaults.TILE_HEIGHT; pixelY++) {
 						for(int pixelX = 0; pixelX < StaticDefaults.TILE_WIDTH; pixelX++) {
-							BosstrovesRevenge.get().setOutputDebug(xOffset);
+							
 							ptg.setPixel(
 									x * StaticDefaults.TILE_WIDTH - xSubtileOff + pixelX,
 									y * StaticDefaults.TILE_HEIGHT - ySubtileOff + pixelY,
