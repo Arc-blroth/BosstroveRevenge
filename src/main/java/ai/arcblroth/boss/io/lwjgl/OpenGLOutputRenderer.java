@@ -33,8 +33,10 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	private Shader shader;
 	private PixelModel model;
 	private StbFontManager fontManager;
+	private GlfwInputHandler inputHandler;
 	
 	private Logger logger;
+	private Logger debugLinelogger;
 	
 	private static final boolean SHOW_FPS = true;
 	private double fps = 1;
@@ -46,7 +48,10 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	public OpenGLOutputRenderer() {
 		try {
 			logger = Logger.getLogger("OpenGLOutputRenderer");
+			debugLinelogger = Logger.getLogger("DebugLine");
 			window = new Window("Bosstrove's Revenge", 0, 0);
+			inputHandler = new GlfwInputHandler();
+			
 			lastRenderTime = System.currentTimeMillis();
 		} catch (Exception e) {
 			System.err.println("Could not init display, aborting launch...");
@@ -82,8 +87,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 		model = new PixelModel();
 		
 		glfwSetKeyCallback(window.getHandle(), (long windowHandle, int key, int scancode, int action, int mods) -> {
-			if(windowHandle != window.getHandle()) return;
-			
+			try {inputHandler.handleInput(key);} catch (Throwable e) {}
 		});
 	}
 
@@ -220,6 +224,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	
 	public void setDebugLine(String s) {
 		debugLine = s;
+		debugLinelogger.log(Level.INFO, s);
 	}
 
 	public void displayFatalError(Throwable e) {

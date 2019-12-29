@@ -35,7 +35,6 @@ public class WorldEngine implements IEngine {
 		} else if(e.getKey() == 'a') {
 			renderer.setRenderOffset(renderer.getRenderOffsetX() - 1, renderer.getRenderOffsetY());
 		}
-		BosstrovesRevenge.get().setOutputDebug(e.getKey());
 	}
 
 	@Override

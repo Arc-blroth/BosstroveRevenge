@@ -16,7 +16,7 @@ public class ConsoleInputHandler {
 	private Logger logger;
 
 	public ConsoleInputHandler() {
-		this.logger = Logger.getLogger("ConsoleInputHandler");
+		this.logger = Logger.getLogger("GlfwInputHandler");
 	}
 	
 	public void handleInput(Terminal t) throws Throwable {
