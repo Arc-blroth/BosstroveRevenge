@@ -23,6 +23,8 @@ import static ai.arcblroth.boss.io.lwjgl.OpenGLUtils.*;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class OpenGLOutputRenderer implements IOutputRenderer {
 	
@@ -31,6 +33,8 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	private Shader shader;
 	private PixelModel model;
 	private StbFontManager fontManager;
+	
+	private Logger logger;
 	
 	private static final boolean SHOW_FPS = true;
 	private double fps = 1;
@@ -41,6 +45,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	
 	public OpenGLOutputRenderer() {
 		try {
+			logger = Logger.getLogger("OpenGLOutputRenderer");
 			window = new Window("Bosstrove's Revenge", 0, 0);
 			lastRenderTime = System.currentTimeMillis();
 		} catch (Exception e) {
@@ -63,7 +68,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 			if(Relauncher.IS_WINDOWS && !Relauncher.IS_CYGWIN && !Relauncher.IS_MINGW_XTERM) {
 				Resource consolas = new ExternalResource("C:\\Windows\\Fonts\\consola.ttf");
 				if(consolas.exists()) {
-					System.out.println("Using Consolas® as font.");
+					logger.log(Level.INFO, "Using Consolas® as font.");
 					font = consolas;
 				}
 			}
@@ -164,7 +169,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 										(-pg.getWidth()/2F + colNum - 0.5F),
 										(pg.getHeight()/2F - rowNum - 1.0F),
 										0
-								).scale(1.1F, -1.1F, 1F));
+								).scale(1F, -1F, 1F));
 								Pair<Color, Color> colors = pg.getColorsAt(colNum, rowNum);
 								shader.setVector4f("color", rgbToVector(
 										TextureUtils.interpolate(StaticDefaults.RESET_COLOR, colors.getFirst(), colors.getFirst().getAlpha() / 255D)));

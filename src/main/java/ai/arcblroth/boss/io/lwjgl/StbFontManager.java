@@ -27,8 +27,8 @@ public class StbFontManager {
 	
 	private static final int FIRST_CHAR_TO_BAKE = 32;
 	private static final int LAST_CHAR_TO_BAKE = 255;
-	private static final int BITMAP_WIDTH = 512;
-	private static final int BITMAP_HEIGHT = 512;
+	private static final int BITMAP_WIDTH = 1024;
+	private static final int BITMAP_HEIGHT = 1024;
 	
 	private final ByteBuffer font;
 	
