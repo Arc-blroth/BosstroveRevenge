@@ -17,6 +17,7 @@ import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.IRenderer;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.render.PixelGrid;
+import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.resource.Resource;
 import ai.arcblroth.boss.resource.ResourceLoader;
 import ai.arcblroth.boss.util.StaticDefaults;
@@ -41,7 +42,7 @@ public class LoadEngine implements IEngine {
 	private PixelGrid logo;
 	
 	public LoadEngine() {
-		origLogo = TextureUtils.tintColor(ResourceLoader.loadPNG(new Resource("bitmap.png")), satBlue);
+		origLogo = TextureUtils.tintColor(ResourceLoader.loadPNG(new InternalResource("bitmap.png")), satBlue);
 		logo = new PixelGrid(origLogo);
 		reallyBadGrid = new PixelAndTextGrid(logo.getWidth(), logo.getHeight() + arbitraryPaddingHeight);
 		reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));

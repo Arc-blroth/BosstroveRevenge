@@ -10,8 +10,7 @@ uniform sampler2D texture1;
 
 void main() {
     if(outUseTexture == 1) {
-		float text = texture(texture1, outTexCoord).w;
-		fragColor = vec4(text, text, text, 1);
+		fragColor = vec4(vertexColor.xyz, texture(texture1, outTexCoord).w);
 	} else {
 		fragColor = vertexColor;
 	}

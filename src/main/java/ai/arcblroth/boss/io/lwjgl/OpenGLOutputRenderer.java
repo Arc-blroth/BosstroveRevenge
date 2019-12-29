@@ -6,6 +6,8 @@ import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.Relauncher;
 import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.render.*;
+import ai.arcblroth.boss.resource.ExternalResource;
+import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.resource.Resource;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
@@ -39,7 +41,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	
 	public OpenGLOutputRenderer() {
 		try {
-			window = new Window("Bosstrove's Revenge", StaticDefaults.OUTPUT_WIDTH * StaticDefaults.CHARACTER_WIDTH, StaticDefaults.OUTPUT_HEIGHT / 2 * StaticDefaults.CHARACTER_HEIGHT);
+			window = new Window("Bosstrove's Revenge", 0, 0);
 			lastRenderTime = System.currentTimeMillis();
 		} catch (Exception e) {
 			System.err.println("Could not init display, aborting launch...");
@@ -54,8 +56,18 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 		glfwMakeContextCurrent(window.getHandle());
 		
 		try {
-			shader = new Shader(new Resource("shader/pixel.vert"), new Resource("shader/pixel.frag"));
-			fontManager = new StbFontManager(new Resource("font/RobotoMono-Medium.ttf"));
+			shader = new Shader(new InternalResource("shader/pixel.vert"), new InternalResource("shader/pixel.frag"));
+			
+			Resource font = new InternalResource("font/RobotoMono-Medium.ttf");
+			//Use Consolas if on windows, Roboto Mono otherwise
+			if(Relauncher.IS_WINDOWS && !Relauncher.IS_CYGWIN && !Relauncher.IS_MINGW_XTERM) {
+				Resource consolas = new ExternalResource("C:\\Windows\\Fonts\\consola.ttf");
+				if(consolas.exists()) {
+					System.out.println("Using Consolas® as font.");
+					font = consolas;
+				}
+			}
+			fontManager = new StbFontManager(font);
 			fontManager.init();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -82,6 +94,8 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 				}
 				
 				glUseProgram(shader.getHandle());
+				glUniform1i(glGetUniformLocation(shader.getHandle(), "texture1"), 0);
+				
 				try (MemoryStack stack = MemoryStack.stackPush()) {
 					IntBuffer widthBuf = stack.mallocInt(1);
 					IntBuffer heightBuf = stack.mallocInt(1);
@@ -123,8 +137,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
 							
 							if(rowTxt.get(colNum) == StaticDefaults.RESET_CHAR) {
-								
-								shader.setBool("useTexture", false);		
+									
 								if(!row1.get(colNum).equals(StaticDefaults.RESET_COLOR)) {
 									shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
 											(-pg.getWidth()/2F + colNum),
@@ -147,16 +160,26 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 								}
 							} else {
 								shader.setBool("useTexture", true);
-								glUniform1i(glGetUniformLocation(shader.getHandle(), "texture1"), 0);
 								shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
-										(-pg.getWidth()/2F + colNum),
-										(pg.getHeight()/2F - rowNum),
+										(-pg.getWidth()/2F + colNum - 0.5F),
+										(pg.getHeight()/2F - rowNum - 1.0F),
 										0
-								));
+								).scale(1.1F, -1.1F, 1F));
 								Pair<Color, Color> colors = pg.getColorsAt(colNum, rowNum);
 								shader.setVector4f("color", rgbToVector(
 										TextureUtils.interpolate(StaticDefaults.RESET_COLOR, colors.getFirst(), colors.getFirst().getAlpha() / 255D)));
 								fontManager.renderCharacter(rowTxt.get(colNum));
+								shader.setBool("useTexture", false);
+								
+								shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
+										(-pg.getWidth()/2F + colNum),
+										(pg.getHeight()/2F - rowNum - 1F/2F),
+										0
+								).scale(0.5F, 1F, 1F));
+								shader.setVector4f("color", rgbToVector(
+										TextureUtils.interpolate(StaticDefaults.RESET_COLOR, colors.getSecond(), colors.getSecond().getAlpha() / 255D)));
+								model.render();
+								
 							}
 							
 						}
