@@ -244,7 +244,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	
 	@Override
 	public void pollInput() {
-		
+		inputHandler.fireEvents();
 	}
 
 }
