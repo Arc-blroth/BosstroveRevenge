@@ -87,7 +87,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 		model = new PixelModel();
 		
 		glfwSetKeyCallback(window.getHandle(), (long windowHandle, int key, int scancode, int action, int mods) -> {
-			try {inputHandler.handleInput(key);} catch (Throwable e) {}
+			try {inputHandler.handleInput(key, action);} catch (Throwable e) {}
 		});
 	}
 

@@ -34,10 +34,10 @@ public class WorldRenderer implements IRenderer {
 	@Override
 	public PixelAndTextGrid render() {
 		PixelAndTextGrid ptg = new PixelAndTextGrid(StaticDefaults.OUTPUT_WIDTH, StaticDefaults.OUTPUT_HEIGHT);
-		int xTileOff = (int)Math.ceil(xOffset / StaticDefaults.TILE_WIDTH) - 1;
-		int yTileOff = (int)Math.ceil(yOffset / StaticDefaults.TILE_HEIGHT) - 1;
-		int xSubtileOff = (int)Math.round(xOffset % StaticDefaults.TILE_WIDTH);
-		int ySubtileOff = (int)Math.round(yOffset % StaticDefaults.TILE_HEIGHT);
+		int xTileOff = (int)Math.floor(xOffset / StaticDefaults.TILE_WIDTH);
+		int yTileOff = (int)Math.floor(yOffset / StaticDefaults.TILE_HEIGHT);
+		int xSubtileOff = (int)Math.round(xOffset - xTileOff * StaticDefaults.TILE_WIDTH);
+		int ySubtileOff = (int)Math.round(yOffset - yTileOff * StaticDefaults.TILE_HEIGHT);
 		
 		//x and y are in tile units
 		for(int y = 0; y < Math.ceil(StaticDefaults.OUTPUT_HEIGHT / StaticDefaults.TILE_HEIGHT) + 1; y++) {
