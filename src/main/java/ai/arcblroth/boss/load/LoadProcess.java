@@ -36,8 +36,8 @@ public class LoadProcess extends Thread {
 	
 	public void run() {
 		phase = Phase.REGISTERING_TILES;
-		FloorTileRegistry.register("empty", new EmptyFloorTile());
-		WallTileRegistry.register("empty", new EmptyWallTile());
+		FloorTileRegistry.get().register("empty", new EmptyFloorTile());
+		WallTileRegistry.get().register("empty", new EmptyWallTile());
 		phase = Phase.DONE;
 		doneYet = true;
 	}

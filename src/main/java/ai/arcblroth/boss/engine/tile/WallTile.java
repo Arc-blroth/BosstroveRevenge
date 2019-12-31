@@ -2,7 +2,7 @@ package ai.arcblroth.boss.engine.tile;
 
 import ai.arcblroth.boss.engine.IInteractable.Side;
 import ai.arcblroth.boss.engine.entity.IEntity;
-import ai.arcblroth.boss.in.Keybind;
+import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.register.IRegistrable;
 import ai.arcblroth.boss.render.Texture;
 

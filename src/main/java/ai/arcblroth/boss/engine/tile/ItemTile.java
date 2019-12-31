@@ -3,7 +3,7 @@ package ai.arcblroth.boss.engine.tile;
 import ai.arcblroth.boss.engine.IInteractable.Side;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.item.IItem;
-import ai.arcblroth.boss.in.Keybind;
+import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.render.Texture;
 
 public class ItemTile implements ITile {

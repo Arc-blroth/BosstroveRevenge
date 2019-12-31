@@ -4,7 +4,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
-import ai.arcblroth.boss.in.KeyInputEvent;
+import ai.arcblroth.boss.key.CharacterInputEvent;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -62,7 +62,7 @@ public class GlfwInputHandler {
 		keyStore.forEach((charizard, uses_fire_blast) -> {
 			if(uses_fire_blast) {
 				try {
-					BosstrovesRevenge.get().getEventBus().fireEvent(new KeyInputEvent(charizard));
+					BosstrovesRevenge.get().getEventBus().fireEvent(new CharacterInputEvent(charizard));
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}

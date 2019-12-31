@@ -1,11 +1,11 @@
-package ai.arcblroth.boss.in;
+package ai.arcblroth.boss.key;
 
 import ai.arcblroth.boss.register.IRegistrable;
 
 /**
  * Represents an abstracted key input.
- * Supposed to be used with KeyMap to enable
- * custom keybinds.
+ * Used with {@link ai.arcblroth.boss.key.KeyMap KeyMap}
+ * to enable custom keybinds.
  */
 public class Keybind implements IRegistrable<Keybind> {
 	

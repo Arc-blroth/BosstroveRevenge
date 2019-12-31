@@ -5,7 +5,7 @@ import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.event.SubscribeEvent;
-import ai.arcblroth.boss.in.KeyInputEvent;
+import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.render.IRenderer;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
@@ -29,7 +29,7 @@ public class WorldEngine implements IEngine {
 
 	@Override
 	@SubscribeEvent
-	public void handleKeyInput(KeyInputEvent e) {
+	public void handleKeyInput(CharacterInputEvent e) {
 		if(e.getKey() == 'd') {
 			renderer.setRenderOffset(renderer.getRenderOffsetX() + 5, renderer.getRenderOffsetY());
 		} else if(e.getKey() == 'a') {

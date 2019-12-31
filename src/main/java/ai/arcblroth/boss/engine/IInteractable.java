@@ -1,7 +1,7 @@
 package ai.arcblroth.boss.engine;
 
 import ai.arcblroth.boss.engine.entity.IEntity;
-import ai.arcblroth.boss.in.Keybind;
+import ai.arcblroth.boss.key.Keybind;
 
 public interface IInteractable {
 	

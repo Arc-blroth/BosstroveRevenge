@@ -3,7 +3,7 @@ package ai.arcblroth.boss.engine.tile;
 import java.util.Random;
 
 import ai.arcblroth.boss.engine.entity.IEntity;
-import ai.arcblroth.boss.in.Keybind;
+import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.Texture;
 

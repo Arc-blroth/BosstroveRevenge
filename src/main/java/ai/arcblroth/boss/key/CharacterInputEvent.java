@@ -1,12 +1,12 @@
-package ai.arcblroth.boss.in;
+package ai.arcblroth.boss.key;
 
 import ai.arcblroth.boss.event.IEvent;
 
-public class KeyInputEvent implements IEvent {
+public class CharacterInputEvent implements IEvent {
 	
 	private char c;
 
-	public KeyInputEvent(char c) {
+	public CharacterInputEvent(char c) {
 		this.c = c;
 	}
 	

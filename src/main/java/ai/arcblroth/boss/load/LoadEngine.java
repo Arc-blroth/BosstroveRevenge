@@ -10,7 +10,7 @@ import ai.arcblroth.boss.engine.tile.EmptyFloorTile;
 import ai.arcblroth.boss.engine.tile.EmptyWallTile;
 import ai.arcblroth.boss.event.SubscribeEvent;
 import ai.arcblroth.boss.game.WorldEngine;
-import ai.arcblroth.boss.in.KeyInputEvent;
+import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.render.Color;
@@ -85,7 +85,7 @@ public class LoadEngine implements IEngine {
 
 	@Override
 	@SubscribeEvent
-	public void handleKeyInput(KeyInputEvent e) {
+	public void handleKeyInput(CharacterInputEvent e) {
 		
 	}
 

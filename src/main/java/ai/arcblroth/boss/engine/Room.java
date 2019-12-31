@@ -21,8 +21,8 @@ public class Room {
 		
 		this.width = width;
 		this.height = height;
-		this.floorTiles = new Grid2D<FloorTile>(width, height, FloorTileRegistry.getTile("empty"));
-		this.wallTiles = new Grid2D<WallTile>(width, height, WallTileRegistry.getTile("empty"));
+		this.floorTiles = new Grid2D<FloorTile>(width, height, FloorTileRegistry.get().getTile("empty"));
+		this.wallTiles = new Grid2D<WallTile>(width, height, WallTileRegistry.get().getTile("empty"));
 		this.entities = new ArrayList<>();
 	}
 
