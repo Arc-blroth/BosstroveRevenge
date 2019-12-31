@@ -13,7 +13,7 @@ public final class EmptyWallTile extends WallTile {
 		TEXTURE = new Texture(size, size);
 		for(int y = 0; y < size; y++) {
 			for(int x = 0; x < size; x++) {
-				TEXTURE.setPixel(x, y, Color.TRANSPARENT);
+				TEXTURE.setPixel(x, y, new Color(255, 255, 255, 55));
 			}
 		}
 	}
