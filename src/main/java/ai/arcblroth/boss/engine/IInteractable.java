@@ -14,7 +14,7 @@ public interface IInteractable {
 	public void onEntityHit(IEntity e, Side s);
 	
 	/**
-	 * Called whenever an entity steps over an object.
+	 * Called while an entity is stepping over an object.
 	 */
 	public void onEntityStep(IEntity e);
 	

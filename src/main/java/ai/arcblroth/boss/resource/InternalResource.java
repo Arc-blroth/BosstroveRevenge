@@ -30,6 +30,10 @@ public class InternalResource extends Resource {
 		}
 		return resolved;
 	}
+	
+	public String getPath() {
+		return path;
+	}
 
 	@Override
 	public String toString() {

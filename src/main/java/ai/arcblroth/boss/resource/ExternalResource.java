@@ -36,6 +36,10 @@ public class ExternalResource extends Resource {
 			throw new NullPointerException("Resource at " + path + " produced a malformed URI?");
 		}
 	}
+	
+	public String getPath() {
+		return path;
+	}
 
 	@Override
 	public String toString() {

@@ -10,6 +10,8 @@ public abstract class Resource {
 	public abstract boolean exists() throws NullPointerException;
 
 	public abstract URL resolve() throws NullPointerException;
+	
+	public abstract String getPath();
 
 	@Override
 	public abstract String toString();
