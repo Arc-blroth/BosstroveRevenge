@@ -1,0 +1,8 @@
+{
+	"versionId": 1,
+	"tileId": "boss.sand",
+	"tileType": "floorTile",
+	"passable": true,
+	"viscosity": 0.0,
+	"texture": "data/texture/tiles/sand.png"
+}

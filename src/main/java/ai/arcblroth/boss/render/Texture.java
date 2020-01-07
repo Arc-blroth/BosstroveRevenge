@@ -14,7 +14,7 @@ public class Texture extends PixelGrid implements IRegistrable<Texture> {
 	}
 	
 	/**
-	 * @throws UnsupportedOperationException - Textures are immutable.
+	 * @throws UnsupportedOperationException Textures are immutable.
 	 */
 	@Override
 	public Color set(int x, int y, Color element) {
@@ -33,7 +33,7 @@ public class Texture extends PixelGrid implements IRegistrable<Texture> {
 	}
 	
 	/**
-	 * @throws UnsupportedOperationException - Textures are immutable.
+	 * @throws UnsupportedOperationException Textures are immutable.
 	 */
 	@Override
 	public void setRow(int y, ArrayList<Color> row) {
@@ -41,7 +41,7 @@ public class Texture extends PixelGrid implements IRegistrable<Texture> {
 	}
 	
 	/**
-	 * @throws UnsupportedOperationException - Textures are immutable.
+	 * @throws UnsupportedOperationException Textures are immutable.
 	 */
 	@Override
 	public void setPixel(int x, int y, Color c) {

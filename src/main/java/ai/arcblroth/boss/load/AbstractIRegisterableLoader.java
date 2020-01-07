@@ -1,12 +1,11 @@
 package ai.arcblroth.boss.load;
 
-import java.util.ArrayList;
-
-import ai.arcblroth.boss.register.IRegistrable;
 import ai.arcblroth.boss.resource.Resource;
 
-public abstract class AbstractIRegisterableLoader<R extends IRegistrable<R>> {
+public abstract class AbstractIRegisterableLoader {
 	
-	public abstract void registerAll(ArrayList<R> specifications);
+	public abstract boolean accepts(Resource specification);
+	
+	public abstract void register(Resource specification);
 	
 }

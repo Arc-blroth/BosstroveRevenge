@@ -18,6 +18,7 @@ public class WorldEngine implements IEngine {
 	public WorldEngine() {
 		this.room = new Room(40, 40);
 		this.renderer = new WorldRenderer(room);
+		room.getFloorTiles().set(0, 0, FloorTileRegistry.get().getTile("boss.sand"));
 	}
 	
 	@Override
@@ -39,7 +40,6 @@ public class WorldEngine implements IEngine {
 		} else if(e.getKey() == 's') {
 			renderer.setRenderOffset(renderer.getRenderOffsetX(), renderer.getRenderOffsetY() + 5);
 		}
-		BosstrovesRevenge.get().setOutputDebug(renderer.getRenderOffsetX() + ", " + renderer.getRenderOffsetY());
 	}
 
 	@Override

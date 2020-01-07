@@ -3,7 +3,7 @@ package ai.arcblroth.boss.resource;
 import java.io.File;
 import java.net.URL;
 
-public abstract class Resource {
+public abstract class Resource implements Comparable<Resource> {
 	
 	public Resource(String... path) {}
 	

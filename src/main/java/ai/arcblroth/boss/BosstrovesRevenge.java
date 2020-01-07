@@ -11,6 +11,7 @@ import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.io.console.*;
 import ai.arcblroth.boss.load.LoadEngine;
 import ai.arcblroth.boss.load.SubscribingClassLoader;
+import ai.arcblroth.boss.load.TextureCache;
 import ai.arcblroth.boss.util.ThreadUtils;
 
 public final class BosstrovesRevenge extends Thread {
@@ -35,6 +36,7 @@ public final class BosstrovesRevenge extends Thread {
 	private IOutputRenderer outputRenderer;
 	private Thread renderThread;
 	private final Object renderLock = new Object();
+	private TextureCache globalTextureCache;
 	private IEngine engine;
 
 	private BosstrovesRevenge(EventBus globalEventBus) throws Exception {
@@ -93,6 +95,7 @@ public final class BosstrovesRevenge extends Thread {
 	public void run() {
 		try {
 			outputRenderer.clear();
+			globalTextureCache = new TextureCache();
 			
 			//the first Engine initilizes all assets and classes
 			setEngine(new LoadEngine());
@@ -130,6 +133,10 @@ public final class BosstrovesRevenge extends Thread {
 		this.engine = e;
 		globalEventBus.subscribe(e, e.getClass());
 	}
+	
+	public TextureCache getTextureCache() {
+		return globalTextureCache;
+	}
 
 	private void handleRendererCrash(Exception e) {
 		Logger.getLogger("Main").log(Level.SEVERE, "Fatal exception in rendering loop: ", e);
@@ -144,5 +151,6 @@ public final class BosstrovesRevenge extends Thread {
 			System.exit(exitcode);
 		}
 	}
+
 	
 }

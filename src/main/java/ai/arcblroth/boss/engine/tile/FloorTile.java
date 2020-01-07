@@ -19,7 +19,7 @@ public class FloorTile implements ITile, IRegistrable<FloorTile> {
 	}
 	
 	@Override
-	public final boolean isPassable() {
+	public boolean isPassable() {
 		return true;
 	}
 

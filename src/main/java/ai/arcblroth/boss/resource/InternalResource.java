@@ -19,7 +19,7 @@ public class InternalResource extends Resource {
 		this.path = pathBuilder.toString();
 	}
 	
-	public boolean exists() throws NullPointerException {
+	public boolean exists() {
 		return Thread.currentThread().getContextClassLoader().getResource(this.path) != null;
 	}
 
@@ -33,6 +33,33 @@ public class InternalResource extends Resource {
 	
 	public String getPath() {
 		return path;
+	}
+	
+	@Override
+	public int hashCode() {
+		return path.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		InternalResource other = (InternalResource) obj;
+		if (path == null) {
+			if (other.path != null)
+				return false;
+		} else if (!path.equals(other.path))
+			return false;
+		return true;
+	}
+
+	@Override
+	public int compareTo(Resource other) {
+		return getPath().compareTo(other.getPath());
 	}
 
 	@Override

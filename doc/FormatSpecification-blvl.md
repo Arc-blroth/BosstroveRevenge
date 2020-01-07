@@ -30,8 +30,8 @@ Example File:
       "initial": true,
       "initialX": 0,
       "initialY": 8,
-      "background": "assets/backgrounds/greenStuff.png",
-      "foreground": "assets/foregrounds/sunrays.png",
+      "background": "data/texture/backgrounds/greenStuff.png",
+      "foreground": "data/texture/foregrounds/sunrays.png",
       
       "floorTiles": [
 	    [

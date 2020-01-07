@@ -13,8 +13,8 @@ Example File:
   "passable": true,
   "viscosity": 0.0,
   "texture": [
-    "assets/deco/shells.png",
-    "assets/tiles/sand.png"
+    "data/texture/deco/shells.png",
+    "data/texture/tiles/sand.png"
   ],
   "events": {
     ...

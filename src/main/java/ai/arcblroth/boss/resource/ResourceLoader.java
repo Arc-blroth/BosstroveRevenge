@@ -1,6 +1,15 @@
 package ai.arcblroth.boss.resource;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.stream.Stream;
 
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.PixelGrid;
@@ -54,6 +63,24 @@ public class ResourceLoader {
 		} catch(IOException e) {
 			throw e;
 		}
+	}
+
+	//Based off of https://stackoverflow.com/a/28057735
+	public static Stream<Resource> getAllResourcesFromInternalFolder(InternalResource folder, boolean recursive)
+			throws IOException, NullPointerException, URISyntaxException {
+		URI internalFolder = folder.resolve().toURI();
+	    if (internalFolder.getScheme().equals("jar")) {
+	        FileSystem fileSystem = FileSystems.newFileSystem(internalFolder, Collections.<String, Object>emptyMap());
+	        Path internalPath = fileSystem.getPath(folder.getPath());
+		    return Files.walk(internalPath, recursive ? Integer.MAX_VALUE : 1)
+		    		.filter((path) -> !path.toString().endsWith("/") && !path.toString().endsWith(File.separator))
+		    		.map((path) -> new ExternalResource(path.toString()));
+	    } else {
+	    	Path internalPath = Paths.get(internalFolder);
+		    return Files.walk(internalPath, recursive ? Integer.MAX_VALUE : 1)
+		    		.filter((path) -> !path.toFile().isDirectory())
+		    		.map((path) -> new ExternalResource(path.toString()));
+	    }
 	}
 	
 }
