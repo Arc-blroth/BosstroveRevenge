@@ -1,4 +1,4 @@
-package ai.arcblroth.boss.load;
+package ai.arcblroth.boss.event;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 public class SubscribingClassLoader extends ClassLoader {
 
 	private static final String SPEC_VENDER = "Arc'blroth";
-	private static final List<String> PROHIBITED_PACKAGE_NAMES = Arrays.asList("java", "javax", "sun");
+	private static final List<String> PROHIBITED_PACKAGE_NAMES = Arrays.asList("java", "javax", "jdk", "sun");
 	private static final Logger subClassLoaderLogger = Logger.getLogger("SubscribingClassLoader");
 	private ArrayList<Consumer<Class<?>>> hooks = new ArrayList<Consumer<Class<?>>>();
 

@@ -1,12 +1,11 @@
-package ai.arcblroth.boss.load;
+package ai.arcblroth.boss.resource;
 
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ai.arcblroth.boss.render.Texture;
-import ai.arcblroth.boss.resource.Resource;
-import ai.arcblroth.boss.resource.ResourceLoader;
+import ai.arcblroth.boss.resource.load.ResourceLoader;
 
 public final class TextureCache {
 	

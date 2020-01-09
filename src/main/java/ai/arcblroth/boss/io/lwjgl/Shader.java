@@ -11,7 +11,7 @@ import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
 
 import ai.arcblroth.boss.resource.Resource;
-import ai.arcblroth.boss.resource.ResourceLoader;
+import ai.arcblroth.boss.resource.load.ResourceLoader;
 
 public class Shader {
 	

@@ -3,27 +3,18 @@ package ai.arcblroth.boss.resource;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class ExternalResource extends Resource {
+public class ZipResource extends Resource {
 
+	private FileSystem fs;
 	private Path path;
 
-	public ExternalResource(String... path) {
-		if (path == null || path.length <= 0)
-			throw new IllegalArgumentException("Must specify at least one path component.");
-		StringBuilder pathBuilder = new StringBuilder();
-		for (String string : path) {
-			pathBuilder.append(string);
-			pathBuilder.append(File.pathSeparatorChar);
-		}
-		pathBuilder.deleteCharAt(pathBuilder.length() - 1);
-		this.path = Paths.get(pathBuilder.toString());
-	}
-	
-	public ExternalResource(Path path) {
+	public ZipResource(FileSystem fs, Path path) {
+		this.fs = fs;
 		this.path = path;
 	}
 	
@@ -60,7 +51,7 @@ public class ExternalResource extends Resource {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ExternalResource other = (ExternalResource) obj;
+		ZipResource other = (ZipResource) obj;
 		if (path == null) {
 			if (other.path != null)
 				return false;

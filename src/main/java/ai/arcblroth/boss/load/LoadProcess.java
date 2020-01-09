@@ -14,7 +14,8 @@ import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.resource.Resource;
-import ai.arcblroth.boss.resource.ResourceLoader;
+import ai.arcblroth.boss.resource.load.ITileLoader;
+import ai.arcblroth.boss.resource.load.ResourceLoader;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.ThreadUtils;
 

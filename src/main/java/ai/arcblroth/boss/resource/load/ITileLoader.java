@@ -1,4 +1,4 @@
-package ai.arcblroth.boss.load;
+package ai.arcblroth.boss.resource.load;
 
 import java.io.IOException;
 import java.util.logging.Level;
@@ -22,7 +22,7 @@ import ai.arcblroth.boss.render.PixelGrid;
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.resource.Resource;
-import ai.arcblroth.boss.resource.ResourceLoader;
+import ai.arcblroth.boss.resource.TextureCache;
 import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.TextureUtils;
 
@@ -148,7 +148,7 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 		} catch (JsonSyntaxException e) {
 			logger.log(Level.WARNING, "Could not load .btile resource " + specification.toString(), e);
 		} catch (NullPointerException | IOException e) {
-				logger.log(Level.WARNING, "Could not load .btile resource " + specification.toString());
+				logger.log(Level.WARNING, "Could not load .btile resource " + specification.toString(), e);
 		}
 	}
 

@@ -19,7 +19,7 @@ import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.render.PixelGrid;
 import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.resource.Resource;
-import ai.arcblroth.boss.resource.ResourceLoader;
+import ai.arcblroth.boss.resource.load.ResourceLoader;
 import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.Pair;

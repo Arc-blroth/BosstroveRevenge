@@ -1,4 +1,4 @@
-package ai.arcblroth.boss.load;
+package ai.arcblroth.boss.resource.load;
 
 import ai.arcblroth.boss.resource.Resource;
 

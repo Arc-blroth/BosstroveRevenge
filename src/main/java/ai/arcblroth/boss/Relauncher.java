@@ -3,8 +3,8 @@ package ai.arcblroth.boss;
 import java.util.Locale;
 import java.util.logging.*;
 
+import ai.arcblroth.boss.event.SubscribingClassLoader;
 import ai.arcblroth.boss.io.console.AnsiOutputRenderer;
-import ai.arcblroth.boss.load.SubscribingClassLoader;
 import ai.arcblroth.boss.util.ThreadUtils;
 
 import java.io.File;
@@ -54,11 +54,11 @@ public class Relauncher {
 					new ProcessBuilder("C:\\Windows\\System32\\cmd", "/C", "start", "Bosstrove's Revenge",
 							// "echo", "off", "&", "mode", (OUTPUT_WIDTH + "," + OUTPUT_HEIGHT/2), "&",
 							javaExe, switchRelaunched, switchSubscribingClassLoader, "-cp", classPath, className)
-									.start();
+									.start().waitFor();
 					System.exit(0);
 				} else {
 					new ProcessBuilder(javaExe, switchRelaunched, switchSubscribingClassLoader, "-cp", classPath,
-							className).inheritIO().start();
+							className).inheritIO().start().waitFor();
 					System.exit(0);
 				}
 			} else {

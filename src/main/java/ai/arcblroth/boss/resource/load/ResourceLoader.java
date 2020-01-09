@@ -1,4 +1,4 @@
-package ai.arcblroth.boss.resource;
+package ai.arcblroth.boss.resource.load;
 
 import java.io.*;
 import java.net.URI;
@@ -14,6 +14,10 @@ import java.util.stream.Stream;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.PixelGrid;
 import ai.arcblroth.boss.render.Texture;
+import ai.arcblroth.boss.resource.ExternalResource;
+import ai.arcblroth.boss.resource.InternalResource;
+import ai.arcblroth.boss.resource.Resource;
+import ai.arcblroth.boss.resource.ZipResource;
 import ar.com.hjg.pngj.IImageLine;
 import ar.com.hjg.pngj.ImageLineInt;
 import ar.com.hjg.pngj.PngReader;
@@ -74,7 +78,7 @@ public class ResourceLoader {
 	        Path internalPath = fileSystem.getPath(folder.getPath());
 		    return Files.walk(internalPath, recursive ? Integer.MAX_VALUE : 1)
 		    		.filter((path) -> !path.toString().endsWith("/") && !path.toString().endsWith(File.separator))
-		    		.map((path) -> new ExternalResource(path.toString()));
+		    		.map((path) -> new ZipResource(fileSystem, path));
 	    } else {
 	    	Path internalPath = Paths.get(internalFolder);
 		    return Files.walk(internalPath, recursive ? Integer.MAX_VALUE : 1)

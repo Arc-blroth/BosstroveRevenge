@@ -7,11 +7,11 @@ import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.event.AutoSubscribeClass;
 import ai.arcblroth.boss.event.EventBus;
+import ai.arcblroth.boss.event.SubscribingClassLoader;
 import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.io.console.*;
 import ai.arcblroth.boss.load.LoadEngine;
-import ai.arcblroth.boss.load.SubscribingClassLoader;
-import ai.arcblroth.boss.load.TextureCache;
+import ai.arcblroth.boss.resource.TextureCache;
 import ai.arcblroth.boss.util.ThreadUtils;
 
 public final class BosstrovesRevenge extends Thread {
