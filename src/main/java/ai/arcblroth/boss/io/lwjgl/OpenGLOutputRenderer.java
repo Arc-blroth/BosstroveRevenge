@@ -73,7 +73,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 			if(Relauncher.IS_WINDOWS && !Relauncher.IS_CYGWIN && !Relauncher.IS_MINGW_XTERM) {
 				Resource consolas = new ExternalResource("C:\\Windows\\Fonts\\consola.ttf");
 				if(consolas.exists()) {
-					logger.log(Level.INFO, "Using Consolas® as font.");
+					logger.log(Level.INFO, "Using ConsolasÂ® as font.");
 					font = consolas;
 				}
 			}

@@ -156,7 +156,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					}
 				} else {
 					String toPrint = Ansi.ansi().cursor(1, 1).reset()
-							.a(String.format("Screen resolution too small [%s×%s]", s.getColumns(), s.getRows()))
+							.a(String.format("Screen resolution too small [%sÃ—%s]", s.getColumns(), s.getRows()))
 							.eraseScreen(Erase.FORWARD).toString();
 					if (terminal.getType() != Terminal.TYPE_DUMB) {
 						terminal.writer().print(toPrint + "\n");
