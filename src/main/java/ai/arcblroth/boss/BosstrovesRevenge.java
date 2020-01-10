@@ -12,6 +12,7 @@ import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.io.console.*;
 import ai.arcblroth.boss.load.LoadEngine;
 import ai.arcblroth.boss.resource.TextureCache;
+import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.ThreadUtils;
 
 public final class BosstrovesRevenge extends Thread {
@@ -32,10 +33,12 @@ public final class BosstrovesRevenge extends Thread {
 	public static final String TITLE = "Bosstrove's Revenge";
 	private boolean isRunning = true;
 	private boolean hasAlreadyShutdown = false;
+	private final Logger globalLogger, mainLogger;
 	private EventBus globalEventBus;
 	private IOutputRenderer outputRenderer;
 	private Thread renderThread;
 	private final Object renderLock = new Object();
+	private volatile boolean isRendering = false;
 	private TextureCache globalTextureCache;
 	private IEngine engine;
 
@@ -43,8 +46,12 @@ public final class BosstrovesRevenge extends Thread {
 		if (INSTANCE != null)
 			throw new IllegalStateException("Class has already been initilized!");
 
-		setName(TITLE + " Relauncher");
-
+		Thread.currentThread().setName(TITLE + " Relauncher");
+		setName(TITLE + " Main Thread");
+		
+		this.globalLogger = Logger.getGlobal();
+		this.mainLogger = Logger.getLogger("Main");
+		
 		// Register the EventBus subscribing hook
 		this.globalEventBus = globalEventBus;
 		((SubscribingClassLoader) Relauncher.class.getClassLoader()).addHook((clazz) -> {
@@ -52,9 +59,6 @@ public final class BosstrovesRevenge extends Thread {
 				globalEventBus.subscribe(clazz);
 			}
 		});
-		
-		//Register input hook
-		globalEventBus.subscribe(ConsoleInputHandler.class);
 		
 		//Register shutdown hook
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -75,16 +79,16 @@ public final class BosstrovesRevenge extends Thread {
 		outputRenderer = renderer;
 		
 		renderThread = new Thread(() -> {
-			this.setName(TITLE + " Render Thread");
+			Thread.currentThread().setName(TITLE + " Render Thread");
 			outputRenderer.init();
 			while(isRunning) {
 				try {
 					synchronized(renderLock) {
 						renderLock.wait();
+						isRendering = true;
 						outputRenderer.render(engine.getRenderer().render());
+						isRendering = false;
 					}
-				} catch (InterruptedException e) {
-					
 				} catch (Exception e) {
 					BosstrovesRevenge.get().handleRendererCrash(e);
 				}
@@ -97,24 +101,47 @@ public final class BosstrovesRevenge extends Thread {
 			outputRenderer.clear();
 			globalTextureCache = new TextureCache();
 			
+			long lastStepTime = System.currentTimeMillis();
+			long lastLoopTime = System.currentTimeMillis();
+			
 			//the first Engine initilizes all assets and classes
 			setEngine(new LoadEngine());
 			renderThread.start();
 			
 			while (isRunning) {
-				globalEventBus.fireEvent(new StepEvent());
-				synchronized(renderLock) {
-					renderLock.notifyAll();
+				
+				long currentStepTime = System.currentTimeMillis();
+				globalEventBus.fireEvent(new StepEvent(currentStepTime - lastStepTime));
+				lastStepTime = currentStepTime;
+				
+				if(!isRendering) {
+					synchronized(renderLock) {
+						renderLock.notifyAll();
+					}
 				}
+				
 				outputRenderer.pollInput();
+				
+				if(System.currentTimeMillis() - lastLoopTime < StaticDefaults.MILLISECONDS_PER_STEP) {
+					while(System.currentTimeMillis() - lastLoopTime < StaticDefaults.MILLISECONDS_PER_STEP) {
+						Thread.sleep(1);
+					}
+				} else {
+					mainLogger.log(Level.WARNING,
+							"Loop time exceeded MILLISECONDS_PER_STEP by "
+							+ (System.currentTimeMillis() - lastLoopTime)
+							+ "ms"
+					);
+				}
+				lastLoopTime = System.currentTimeMillis();
+				
 			}
 		} catch (Throwable e) {
 			if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
 				outputRenderer.displayFatalError(e);
 			} else {
-				Logger.getGlobal().log(Level.SEVERE, "FATAL ERROR", e);
+				globalLogger.log(Level.SEVERE, "FATAL ERROR", e);
 			}
-			ThreadUtils.waitForever();
 		}
 	}
 
@@ -139,7 +166,7 @@ public final class BosstrovesRevenge extends Thread {
 	}
 
 	private void handleRendererCrash(Exception e) {
-		Logger.getLogger("Main").log(Level.SEVERE, "Fatal exception in rendering loop: ", e);
+		globalLogger.log(Level.SEVERE, "Fatal exception in rendering loop: ", e);
 		shutdown(-1);
 	}
 	
@@ -147,7 +174,11 @@ public final class BosstrovesRevenge extends Thread {
 		if(!hasAlreadyShutdown) {
 			hasAlreadyShutdown = true;
 			isRunning = false;
-			outputRenderer.dispose();
+			try {
+				outputRenderer.dispose();
+			} catch (Exception e) {
+				globalLogger.log(Level.SEVERE, "Exception in shutting down renderer: ", e);
+			}
 			System.exit(exitcode);
 		}
 	}

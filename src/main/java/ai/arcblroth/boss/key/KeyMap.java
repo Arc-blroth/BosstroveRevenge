@@ -16,15 +16,11 @@ public class KeyMap extends ConcurrentHashMap<Character, Keybind> implements IRe
 		return INSTANCE;
 	}
 	
-	public Keybind getTile(Character key) {
-		return get(key);
-	}
-	
 	public Keybind getRegistered(Character key) {
 		return get(key);
 	}
 
-	public void register(Character key, Keybind floorTile) {
-		put(key, floorTile);
+	public void register(Character key, Keybind keybind) {
+		put(key, keybind);
 	}
 }

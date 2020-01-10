@@ -1,4 +1,4 @@
-package ai.arcblroth.boss.load.exception;
+package ai.arcblroth.boss.resource.load.exception;
 
 public class UnsupportedSpecificationVersionException extends Exception {
 
