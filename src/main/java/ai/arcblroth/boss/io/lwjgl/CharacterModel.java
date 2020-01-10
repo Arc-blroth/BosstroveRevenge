@@ -28,17 +28,14 @@ public class CharacterModel {
 	private final int VBO;
 	private final int EBO;
 	
-	public CharacterModel(STBTTAlignedQuad quad) {
-		
-		//"Normalize" the vertices
-		float max = Math.abs(quad.x1());
+	public CharacterModel(STBTTAlignedQuad quad, int characterWidth) {
 		
 		float[] verticesAndTextureCoords = new float[] {
-				//          ----Vertices----               ----TexCoords----
-				quad.x0() / max, quad.y0() / max, 0,    quad.s0(), quad.t0(),
-				quad.x1() / max, quad.y0() / max, 0,    quad.s1(), quad.t0(),
-				quad.x1() / max, quad.y1() / max, 0,    quad.s1(), quad.t1(),
-				quad.x0() / max, quad.y1() / max, 0,    quad.s0(), quad.t1()
+				//                   ----Vertices----                           ----TexCoords----
+				quad.x0() / characterWidth, quad.y0() / characterWidth, 0,    quad.s0(), quad.t0(),
+				quad.x1() / characterWidth, quad.y0() / characterWidth, 0,    quad.s1(), quad.t0(),
+				quad.x1() / characterWidth, quad.y1() / characterWidth, 0,    quad.s1(), quad.t1(),
+				quad.x0() / characterWidth, quad.y1() / characterWidth, 0,    quad.s0(), quad.t1()
 		};
 		
 		VAO = glGenVertexArrays();

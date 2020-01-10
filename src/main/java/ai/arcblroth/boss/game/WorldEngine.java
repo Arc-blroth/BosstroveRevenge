@@ -31,13 +31,13 @@ public class WorldEngine implements IEngine {
 	@SubscribeEvent
 	public void handleKeyInput(CharacterInputEvent e) {
 		if(e.getKey() == 'd') {
-			renderer.setRenderOffset(renderer.getRenderOffsetX() + 1, renderer.getRenderOffsetY());
+			renderer.setRenderOffset(renderer.getRenderOffsetX() + 5, renderer.getRenderOffsetY());
 		} else if(e.getKey() == 'a') {
-			renderer.setRenderOffset(renderer.getRenderOffsetX() - 1, renderer.getRenderOffsetY());
+			renderer.setRenderOffset(renderer.getRenderOffsetX() - 5, renderer.getRenderOffsetY());
 		} else if(e.getKey() == 'w') {
-			renderer.setRenderOffset(renderer.getRenderOffsetX(), renderer.getRenderOffsetY() - 1);
+			renderer.setRenderOffset(renderer.getRenderOffsetX(), renderer.getRenderOffsetY() - 5);
 		} else if(e.getKey() == 's') {
-			renderer.setRenderOffset(renderer.getRenderOffsetX(), renderer.getRenderOffsetY() + 1);
+			renderer.setRenderOffset(renderer.getRenderOffsetX(), renderer.getRenderOffsetY() + 5);
 		}
 	}
 

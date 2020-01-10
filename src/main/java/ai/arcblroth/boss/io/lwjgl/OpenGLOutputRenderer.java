@@ -4,6 +4,7 @@ import org.joml.Matrix4f;
 import org.lwjgl.system.MemoryStack;
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.Relauncher;
+import ai.arcblroth.boss.crash.CrashReportGenerator;
 import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.resource.ExternalResource;
@@ -106,6 +107,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 				glUniform1i(glGetUniformLocation(shader.getHandle(), "texture1"), 0);
 				
 				try (MemoryStack stack = MemoryStack.stackPush()) {
+					// Figure out the aspect ratio so we can maximize the final output
 					IntBuffer widthBuf = stack.mallocInt(1);
 					IntBuffer heightBuf = stack.mallocInt(1);
 					glfwGetWindowSize(window.getHandle(), widthBuf, heightBuf);
@@ -138,6 +140,61 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 					}
 					Matrix4f scaledModelMatrix = new Matrix4f().scale(pixelSize, pixelSize, 1F);
 					
+					//FPS + memory
+					if(SHOW_FPS) {
+						
+						//"Undo" the above aspect ratio.
+						float topTranslation, leftTranslation;
+						if(width > height) {
+							topTranslation = aspectRatio;
+							leftTranslation = 1F;
+						} else {
+							topTranslation = 1F;
+							leftTranslation = aspectRatio;
+						}
+						
+						String fpsString = String.format("%.0f FPS", fps);
+						for(int fpsCharIndex = 0; fpsCharIndex < fpsString.length(); fpsCharIndex++) {
+							drawCharacter(
+								new Matrix4f(scaledModelMatrix).translate(
+										(-topTranslation / pixelSize + fpsCharIndex + 0.25F),
+										(leftTranslation / pixelSize - 1.75F),
+										0
+								).scale(1F, -1F, 1F),
+								new Matrix4f(scaledModelMatrix).translate(
+										(-topTranslation / pixelSize + fpsCharIndex + 0.75F),
+										(leftTranslation / pixelSize - 0.75F),
+										0
+								).scale(0.5F, 1F, 1F),
+								new Pair<Color, Color>(Color.WHITE, Color.TRANSPARENT),
+								fpsString.charAt(fpsCharIndex)
+							);
+						}
+						
+						String memString = String.format("%s MB / %s MB", 
+								Runtime.getRuntime().freeMemory() / BYTES_IN_MEGABYTE,
+								Runtime.getRuntime().totalMemory() / BYTES_IN_MEGABYTE
+						);
+						for(int memCharIndex = 0; memCharIndex < memString.length(); memCharIndex++) {
+							drawCharacter(
+								new Matrix4f(scaledModelMatrix).translate(
+										(topTranslation / pixelSize - memCharIndex - 1.25F),
+										(leftTranslation / pixelSize - 1.75F),
+										0
+								).scale(1F, -1F, 1F),
+								new Matrix4f(scaledModelMatrix).translate(
+										(topTranslation / pixelSize - memCharIndex - 0.75F),
+										(leftTranslation / pixelSize - 0.75F),
+										0
+								).scale(0.5F, 1F, 1F),
+								new Pair<Color, Color>(Color.WHITE, Color.TRANSPARENT),
+								memString.charAt(memString.length() - 1 - memCharIndex)
+							);
+						}
+					}
+					
+					
+					// Render each row like a printer would
 					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
 						ArrayList<Color> row1 = pg.getRow(rowNum);
 						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
@@ -146,49 +203,44 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
 							
 							if(rowTxt.get(colNum) == StaticDefaults.RESET_CHAR) {
-									
+								// Draw ordinary pixels
+								// If pixel color == background color, don't draw it!
 								if(!row1.get(colNum).equals(StaticDefaults.RESET_COLOR)) {
-									shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
+									drawPixel(
+										new Matrix4f(scaledModelMatrix).translate(
 											(-pg.getWidth()/2F + colNum),
 											(pg.getHeight()/2F - rowNum),
 											0
-									).scale(0.5F));
-									shader.setVector4f("color", rgbToVector(
-											TextureUtils.interpolate(StaticDefaults.RESET_COLOR, row1.get(colNum), row1.get(colNum).getAlpha() / 255D)));
-									model.render();
+										).scale(0.5F),
+										row1.get(colNum)
+									);
 								}
 								if(!row2.get(colNum).equals(StaticDefaults.RESET_COLOR)) {
-									shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
-											(-pg.getWidth()/2F + colNum),
-											(pg.getHeight()/2F - rowNum - 1),
-											0
-									).scale(0.5F));
-									shader.setVector4f("color", rgbToVector(
-											TextureUtils.interpolate(StaticDefaults.RESET_COLOR, row2.get(colNum), row2.get(colNum).getAlpha() / 255D)));
-									model.render();
+									drawPixel(
+										new Matrix4f(scaledModelMatrix).translate(
+												(-pg.getWidth()/2F + colNum),
+												(pg.getHeight()/2F - rowNum - 1),
+												0
+										).scale(0.5F),
+										row2.get(colNum)
+									);
 								}
 							} else {
-								shader.setBool("useTexture", true);
-								shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
-										(-pg.getWidth()/2F + colNum - 0.5F),
-										(pg.getHeight()/2F - rowNum - 1.0F),
-										0
-								).scale(1F, -1F, 1F));
-								Pair<Color, Color> colors = pg.getColorsAt(colNum, rowNum);
-								shader.setVector4f("color", rgbToVector(
-										TextureUtils.interpolate(StaticDefaults.RESET_COLOR, colors.getFirst(), colors.getFirst().getAlpha() / 255D)));
-								fontManager.renderCharacter(rowTxt.get(colNum));
-								shader.setBool("useTexture", false);
-								
-								shader.setMatrix4f("model", new Matrix4f(scaledModelMatrix).translate(
-										(-pg.getWidth()/2F + colNum),
-										(pg.getHeight()/2F - rowNum - 1F/2F),
-										0
-								).scale(0.5F, 1F, 1F));
-								shader.setVector4f("color", rgbToVector(
-										TextureUtils.interpolate(StaticDefaults.RESET_COLOR, colors.getSecond(), colors.getSecond().getAlpha() / 255D)));
-								model.render();
-								
+								// Draw characters on a background color
+								drawCharacter(
+									new Matrix4f(scaledModelMatrix).translate(
+											(-pg.getWidth()/2F + colNum - 0.5F),
+											(pg.getHeight()/2F - rowNum - 1.5F),
+											0
+									).scale(1F, -1F, 1F),
+									new Matrix4f(scaledModelMatrix).translate(
+											(-pg.getWidth()/2F + colNum),
+											(pg.getHeight()/2F - rowNum - 0.5F),
+											0
+									).scale(0.5F, 1F, 1F),
+									pg.getColorsAt(colNum, rowNum),
+									rowTxt.get(colNum)
+								);
 							}
 							
 						}
@@ -212,6 +264,26 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 		//}
 	}
 	
+	private void drawPixel(Matrix4f modelMatrix, Color color) {
+		shader.setMatrix4f("model", modelMatrix);
+		shader.setVector4f("color", rgbToVector(color));
+		model.render();
+	}
+	
+	private void drawCharacter(Matrix4f characterModelMatrix, Matrix4f backgroundModelMatrix, Pair<Color, Color> colors, char character) {
+		// Draw background first
+		shader.setMatrix4f("model", backgroundModelMatrix);
+		shader.setVector4f("color", rgbToVector(colors.getSecond()));
+		model.render();
+		
+		// Draw the character second, because OpenGL
+		shader.setBool("useTexture", true);
+		shader.setMatrix4f("model", characterModelMatrix);
+		shader.setVector4f("color", rgbToVector(colors.getFirst()));
+		fontManager.renderCharacter(character);
+		shader.setBool("useTexture", false);
+	}
+	
 	@Override
 	public void dispose() {
 		model.dispose();
@@ -229,7 +301,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 
 	public void displayFatalError(Throwable e) {
 		error = e;
-		
+		System.out.println(CrashReportGenerator.generateCrashReport(e));
 	}
 	
 	public void clear() {
