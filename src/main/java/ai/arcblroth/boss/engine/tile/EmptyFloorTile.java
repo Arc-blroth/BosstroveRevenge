@@ -17,7 +17,7 @@ public final class EmptyFloorTile extends FloorTile {
 	}
 
 	@Override
-	public void onEntityHit(IEntity e, Side s) {}
+	public void onEntityHit(IEntity e, Direction s) {}
 
 	@Override
 	public void onEntityStep(IEntity e) {}

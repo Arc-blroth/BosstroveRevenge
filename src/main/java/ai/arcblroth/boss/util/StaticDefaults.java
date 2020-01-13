@@ -35,5 +35,7 @@ public final class StaticDefaults {
 		}
 		DEFAULT_TEXTURE = new Texture(pg);
 	}
+	
+	public static final double MAX_PLAYER_HEALTH = 10;
 
 }

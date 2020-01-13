@@ -5,13 +5,13 @@ import ai.arcblroth.boss.key.Keybind;
 
 public interface IInteractable {
 	
-	public enum Side {NORTH, EAST, SOUTH, WEST};
+	public enum Direction {NORTH, EAST, SOUTH, WEST};
 	
 	/**
 	 * Called whenever an entity steps on edge of an object.
 	 * @param s - which direction the entity came from
 	 */
-	public void onEntityHit(IEntity e, Side s);
+	public void onEntityHit(IEntity e, Direction d);
 	
 	/**
 	 * Called while an entity is stepping over an object.

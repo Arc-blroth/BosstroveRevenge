@@ -36,6 +36,11 @@ public class WorldRenderer implements IRenderer {
 	@Override
 	public PixelAndTextGrid render() {
 		PixelAndTextGrid ptg = new PixelAndTextGrid(StaticDefaults.OUTPUT_WIDTH, StaticDefaults.OUTPUT_HEIGHT);
+		renderTiles(ptg);
+		return ptg;
+	}
+	
+	private void renderTiles(PixelAndTextGrid ptg) {
 		int xTileOff = (int)Math.floor(xOffset / StaticDefaults.TILE_WIDTH);
 		int yTileOff = (int)Math.floor(yOffset / StaticDefaults.TILE_HEIGHT);
 		int xSubtileOff = (int)Math.round(xOffset - xTileOff * StaticDefaults.TILE_WIDTH);
@@ -76,7 +81,6 @@ public class WorldRenderer implements IRenderer {
 				}
 			}
 		}
-		return ptg;
 	}
 
 }

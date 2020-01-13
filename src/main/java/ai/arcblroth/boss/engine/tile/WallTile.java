@@ -1,6 +1,6 @@
 package ai.arcblroth.boss.engine.tile;
 
-import ai.arcblroth.boss.engine.IInteractable.Side;
+import ai.arcblroth.boss.engine.IInteractable.Direction;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.register.IRegistrable;
@@ -30,7 +30,7 @@ public class WallTile implements ITile, IRegistrable<WallTile> {
 	}
 
 	@Override
-	public void onEntityHit(IEntity entity, Side s) {
+	public void onEntityHit(IEntity entity, Direction s) {
 		
 	}
 

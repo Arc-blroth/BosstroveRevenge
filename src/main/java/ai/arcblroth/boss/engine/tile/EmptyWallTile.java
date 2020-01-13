@@ -25,7 +25,7 @@ public final class EmptyWallTile extends WallTile {
 	}
 
 	@Override
-	public void onEntityHit(IEntity e, Side s) {}
+	public void onEntityHit(IEntity e, Direction s) {}
 
 	@Override
 	public void onEntityStep(IEntity e) {}

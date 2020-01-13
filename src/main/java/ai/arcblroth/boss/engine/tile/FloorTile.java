@@ -29,7 +29,7 @@ public class FloorTile implements ITile, IRegistrable<FloorTile> {
 	}
 
 	@Override
-	public void onEntityHit(IEntity entity, Side s) {
+	public void onEntityHit(IEntity entity, Direction s) {
 		
 	}
 

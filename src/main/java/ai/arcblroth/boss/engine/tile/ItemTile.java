@@ -1,6 +1,6 @@
 package ai.arcblroth.boss.engine.tile;
 
-import ai.arcblroth.boss.engine.IInteractable.Side;
+import ai.arcblroth.boss.engine.IInteractable.Direction;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.item.IItem;
 import ai.arcblroth.boss.key.Keybind;
@@ -30,7 +30,7 @@ public class ItemTile implements ITile {
 	}
 
 	@Override
-	public void onEntityHit(IEntity entity, Side s) {
+	public void onEntityHit(IEntity entity, Direction s) {
 		
 	}
 
