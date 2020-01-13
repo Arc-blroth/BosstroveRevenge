@@ -77,5 +77,10 @@ public class Hitbox {
 			return false;
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return "Hitbox [x=" + x + ", y=" + y + ", width=" + width + ", height=" + height + "]";
+	}
 	
 }
