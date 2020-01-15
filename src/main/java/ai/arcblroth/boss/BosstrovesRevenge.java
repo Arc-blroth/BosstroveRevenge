@@ -109,6 +109,8 @@ public final class BosstrovesRevenge extends Thread {
 			renderThread.start();
 			
 			while (isRunning) {
+
+				outputRenderer.pollInput();
 				
 				long currentStepTime = System.currentTimeMillis();
 				globalEventBus.fireEvent(new StepEvent(currentStepTime - lastStepTime));
@@ -119,8 +121,6 @@ public final class BosstrovesRevenge extends Thread {
 						renderLock.notifyAll();
 					}
 				}
-				
-				outputRenderer.pollInput();
 				
 				if(System.currentTimeMillis() - lastLoopTime < StaticDefaults.MILLISECONDS_PER_STEP) {
 					while(System.currentTimeMillis() - lastLoopTime < StaticDefaults.MILLISECONDS_PER_STEP) {
