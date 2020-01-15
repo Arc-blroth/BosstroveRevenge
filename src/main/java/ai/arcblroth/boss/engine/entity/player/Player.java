@@ -1,5 +1,6 @@
 package ai.arcblroth.boss.engine.entity.player;
 
+import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.IHitboxed;
 import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.entity.*;
@@ -7,6 +8,8 @@ import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.render.Texture;
+import ai.arcblroth.boss.resource.InternalResource;
+import ai.arcblroth.boss.util.StaticDefaults;
 
 public class Player implements IEntity, IMortal, IDirected {
 	
@@ -27,7 +30,7 @@ public class Player implements IEntity, IMortal, IDirected {
 
 	@Override
 	public void onEntityStep(IEntity e) {
-		
+		System.out.println("Stepped entity " + e);
 	}
 
 	@Override
@@ -37,7 +40,7 @@ public class Player implements IEntity, IMortal, IDirected {
 
 	@Override
 	public Texture getTexture() {
-		return FloorTileRegistry.get().getTile("empty").getTexture();
+		return BosstrovesRevenge.get().getTextureCache().get(new InternalResource("yeet.png"));
 	}
 
 	@Override
@@ -72,7 +75,7 @@ public class Player implements IEntity, IMortal, IDirected {
 
 	@Override
 	public Hitbox getHitbox() {
-		return new Hitbox(-0.5, -0.5, 1, 1);
+		return new Hitbox(-0.5, -0.5, 1, 1).resolveRelativeTo(pos);
 	}
 
 	@Override

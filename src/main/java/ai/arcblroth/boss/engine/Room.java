@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.entity.player.Player;
+import ai.arcblroth.boss.engine.hitbox.HitboxManager;
 import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.register.FloorTileRegistry;
@@ -16,6 +17,7 @@ public class Room {
 	private Grid2D<FloorTile> floorTiles;
 	private Grid2D<WallTile> wallTiles;
 	private ArrayList<IEntity> entities;
+	private HitboxManager hitboxManager;
 	private Player player;
 	private int width, height;
 	
@@ -28,7 +30,28 @@ public class Room {
 		this.wallTiles = new Grid2D<WallTile>(width, height, WallTileRegistry.get().getTile("empty"));
 		this.entities = new ArrayList<>();
 		this.player = new Player(initPlayerPosition, StaticDefaults.MAX_PLAYER_HEALTH);
-		entities.add(player);
+		this.hitboxManager = new HitboxManager(width, height);
+	}
+	
+	public void runCollisionCallbacks() {
+		hitboxManager.clear();
+		entities.forEach(hitboxManager::add);
+		hitboxManager.add(player);
+		
+		for(IEntity entity : entities) {
+			hitboxManager.getAllCollisionsOf(entity).forEach((IHitboxed other) -> {
+				if(other instanceof IEntity) {
+					entity.onEntityStep((IEntity) other);
+					// We don't call onEntityStep on the other entity
+					// to prevent duplicate calls.
+				}
+			});
+		}
+		hitboxManager.getAllCollisionsOf(player).forEach((IHitboxed other) -> {
+			if(other instanceof IEntity) {
+				player.onEntityStep((IEntity) other);
+			}
+		});
 	}
 
 	public ArrayList<IEntity> getEntities() {

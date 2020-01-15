@@ -15,6 +15,11 @@ public class HitboxManager {
 		isQuadtreeValid = true;
 	}
 	
+	public void clear() {
+		objects.clear();
+		isQuadtreeValid = false;
+	}
+	
 	public <H extends IHitboxed> void add(H object) {
 		objects.add(object);
 		isQuadtreeValid = false;

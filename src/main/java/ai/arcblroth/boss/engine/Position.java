@@ -2,17 +2,17 @@ package ai.arcblroth.boss.engine;
 
 import ai.arcblroth.boss.util.Pair;
 
-public class Position extends Pair<Integer, Integer> {
+public class Position extends Pair<Double, Double> {
 
-	public Position(int x, int y) {
+	public Position(double x, double y) {
 		super(x, y);
 	}
 	
-	public int getX() {
+	public double getX() {
 		return getFirst();
 	}
 	
-	public int getY() {
+	public double getY() {
 		return getSecond();
 	}
 

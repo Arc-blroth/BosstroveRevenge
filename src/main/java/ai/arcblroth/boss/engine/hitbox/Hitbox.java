@@ -25,6 +25,10 @@ public class Hitbox {
 		}
 		return false;
 	}
+	
+	public Hitbox resolveRelativeTo(Position reference) {
+		return new Hitbox(this.x + reference.getX(), this.y + reference.getY(), this.width, this.height);
+	}
 
 	public double getX() {
 		return x;

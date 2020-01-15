@@ -10,6 +10,7 @@ import ai.arcblroth.boss.event.SubscribeEvent;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.render.IRenderer;
+import ai.arcblroth.boss.util.StaticDefaults;
 
 public class WorldEngine implements IEngine {
 	
@@ -25,8 +26,13 @@ public class WorldEngine implements IEngine {
 	@Override
 	@SubscribeEvent
 	public void step(StepEvent e) {
+		room.runCollisionCallbacks();
+		
 		Position playerPos = room.getPlayer().getPosition();
-		renderer.setRenderOffset(playerPos.getX(), playerPos.getY());
+		renderer.setRenderOffset(
+				playerPos.getX() * StaticDefaults.TILE_WIDTH - StaticDefaults.OUTPUT_WIDTH / 2D,
+				playerPos.getY() * StaticDefaults.TILE_HEIGHT - StaticDefaults.OUTPUT_HEIGHT / 2D
+		);
 	}
 
 	@Override
@@ -35,16 +41,16 @@ public class WorldEngine implements IEngine {
 		Player player = room.getPlayer();
 		if(e.getKey() == 'w') {
 			player.setDirection(Direction.NORTH);
-			player.setPosition(new Position(player.getPosition().getX(), player.getPosition().getY() - 5));
+			player.setPosition(new Position(player.getPosition().getX(), player.getPosition().getY() - 0.5));
 		} else if(e.getKey() == 'd') {
 			player.setDirection(Direction.SOUTH);
-			player.setPosition(new Position(player.getPosition().getX() + 5, player.getPosition().getY()));
+			player.setPosition(new Position(player.getPosition().getX() + 0.5, player.getPosition().getY()));
 		} else if(e.getKey() == 'a') {
 			player.setDirection(Direction.WEST);
-			player.setPosition(new Position(player.getPosition().getX() - 5, player.getPosition().getY()));
+			player.setPosition(new Position(player.getPosition().getX() - 0.5, player.getPosition().getY()));
 		} else if(e.getKey() == 's') {
 			player.setDirection(Direction.EAST);
-			player.setPosition(new Position(player.getPosition().getX(), player.getPosition().getY() + 5));
+			player.setPosition(new Position(player.getPosition().getX(), player.getPosition().getY() + 0.5));
 		}
 	}
 
