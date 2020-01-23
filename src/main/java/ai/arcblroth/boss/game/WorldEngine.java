@@ -41,16 +41,16 @@ public class WorldEngine implements IEngine {
 		Player player = room.getPlayer();
 		if(e.getKey() == 'w') {
 			player.setDirection(Direction.NORTH);
-			player.setPosition(new Position(player.getPosition().getX(), player.getPosition().getY() - 0.5));
+			player.setPosition(new Position(player.getPosition().getX(), player.getPosition().getY() - 0.25));
 		} else if(e.getKey() == 'd') {
-			player.setDirection(Direction.SOUTH);
-			player.setPosition(new Position(player.getPosition().getX() + 0.5, player.getPosition().getY()));
+			player.setDirection(Direction.EAST);
+			player.setPosition(new Position(player.getPosition().getX() + 0.25, player.getPosition().getY()));
 		} else if(e.getKey() == 'a') {
 			player.setDirection(Direction.WEST);
-			player.setPosition(new Position(player.getPosition().getX() - 0.5, player.getPosition().getY()));
+			player.setPosition(new Position(player.getPosition().getX() - 0.25, player.getPosition().getY()));
 		} else if(e.getKey() == 's') {
-			player.setDirection(Direction.EAST);
-			player.setPosition(new Position(player.getPosition().getX(), player.getPosition().getY() + 0.5));
+			player.setDirection(Direction.SOUTH);
+			player.setPosition(new Position(player.getPosition().getX(), player.getPosition().getY() + 0.25));
 		}
 	}
 

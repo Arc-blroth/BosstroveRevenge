@@ -10,17 +10,22 @@ import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.util.StaticDefaults;
+import ai.arcblroth.boss.util.TextureUtils;
 
 public class Player implements IEntity, IMortal, IDirected {
 	
 	private Position pos;
 	private double health;
 	private Direction dir;
+	private Texture texture, flippedTexture;
+	private boolean flipTexture;
 
 	public Player(Position initialPos, double initialHealth) {
 		this.pos = initialPos;
 		this.health = initialHealth;
 		this.dir = Direction.NORTH;
+		this.texture = BosstrovesRevenge.get().getTextureCache().get(new InternalResource("data/texture/entity/daniel.png"));
+		this.flippedTexture = new Texture(TextureUtils.flipX(texture));
 	}
 	
 	@Override
@@ -40,7 +45,7 @@ public class Player implements IEntity, IMortal, IDirected {
 
 	@Override
 	public Texture getTexture() {
-		return BosstrovesRevenge.get().getTextureCache().get(new InternalResource("yeet.png"));
+		return flipTexture ? flippedTexture : texture;
 	}
 
 	@Override
@@ -85,6 +90,8 @@ public class Player implements IEntity, IMortal, IDirected {
 
 	@Override
 	public void setDirection(Direction dir) {
+		if(dir == Direction.WEST) flipTexture = true;
+		else if(dir == Direction.EAST) flipTexture = false;
 		this.dir = dir;
 	}
 	
