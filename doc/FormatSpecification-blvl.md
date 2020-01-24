@@ -94,10 +94,6 @@ Example File:
 - The key that this levelId will be registered with. Must be unique.
 - Required
 
-### `tileType`
-- Either "floorTile" or "wallTile" (case insensitive)
-- Required
-
 ### `world`
 - World number to display
 - Required
