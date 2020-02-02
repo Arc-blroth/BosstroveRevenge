@@ -97,6 +97,16 @@ public class TextureUtils {
 		return dest;
 	}
 	
+	public static PixelGrid sub(PixelGrid src, int xOffset, int yOffset, int width, int height) {
+		PixelGrid out = new PixelGrid(width, height);
+		for(int y = yOffset; y < height; y++) {
+			for(int x = xOffset; x < width; x++) {
+				out.setPixel(x - xOffset, y - yOffset, src.getPixel(x, y));
+			}
+		}
+		return out;
+	}
+	
 	public static PixelGrid flipX(PixelGrid src) {
 		PixelGrid dest = new PixelGrid(src);
 		for(int y = 0; y < src.getHeight(); y++) {

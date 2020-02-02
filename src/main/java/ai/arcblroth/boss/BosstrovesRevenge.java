@@ -11,7 +11,7 @@ import ai.arcblroth.boss.event.SubscribingClassLoader;
 import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.io.console.*;
 import ai.arcblroth.boss.load.LoadEngine;
-import ai.arcblroth.boss.resource.TextureCache;
+import ai.arcblroth.boss.resource.load.TextureCache;
 import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.ThreadUtils;
 

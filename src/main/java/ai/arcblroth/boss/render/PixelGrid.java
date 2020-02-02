@@ -30,7 +30,7 @@ public class PixelGrid extends Grid2D<Color> {
 			set(x, y, c);
 	}
 
-	private boolean isCoordinateValid(int x, int y) {
+	protected boolean isCoordinateValid(int x, int y) {
 		if (x >= 0 && x < getWidth() && y >= 0 && y < getHeight())
 			return true;
 		else

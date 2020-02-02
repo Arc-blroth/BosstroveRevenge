@@ -12,20 +12,14 @@ import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.TextureUtils;
 
-public class Player implements IEntity, IMortal, IDirected {
+public class Player extends Mob {
 	
-	private Position pos;
-	private double health;
-	private Direction dir;
-	private Texture texture, flippedTexture;
+	private Texture flippedTexture;
 	private boolean flipTexture;
 
 	public Player(Position initialPos, double initialHealth) {
-		this.pos = initialPos;
-		this.health = initialHealth;
-		this.dir = Direction.NORTH;
-		this.texture = BosstrovesRevenge.get().getTextureCache().get(new InternalResource("data/texture/entity/daniel.png"));
-		this.flippedTexture = new Texture(TextureUtils.flipX(texture));
+		super(BosstrovesRevenge.get().getTextureCache().get(new InternalResource("data/texture/entity/daniel.png")), initialPos, initialHealth);
+		this.flippedTexture = new Texture(TextureUtils.flipX(super.getTexture()));
 	}
 	
 	@Override
@@ -45,54 +39,19 @@ public class Player implements IEntity, IMortal, IDirected {
 
 	@Override
 	public Texture getTexture() {
-		return flipTexture ? flippedTexture : texture;
-	}
-
-	@Override
-	public Position getPosition() {
-		return pos;
-	}
-
-	@Override
-	public void setPosition(Position pos) {
-		this.pos = pos;
-	}
-
-	@Override
-	public double getHealth() {
-		return health;
-	}
-
-	@Override
-	public void setHealth(double health) {
-		this.health = health;
-	}
-
-	@Override
-	public void damage(double baseDamage) {
-		health -= baseDamage;
-	}
-
-	@Override
-	public void heal(double baseHealth) {
-		health += baseHealth;
+		return flipTexture ? flippedTexture : super.getTexture();
 	}
 
 	@Override
 	public Hitbox getHitbox() {
-		return new Hitbox(-0.5, -0.5, 1, 1).resolveRelativeTo(pos);
-	}
-
-	@Override
-	public Direction getDirection() {
-		return dir;
+		return new Hitbox(-0.5, -0.5, 1, 1).resolveRelativeTo(super.getPosition());
 	}
 
 	@Override
 	public void setDirection(Direction dir) {
 		if(dir == Direction.WEST) flipTexture = true;
 		else if(dir == Direction.EAST) flipTexture = false;
-		this.dir = dir;
+		super.setDirection(dir);
 	}
 	
 }

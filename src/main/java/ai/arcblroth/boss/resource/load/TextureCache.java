@@ -1,20 +1,23 @@
-package ai.arcblroth.boss.resource;
+package ai.arcblroth.boss.resource.load;
 
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import ai.arcblroth.boss.render.AnimatedTexture;
 import ai.arcblroth.boss.render.Texture;
-import ai.arcblroth.boss.resource.load.ResourceLoader;
+import ai.arcblroth.boss.resource.Resource;
 
 public final class TextureCache {
 	
 	private final TreeMap<Resource, Texture> cache;
 	private final Logger logger;
+	private AnimatedTextureLoader animatedTextureLoader;
 	
 	public TextureCache() {
 		this.cache = new TreeMap<Resource, Texture>();
 		this.logger = Logger.getLogger("TextureCache");
+		this.animatedTextureLoader = new AnimatedTextureLoader(this);
 	}
 	
 	public void add(Resource key, Texture texture) {
@@ -32,13 +35,19 @@ public final class TextureCache {
 		if(cache.containsKey(key)) {
 			return cache.get(key);
 		} else {
-			try {
-				Texture loadedTexture = ResourceLoader.loadPNG(key);
+			if(animatedTextureLoader.accepts(key)) {
+				AnimatedTexture loadedTexture = animatedTextureLoader.register(key);
 				cache.put(key, loadedTexture);
 				return loadedTexture;
-			} catch (NullPointerException e) {
-				logger.log(Level.WARNING, "Could not load texture at " + key.getPath() + ": ", e);
-				return null;
+			} else {
+				try {
+					Texture loadedTexture = ResourceLoader.loadPNG(key);
+					cache.put(key, loadedTexture);
+					return loadedTexture;
+				} catch (NullPointerException e) {
+					logger.log(Level.WARNING, "Could not load texture at " + key.getPath() + ": ", e);
+					return null;
+				}
 			}
 		}
 	}

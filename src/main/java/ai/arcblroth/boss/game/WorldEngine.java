@@ -5,6 +5,7 @@ import ai.arcblroth.boss.engine.IInteractable.Direction;
 import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.StepEvent;
+import ai.arcblroth.boss.engine.entity.Xulpir;
 import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.event.SubscribeEvent;
 import ai.arcblroth.boss.key.CharacterInputEvent;
@@ -21,6 +22,7 @@ public class WorldEngine implements IEngine {
 		this.room = new Room(40, 40, new Position(0, 0));
 		this.renderer = new WorldRenderer(room);
 		room.getFloorTiles().set(0, 0, FloorTileRegistry.get().getTile("boss.sand"));
+		room.getEntities().add(new Xulpir(new Position(5, 5), 10));
 	}
 	
 	@Override

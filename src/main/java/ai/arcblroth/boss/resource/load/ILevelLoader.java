@@ -5,26 +5,12 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import ai.arcblroth.boss.engine.tile.EmptyFloorTile;
-import ai.arcblroth.boss.engine.tile.EmptyWallTile;
-import ai.arcblroth.boss.engine.tile.FloorTile;
-import ai.arcblroth.boss.engine.tile.WallTile;
-import ai.arcblroth.boss.register.FloorTileRegistry;
-import ai.arcblroth.boss.register.WallTileRegistry;
-import ai.arcblroth.boss.render.PixelGrid;
-import ai.arcblroth.boss.render.Texture;
-import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.resource.Resource;
-import ai.arcblroth.boss.resource.TextureCache;
-import ai.arcblroth.boss.resource.load.exception.MalformedSpecificationException;
 import ai.arcblroth.boss.resource.load.exception.UnsupportedSpecificationVersionException;
-import ai.arcblroth.boss.util.StaticDefaults;
-import ai.arcblroth.boss.util.TextureUtils;
 
 public final class ILevelLoader extends AbstractIRegisterableLoader {
 	

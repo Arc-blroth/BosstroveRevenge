@@ -20,7 +20,6 @@ import ai.arcblroth.boss.render.PixelGrid;
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.resource.Resource;
-import ai.arcblroth.boss.resource.TextureCache;
 import ai.arcblroth.boss.resource.load.exception.MalformedSpecificationException;
 import ai.arcblroth.boss.resource.load.exception.UnsupportedSpecificationVersionException;
 import ai.arcblroth.boss.util.StaticDefaults;
