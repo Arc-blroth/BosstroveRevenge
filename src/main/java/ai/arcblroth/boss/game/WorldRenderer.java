@@ -63,23 +63,24 @@ public class WorldRenderer implements IRenderer {
 					// pixelX and pixelY are in pixels
 					// Note: we iterate from the bottomost pixel to the first
 					// so that textures larger than 8x8 will extend up.
-					for (int pixelY = floorTile.getTexture().getHeight(); pixelY >= 0; pixelY--) {
-						for (int pixelX = floorTile.getTexture().getWidth(); pixelX >= 0; pixelX--) {
+					for (int pixelY = floorTile.getTexture().getHeight() - 1; pixelY >= 0; pixelY--) {
+						for (int pixelX = floorTile.getTexture().getWidth() - 1; pixelX >= 0; pixelX--) {
 							ptg.setPixel(
-									x * StaticDefaults.TILE_WIDTH - xSubtileOff + pixelX,
-									y * StaticDefaults.TILE_HEIGHT - ySubtileOff + pixelY,
+									(x + 1) * StaticDefaults.TILE_WIDTH - xSubtileOff - floorTile.getTexture().getWidth() + pixelX,
+									(y + 1) * StaticDefaults.TILE_HEIGHT - ySubtileOff - floorTile.getTexture().getHeight() + pixelY,
 									floorTile.getTexture().getPixel(pixelX, pixelY)
 							);
 						}
 					}
-					for (int pixelY = wallTile.getTexture().getHeight(); pixelY >= 0; pixelY--) {
-						for (int pixelX = wallTile.getTexture().getWidth(); pixelX >= 0; pixelX--) {
-							ptg.setPixel(x * StaticDefaults.TILE_WIDTH - xSubtileOff + pixelX,
-									y * StaticDefaults.TILE_HEIGHT - ySubtileOff + pixelY,
+					for (int pixelY = wallTile.getTexture().getHeight() - 1; pixelY >= 0; pixelY--) {
+						for (int pixelX = wallTile.getTexture().getWidth() - 1; pixelX >= 0; pixelX--) {
+							ptg.setPixel(
+									(x + 1) * StaticDefaults.TILE_WIDTH - xSubtileOff - wallTile.getTexture().getWidth()  + pixelX,
+									(y + 1) * StaticDefaults.TILE_HEIGHT - ySubtileOff - wallTile.getTexture().getHeight() + pixelY,
 									TextureUtils.interpolateRGB(
 											ptg.getPixel(
-													x * StaticDefaults.TILE_WIDTH - xSubtileOff + pixelX,
-													y * StaticDefaults.TILE_HEIGHT - ySubtileOff + pixelY
+													(x + 1) * StaticDefaults.TILE_WIDTH - xSubtileOff - wallTile.getTexture().getWidth() + pixelX,
+													(y + 1) * StaticDefaults.TILE_HEIGHT - ySubtileOff - wallTile.getTexture().getHeight() + pixelY
 											),
 											wallTile.getTexture().getPixel(pixelX, pixelY),
 											wallTile.getTexture().getPixel(pixelX, pixelY).getAlpha() / 255D

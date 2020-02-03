@@ -33,7 +33,7 @@ public final class StaticDefaults {
 				pg.setPixel(x, y, Color.getFromHSBA(r.nextDouble()/5+0.5, 0.5, 0.8));
 			}
 		}
-		DEFAULT_TEXTURE = new Texture(pg);
+		DEFAULT_TEXTURE = new Texture(TextureUtils.sub(pg, 0, 0, 8, 8));
 	}
 	
 	public static final double MAX_PLAYER_HEALTH = 10;

@@ -29,7 +29,7 @@ public class Player extends Mob {
 
 	@Override
 	public void onEntityStep(IEntity e) {
-		System.out.println("Stepped entity " + e);
+		
 	}
 
 	@Override

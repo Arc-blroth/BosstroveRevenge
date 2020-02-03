@@ -1,0 +1,8 @@
+{
+	"versionId": 1,
+	"tileId": "boss.tree",
+	"tileType": "wallTile",
+	"passable": false,
+	"viscosity": 0.0,
+	"texture": "data/texture/tiles/tree.png"
+}
