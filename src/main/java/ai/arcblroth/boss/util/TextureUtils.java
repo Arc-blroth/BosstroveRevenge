@@ -99,9 +99,9 @@ public class TextureUtils {
 	
 	public static PixelGrid sub(PixelGrid src, int xOffset, int yOffset, int width, int height) {
 		PixelGrid out = new PixelGrid(width, height);
-		for(int y = yOffset; y < height; y++) {
-			for(int x = xOffset; x < width; x++) {
-				out.setPixel(x - xOffset, y - yOffset, src.getPixel(x, y));
+		for(int y = 0; y < height; y++) {
+			for(int x = 0; x < width; x++) {
+				out.setPixel(x, y, src.getPixel(x + xOffset, y + yOffset));
 			}
 		}
 		return out;

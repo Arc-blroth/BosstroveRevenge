@@ -1,5 +1,6 @@
 package ai.arcblroth.boss.resource.load;
 
+import java.lang.ref.WeakReference;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,11 +12,13 @@ import ai.arcblroth.boss.resource.Resource;
 public final class TextureCache {
 	
 	private final TreeMap<Resource, Texture> cache;
+	private final TreeMap<Resource, AnimatedTexture> animatedTextureCache;
 	private final Logger logger;
 	private AnimatedTextureLoader animatedTextureLoader;
 	
 	public TextureCache() {
 		this.cache = new TreeMap<Resource, Texture>();
+		this.animatedTextureCache = new TreeMap<>();
 		this.logger = Logger.getLogger("TextureCache");
 		this.animatedTextureLoader = new AnimatedTextureLoader(this);
 	}
@@ -38,6 +41,7 @@ public final class TextureCache {
 			if(animatedTextureLoader.accepts(key)) {
 				AnimatedTexture loadedTexture = animatedTextureLoader.register(key);
 				cache.put(key, loadedTexture);
+				animatedTextureCache.put(key, loadedTexture);
 				return loadedTexture;
 			} else {
 				try {
@@ -50,6 +54,12 @@ public final class TextureCache {
 				}
 			}
 		}
+	}
+
+	public void stepAnimatedTextures() {
+		animatedTextureCache.forEach((resource, texture) -> {
+			texture.advanceFrame();
+		});
 	}
 	
 }

@@ -39,6 +39,9 @@ public class WorldRenderer implements IRenderer {
 	
 	@Override
 	public PixelAndTextGrid render() {
+		
+		BosstrovesRevenge.get().getTextureCache().stepAnimatedTextures();
+		
 		PixelAndTextGrid ptg = new PixelAndTextGrid(StaticDefaults.OUTPUT_WIDTH, StaticDefaults.OUTPUT_HEIGHT);
 		renderTiles(ptg);
 		renderEntities(ptg);
@@ -91,10 +94,10 @@ public class WorldRenderer implements IRenderer {
 	
 	private void renderEntities(PixelAndTextGrid ptg) {
 		Hitbox screenBounds = new Hitbox(
-				xOffset,
-				yOffset,
-				Math.ceil(StaticDefaults.OUTPUT_WIDTH / StaticDefaults.TILE_WIDTH) + 1,
-				Math.ceil(StaticDefaults.OUTPUT_HEIGHT / StaticDefaults.TILE_HEIGHT) + 1
+				Math.floor(xOffset / StaticDefaults.TILE_WIDTH) - 1,
+				Math.floor(yOffset / StaticDefaults.TILE_HEIGHT) - 1,
+				Math.ceil(StaticDefaults.OUTPUT_WIDTH / (double)StaticDefaults.TILE_WIDTH) + 1,
+				Math.ceil(StaticDefaults.OUTPUT_HEIGHT / (double)StaticDefaults.TILE_HEIGHT) + 1
 		);
 		
 		for(IEntity ent : room.getEntities()) {

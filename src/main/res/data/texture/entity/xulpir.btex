@@ -3,5 +3,6 @@
   "spritesheet": "data/texture/entity/xulpir.png",
   "frames": 5,
   "width": 16,
-  "height": 16
+  "height": 16,
+  "rate": 3
 }

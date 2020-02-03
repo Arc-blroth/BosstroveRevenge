@@ -10,7 +10,8 @@ Example File:
   "spritesheet": "data/texture/entity/xulpir.png",
   "frames": 5,
   "width": 16,
-  "height": 16
+  "height": 16,
+  "rate": 10
 }
 ```
 
@@ -31,3 +32,7 @@ Example File:
 ### `width` and `height`
 - Size of the sprite (_not_ the spritesheet)
 - Required
+
+### `rate`
+- Specifies the rate at which frames are advanced, in steps (where there are 30 steps per second).
+- Defaults to 1

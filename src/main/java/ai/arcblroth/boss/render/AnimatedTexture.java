@@ -6,18 +6,29 @@ import ai.arcblroth.boss.util.StaticDefaults;
 
 public class AnimatedTexture extends Texture {
 	
-	private PixelGrid[] frames;
+	private final PixelGrid[] frames;
+	private final int stepsPerFrame;
 	private int currentFrame;
+	private int currentStep;
 	
-	public AnimatedTexture(PixelGrid[] frames) {
+	public AnimatedTexture(PixelGrid[] frames, int stepsPerFrame) {
 		super(frames[0]);
 		this.frames = frames;
+		this.stepsPerFrame = stepsPerFrame;
 		this.currentFrame = 0;
+		this.currentStep = 0;
 	}
 	
-	public void advanceFrame() {
-		currentFrame += 1;
-		if(currentFrame >= frames.length) currentFrame = 0;
+	public synchronized void advanceFrame() {
+		currentStep++;
+		if(currentStep >= stepsPerFrame) {
+			currentStep = 0;
+			
+			currentFrame += 1;
+			if(currentFrame >= frames.length) {
+				currentFrame = 0;
+			}
+		}
 	}
 	
 	public Color get(int x, int y) {

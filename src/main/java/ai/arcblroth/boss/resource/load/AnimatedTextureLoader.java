@@ -54,6 +54,7 @@ public class AnimatedTextureLoader /*extends AbstractIRegisterableLoader*/ {
 					int frames = btex.get("frames").getAsInt();
 					int width = btex.get("width").getAsInt();
 					int height = btex.get("height").getAsInt();
+					int stepsPerFrame = btex.has("rate") ? btex.get("rate").getAsInt() : 1;
 					
 					Resource spritesheetRes = new InternalResource(btex.get("spritesheet").getAsString());
 					if(!spritesheetRes.exists()) throw new MalformedSpecificationException("Spritesheet does not point to a valid file.");
@@ -75,7 +76,7 @@ public class AnimatedTextureLoader /*extends AbstractIRegisterableLoader*/ {
 						}
 					}
 					
-					return new AnimatedTexture(spritesheetFrames);
+					return new AnimatedTexture(spritesheetFrames, stepsPerFrame);
 					
 				} else {
 					throw new UnsupportedSpecificationVersionException(versionId, BTEX_EXTENSION);
