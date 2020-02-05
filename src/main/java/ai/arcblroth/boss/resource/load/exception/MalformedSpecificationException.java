@@ -14,4 +14,8 @@ public class MalformedSpecificationException extends Exception {
 		super("The field " + field + " does not refer to an allowed key.");
 	}
 	
+	public MalformedSpecificationException(Exception e) {
+		super(e.toString());
+	}
+	
 }

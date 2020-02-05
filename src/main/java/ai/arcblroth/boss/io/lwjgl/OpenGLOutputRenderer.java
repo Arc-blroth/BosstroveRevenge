@@ -93,6 +93,12 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	}
 
 	public void render(PixelAndTextGrid pg) {
+		
+		if(error != null) {
+			dispose();
+			return;
+		}
+		
 		//if(pg != null) {
 			if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
 				

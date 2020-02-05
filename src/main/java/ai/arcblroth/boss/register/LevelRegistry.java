@@ -26,8 +26,8 @@ public class LevelRegistry extends ConcurrentHashMap<String, Level> implements I
 	}
 
 	@Override
-	public void register(String key, Level floorTile) {
-		put(key, floorTile);
+	public void register(String key, Level level) {
+		put(key, level);
 	}
 	
 }

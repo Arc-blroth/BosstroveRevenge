@@ -14,6 +14,7 @@ import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.resource.Resource;
+import ai.arcblroth.boss.resource.load.ILevelLoader;
 import ai.arcblroth.boss.resource.load.ITileLoader;
 import ai.arcblroth.boss.resource.load.ResourceLoader;
 import ai.arcblroth.boss.util.Pair;
@@ -24,7 +25,8 @@ public class LoadProcess extends Thread {
 	public enum Phase {
 		EARLY_LOADING(0, "Loading"),
 		REGISTERING_TILES(1, "Registering tiles"),
-		DONE(2, "Done");
+		LOADING_LEVELS(2, "Loading tiles"),
+		DONE(3, "Done");
 		
 		private int index;
 		private String name;
@@ -80,6 +82,14 @@ public class LoadProcess extends Thread {
 		
 		FloorTileRegistry.get().forEach((key, tile) -> phase.getLogger().log(Level.INFO, "FloorTile: " + key));
 		WallTileRegistry.get().forEach((key, tile) -> phase.getLogger().log(Level.INFO, "WallTile: " + key));
+		
+		phase = Phase.LOADING_LEVELS;
+		
+		ILevelLoader levelLoader = new ILevelLoader(BosstrovesRevenge.get().getTextureCache());
+		
+		data.stream()
+			.filter((res) -> res.getPath().endsWith(ILevelLoader.BLVL_EXTENSION))
+			.forEach((res) -> levelLoader.register(res));
 		
 		phase = Phase.DONE;
 		doneYet = true;

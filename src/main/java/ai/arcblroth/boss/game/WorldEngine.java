@@ -11,6 +11,7 @@ import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.event.SubscribeEvent;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.register.FloorTileRegistry;
+import ai.arcblroth.boss.register.LevelRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.render.IRenderer;
 import ai.arcblroth.boss.util.StaticDefaults;
@@ -21,10 +22,8 @@ public class WorldEngine implements IEngine {
 	private Room room;
 
 	public WorldEngine() {
-		this.room = new Room(40, 40, new Position(0, 0));
+		this.room = LevelRegistry.get().get("w0l1").getRoom("0");
 		this.renderer = new WorldRenderer(room);
-		room.getFloorTiles().set(0, 0, FloorTileRegistry.get().getTile("boss.sand"));
-		room.getWallTiles().set(0, 1, WallTileRegistry.get().getTile("boss.tree"));
 		room.getEntities().add(new Xulpir(new Position(5, 5), 10));
 	}
 	

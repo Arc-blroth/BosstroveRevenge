@@ -1,6 +1,8 @@
 package ai.arcblroth.boss.resource.load;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -9,6 +11,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
+import ai.arcblroth.boss.engine.Room;
+import ai.arcblroth.boss.register.LevelRegistry;
 import ai.arcblroth.boss.resource.Resource;
 import ai.arcblroth.boss.resource.load.exception.UnsupportedSpecificationVersionException;
 
@@ -53,6 +57,10 @@ public final class ILevelLoader extends AbstractIRegisterableLoader {
 					String levelString = blvl.get("level").getAsString();
 					String titleString = blvl.get("title").getAsString();
 					
+					Map<String, Room> rooms = RoomLoader.loadRooms(blvl.get("rooms").getAsJsonArray());
+					
+					ai.arcblroth.boss.engine.Level level = new ai.arcblroth.boss.engine.Level(worldString, levelString, titleString, rooms);
+					LevelRegistry.get().register(levelId, level);
 					
 				} else {
 					throw new UnsupportedSpecificationVersionException(versionId, BLVL_EXTENSION);

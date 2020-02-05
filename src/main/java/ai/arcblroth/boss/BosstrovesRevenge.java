@@ -84,7 +84,7 @@ public final class BosstrovesRevenge extends Thread {
 			while(isRunning) {
 				try {
 					synchronized(renderLock) {
-						renderLock.wait();
+						renderLock.wait(1000);
 						isRendering = true;
 						outputRenderer.render(engine.getRenderer().render());
 						isRendering = false;

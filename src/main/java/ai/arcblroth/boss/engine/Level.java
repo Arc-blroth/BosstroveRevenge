@@ -43,6 +43,10 @@ public class Level implements IRegistrable<Level> {
 	public String getTitleString() {
 		return title;
 	}
+
+	public Room getRoom(String key) {
+		return rooms.get(key);
+	}
 	
 	
 	
