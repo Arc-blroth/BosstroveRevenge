@@ -7,7 +7,7 @@ import ai.arcblroth.boss.register.*;
 import ai.arcblroth.boss.render.Texture;
 
 public interface IEntity extends IRegistrable<IEntity>, IInteractable, IHitboxed {
-
+	
 	public Texture getTexture();
 	
 	public Position getPosition();

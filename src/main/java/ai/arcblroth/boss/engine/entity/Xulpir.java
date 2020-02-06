@@ -8,7 +8,7 @@ import ai.arcblroth.boss.resource.InternalResource;
 public class Xulpir extends Mob {
 
 	public Xulpir(Position initialPos, double initialHealth) {
-		super(BosstrovesRevenge.get().getTextureCache().get(new InternalResource("data/texture/entity/xulpir.btex")), initialPos, initialHealth);
+		super(BosstrovesRevenge.get().getTextureCache().get(new InternalResource("data/texture/entity/xulpir.btex")), initialPos, 1, initialHealth);
 	}
 	
 	@Override

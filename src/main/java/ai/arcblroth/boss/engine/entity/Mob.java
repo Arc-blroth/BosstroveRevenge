@@ -7,19 +7,25 @@ import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.resource.InternalResource;
+import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.TextureUtils;
+import ai.arcblroth.boss.util.Vector2D;
 
-public class Mob implements IEntity, IMortal, IDirected {
+public class Mob implements IEntity, IMortal, IAccelerable {
 
 	private Texture texture;
 	private Position pos;
 	private double health;
 	private Direction dir;
+	private Vector2D accel;
+	private double friction;
 	
-	public Mob(Texture texture, Position initialPos, double initialHealth) {
+	public Mob(Texture texture, Position initialPos, double frictionFactor, double initialHealth) {
 		this.texture = texture;
 		this.pos = initialPos;
 		this.health = initialHealth;
+		this.accel = new Vector2D(0D, 0D);
+		this.friction = frictionFactor;
 		this.dir = Direction.NORTH;
 	}
 	
@@ -51,6 +57,33 @@ public class Mob implements IEntity, IMortal, IDirected {
 	@Override
 	public void setPosition(Position pos) {
 		this.pos = pos;
+	}
+
+	@Override
+	public void accelerate(Direction d, double magnitude) {
+		if(d == Direction.NORTH) {accelerate(new Vector2D( 0D,        -magnitude));}
+		if(d == Direction.SOUTH) {accelerate(new Vector2D( 0D,         magnitude));}
+		if(d == Direction.EAST ) {accelerate(new Vector2D( magnitude,  0D       ));}
+		if(d == Direction.WEST ) {accelerate(new Vector2D(-magnitude,  0D       ));}
+	}
+	
+	@Override
+	public void accelerate(Vector2D vector) {
+		this.accel = this.accel.add(vector);
+	}
+	
+	@Override
+	public void setAccelerationVector(Vector2D accel) {
+		this.accel = accel;
+	}
+
+	@Override
+	public Vector2D getAccelerationVector() {
+		return accel;
+	}
+	
+	public double getFrictionFactor() {
+		return this.friction;
 	}
 
 	@Override

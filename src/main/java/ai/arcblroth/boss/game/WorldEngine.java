@@ -32,10 +32,15 @@ public class WorldEngine implements IEngine {
 	public void step(StepEvent e) {
 		room.runCollisionCallbacks();
 		
-		Position playerPos = room.getPlayer().getPosition();
+		Player player = room.getPlayer();
+		player.setAccelerationVector(player.getAccelerationVector().multiply(player.getFrictionFactor()));
+		player.setPosition(new Position(
+				player.getPosition().getX() + player.getAccelerationVector().getX(),
+				player.getPosition().getY() + player.getAccelerationVector().getY()
+		));
 		renderer.setRenderOffset(
-				playerPos.getX() * StaticDefaults.TILE_WIDTH - StaticDefaults.OUTPUT_WIDTH / 2D,
-				playerPos.getY() * StaticDefaults.TILE_HEIGHT - StaticDefaults.OUTPUT_HEIGHT / 2D
+				player.getPosition().getX() * StaticDefaults.TILE_WIDTH - StaticDefaults.OUTPUT_WIDTH / 2D,
+				player.getPosition().getY() * StaticDefaults.TILE_HEIGHT - StaticDefaults.OUTPUT_HEIGHT / 2D
 		);
 	}
 
@@ -45,16 +50,16 @@ public class WorldEngine implements IEngine {
 		Player player = room.getPlayer();
 		if(e.getKey() == 'w') {
 			player.setDirection(Direction.NORTH);
-			player.setPosition(new Position(player.getPosition().getX(), player.getPosition().getY() - 0.25));
+			player.accelerate(Direction.NORTH, 0.25);
 		} else if(e.getKey() == 'd') {
 			player.setDirection(Direction.EAST);
-			player.setPosition(new Position(player.getPosition().getX() + 0.25, player.getPosition().getY()));
+			player.accelerate(Direction.EAST, 0.25);
 		} else if(e.getKey() == 'a') {
 			player.setDirection(Direction.WEST);
-			player.setPosition(new Position(player.getPosition().getX() - 0.25, player.getPosition().getY()));
+			player.accelerate(Direction.WEST, 0.25);
 		} else if(e.getKey() == 's') {
 			player.setDirection(Direction.SOUTH);
-			player.setPosition(new Position(player.getPosition().getX(), player.getPosition().getY() + 0.25));
+			player.accelerate(Direction.SOUTH, 0.25);
 		}
 	}
 

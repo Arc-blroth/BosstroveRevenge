@@ -20,64 +20,64 @@
     
     "floorTiles": [
       [
-      "boss.sand", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.sand", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ],
       [
-      "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
+      "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass", "boss.grass"
       ]
     ],
     

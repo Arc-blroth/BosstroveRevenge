@@ -56,6 +56,9 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 	}
 
 	public void render(PixelAndTextGrid pg) {
+		
+		if(error != null) return;
+		
 		//if(pg != null) {
 			if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
 				Size s = terminal.getSize();
