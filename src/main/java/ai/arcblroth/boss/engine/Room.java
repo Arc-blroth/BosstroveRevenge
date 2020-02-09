@@ -57,8 +57,9 @@ public class Room {
 				}
 			});
 		}
-
-		AtomicBoolean isGoingToCrash = new AtomicBoolean(false);
+		
+		AtomicBoolean isGoingToCrashX = new AtomicBoolean(false);
+		AtomicBoolean isGoingToCrashY = new AtomicBoolean(false);
 		
 		player.setAccelerationVector(player.getAccelerationVector().multiply(player.getFrictionFactor()));
 		
@@ -66,28 +67,53 @@ public class Room {
 		
 		collisionSteps:
 		for(int collisionSubdivisions = 0; collisionSubdivisions < 16; collisionSubdivisions++) {
-			player.setPosition(new Position(
-					player.getPosition().getX() + steppedAccel.getX(),
-					player.getPosition().getY() + steppedAccel.getY()
-			));
 			
-			hitboxManager.getAllCollisionsOf(player).forEach((IHitboxed other) -> {
-				if(other instanceof TileHitboxWrapper) {
-					isGoingToCrash.set(true);
-					//player.setAccelerationVector(
-					//		player.getAccelerationVector().multiply(((TileHitboxWrapper) other).getTile().getViscosity()
-					//));
-				}
-			});
-			
-			if(isGoingToCrash.get()) {
+			if(!isGoingToCrashX.get()) {
 				player.setPosition(new Position(
-						player.getPosition().getX() - steppedAccel.getX(),
-						player.getPosition().getY() - steppedAccel.getY()
+						player.getPosition().getX() + steppedAccel.getX(),
+						player.getPosition().getY()
 				));
-				player.setAccelerationVector(new Vector2D(0D, 0D));
-				break collisionSteps;
+				
+				hitboxManager.getAllCollisionsOf(player).forEach((IHitboxed other) -> {
+					if(other instanceof TileHitboxWrapper) {
+						isGoingToCrashX.set(true);
+						//player.setAccelerationVector(
+						//		player.getAccelerationVector().multiply(((TileHitboxWrapper) other).getTile().getViscosity()
+						//));
+					}
+				});
+				
+				if(isGoingToCrashX.get()) {
+					player.setPosition(new Position(
+							player.getPosition().getX() - steppedAccel.getX(),
+							player.getPosition().getY()
+					));
+					player.setAccelerationVector(new Vector2D(0D, player.getAccelerationVector().getY()));
+				}
 			}
+			
+			if(!isGoingToCrashY.get()) {
+				player.setPosition(new Position(
+						player.getPosition().getX(),
+						player.getPosition().getY() + steppedAccel.getY()
+				));
+				
+				hitboxManager.getAllCollisionsOf(player).forEach((IHitboxed other) -> {
+					if(other instanceof TileHitboxWrapper) {
+						isGoingToCrashY.set(true);
+					}
+				});
+				
+				if(isGoingToCrashY.get()) {
+					player.setPosition(new Position(
+							player.getPosition().getX(),
+							player.getPosition().getY() - steppedAccel.getY()
+					));
+					player.setAccelerationVector(new Vector2D(player.getAccelerationVector().getX(), 0D));
+				}
+			}
+			
+			if(isGoingToCrashX.get() && isGoingToCrashY.get()) break collisionSteps;
 		}
 		
 	}
