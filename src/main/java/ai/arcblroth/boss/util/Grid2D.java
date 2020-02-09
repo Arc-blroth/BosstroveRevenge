@@ -63,6 +63,14 @@ public class Grid2D<T> {
 		return grid.get(y).set(x, element == null ? defaultElement : element);
 	}
 
+	public void forEach(TriConsumer<Integer, Integer, T> consumer) {
+		for(int y = 0; y < height; y++) {
+			for(int x = 0; x < width; x++) {
+				consumer.accept(x, y, this.get(x, y));
+			}
+		}
+	}
+
 	public int getWidth() {
 		return width;
 	}

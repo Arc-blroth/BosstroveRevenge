@@ -1,16 +1,20 @@
 package ai.arcblroth.boss.engine;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.entity.player.Player;
+import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.engine.hitbox.HitboxManager;
 import ai.arcblroth.boss.engine.tile.FloorTile;
+import ai.arcblroth.boss.engine.tile.ITile;
 import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.util.Grid2D;
 import ai.arcblroth.boss.util.StaticDefaults;
+import ai.arcblroth.boss.util.Vector2D;
 
 public class Room {
 	
@@ -35,6 +39,12 @@ public class Room {
 	
 	public void runCollisionCallbacks() {
 		hitboxManager.clear();
+		wallTiles.forEach((x, y, wallTile) -> {
+			if(!wallTile.isPassable()) hitboxManager.add(new TileHitboxWrapper(x, y, wallTile));
+		});
+		floorTiles.forEach((x, y, floorTile) -> {
+			if(!floorTile.isPassable()) hitboxManager.add(new TileHitboxWrapper(x, y, floorTile));
+		});
 		entities.forEach(hitboxManager::add);
 		hitboxManager.add(player);
 		
@@ -47,11 +57,39 @@ public class Room {
 				}
 			});
 		}
-		hitboxManager.getAllCollisionsOf(player).forEach((IHitboxed other) -> {
-			if(other instanceof IEntity) {
-				player.onEntityStep((IEntity) other);
+
+		AtomicBoolean isGoingToCrash = new AtomicBoolean(false);
+		
+		player.setAccelerationVector(player.getAccelerationVector().multiply(player.getFrictionFactor()));
+		
+		Vector2D steppedAccel = player.getAccelerationVector().multiply(1D / 16D);
+		
+		collisionSteps:
+		for(int collisionSubdivisions = 0; collisionSubdivisions < 16; collisionSubdivisions++) {
+			player.setPosition(new Position(
+					player.getPosition().getX() + steppedAccel.getX(),
+					player.getPosition().getY() + steppedAccel.getY()
+			));
+			
+			hitboxManager.getAllCollisionsOf(player).forEach((IHitboxed other) -> {
+				if(other instanceof TileHitboxWrapper) {
+					isGoingToCrash.set(true);
+					//player.setAccelerationVector(
+					//		player.getAccelerationVector().multiply(((TileHitboxWrapper) other).getTile().getViscosity()
+					//));
+				}
+			});
+			
+			if(isGoingToCrash.get()) {
+				player.setPosition(new Position(
+						player.getPosition().getX() - steppedAccel.getX(),
+						player.getPosition().getY() - steppedAccel.getY()
+				));
+				player.setAccelerationVector(new Vector2D(0D, 0D));
+				break collisionSteps;
 			}
-		});
+		}
+		
 	}
 
 	public ArrayList<IEntity> getEntities() {
@@ -78,5 +116,29 @@ public class Room {
 		return height;
 	}
 	
+	
+}
+
+class TileHitboxWrapper implements IHitboxed {
+	
+	private static final Hitbox HITBOX = new Hitbox(0, 0, 1, 1);
+	
+	private int x, y;
+	private ITile tile;
+	
+	TileHitboxWrapper(int x, int y, ITile tile) {
+		this.x = x;
+		this.y = y;
+		this.tile = tile;
+	}
+	
+	@Override
+	public Hitbox getHitbox() {
+		return HITBOX.resolveRelativeTo(new Position(x, y));
+	}
+	
+	public ITile getTile() {
+		return tile;
+	}
 	
 }

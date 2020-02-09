@@ -33,11 +33,6 @@ public class WorldEngine implements IEngine {
 		room.runCollisionCallbacks();
 		
 		Player player = room.getPlayer();
-		player.setAccelerationVector(player.getAccelerationVector().multiply(player.getFrictionFactor()));
-		player.setPosition(new Position(
-				player.getPosition().getX() + player.getAccelerationVector().getX(),
-				player.getPosition().getY() + player.getAccelerationVector().getY()
-		));
 		renderer.setRenderOffset(
 				player.getPosition().getX() * StaticDefaults.TILE_WIDTH - StaticDefaults.OUTPUT_WIDTH / 2D,
 				player.getPosition().getY() * StaticDefaults.TILE_HEIGHT - StaticDefaults.OUTPUT_HEIGHT / 2D
