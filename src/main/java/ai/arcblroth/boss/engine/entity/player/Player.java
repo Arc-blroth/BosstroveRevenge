@@ -44,7 +44,7 @@ public class Player extends Mob {
 
 	@Override
 	public Hitbox getHitbox() {
-		return new Hitbox(-0.5, -0.5, 1, 1).resolveRelativeTo(super.getPosition());
+		return new Hitbox(-0.375D, -0.5D, 0.75D, 0.99D).resolveRelativeTo(super.getPosition());
 	}
 
 	@Override

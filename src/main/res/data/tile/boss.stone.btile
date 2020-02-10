@@ -1,0 +1,8 @@
+{
+	"versionId": 1,
+	"tileId": "boss.stone",
+	"tileType": "wallTile",
+	"passable": false,
+	"viscosity": 0.0,
+	"texture": "data/texture/tiles/stone.png"
+}

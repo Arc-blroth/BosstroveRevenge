@@ -108,20 +108,20 @@ public class TextureUtils {
 	}
 	
 	public static PixelGrid flipX(PixelGrid src) {
-		PixelGrid dest = new PixelGrid(src);
+		PixelGrid dest = new PixelGrid(src.getWidth(), src.getHeight());
 		for(int y = 0; y < src.getHeight(); y++) {
 			for(int x = 0; x < src.getWidth(); x++) {
-				dest.setPixel(src.getWidth() - x, y, src.get(x, y));
+				dest.setPixel(src.getWidth() - 1 - x, y, src.get(x, y));
 			}
 		}
 		return dest;
 	}
 	
 	public static PixelGrid flipY(PixelGrid src) {
-		PixelGrid dest = new PixelGrid(src);
+		PixelGrid dest = new PixelGrid(src.getWidth(), src.getHeight());
 		for(int y = 0; y < src.getHeight(); y++) {
 			for(int x = 0; x < src.getWidth(); x++) {
-				dest.setPixel(x, src.getHeight() - y, src.get(x, y));
+				dest.setPixel(x, src.getHeight() - 1 - y, src.get(x, y));
 			}
 		}
 		return dest;
