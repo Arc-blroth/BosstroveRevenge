@@ -14,7 +14,7 @@ public class FloorTileRegistry extends ConcurrentHashMap<String, FloorTile> impl
 		super();
 	}
 	
-	public static FloorTileRegistry get() {
+	public static FloorTileRegistry instance() {
 		return INSTANCE;
 	}
 	

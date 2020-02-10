@@ -40,7 +40,7 @@ public class WorldRenderer implements IRenderer {
 	@Override
 	public PixelAndTextGrid render() {
 		
-		BosstrovesRevenge.get().getTextureCache().stepAnimatedTextures();
+		BosstrovesRevenge.instance().getTextureCache().stepAnimatedTextures();
 		
 		PixelAndTextGrid ptg = new PixelAndTextGrid(StaticDefaults.OUTPUT_WIDTH, StaticDefaults.OUTPUT_HEIGHT);
 		renderTiles(ptg);

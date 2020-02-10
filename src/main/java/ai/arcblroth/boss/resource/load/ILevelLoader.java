@@ -60,7 +60,7 @@ public final class ILevelLoader extends AbstractIRegisterableLoader {
 					Map<String, Room> rooms = RoomLoader.loadRooms(blvl.get("rooms").getAsJsonArray());
 					
 					ai.arcblroth.boss.engine.Level level = new ai.arcblroth.boss.engine.Level(worldString, levelString, titleString, rooms);
-					LevelRegistry.get().register(levelId, level);
+					LevelRegistry.instance().register(levelId, level);
 					
 				} else {
 					throw new UnsupportedSpecificationVersionException(versionId, BLVL_EXTENSION);

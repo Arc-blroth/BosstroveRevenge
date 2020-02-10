@@ -102,7 +102,7 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 					
 					if(tileType.equals("floortile")) {
 						
-						FloorTileRegistry.get().register(tileId, new FloorTile(texture) {
+						FloorTileRegistry.instance().register(tileId, new FloorTile(texture) {
 
 							@Override
 							public boolean isPassable() {
@@ -118,7 +118,7 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 						
 					} else if(tileType.equals("walltile")) {
 						
-						WallTileRegistry.get().register(tileId, new WallTile(texture) {
+						WallTileRegistry.instance().register(tileId, new WallTile(texture) {
 
 							@Override
 							public boolean isPassable() {

@@ -77,7 +77,7 @@ public class LoadEngine implements IEngine {
 				));
 			} else {
 				WorldEngine wee = new WorldEngine();
-				BosstrovesRevenge.get().setEngine(wee);
+				BosstrovesRevenge.instance().setEngine(wee);
 			}
 		}
 		updateStatus();

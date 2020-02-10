@@ -66,26 +66,26 @@ public class LoadProcess extends Thread {
 			dataStream.close();
 		} catch (Exception e) {
 			phase.getLogger().log(Level.SEVERE, "Could not scan jar file for resources!", e);
-			BosstrovesRevenge.get().shutdown(-1);
+			BosstrovesRevenge.instance().shutdown(-1);
 		}
 		
 		phase = Phase.REGISTERING_TILES;
 		
-		FloorTileRegistry.get().register("empty", new EmptyFloorTile());
-		WallTileRegistry.get().register("empty", new EmptyWallTile());
+		FloorTileRegistry.instance().register("empty", new EmptyFloorTile());
+		WallTileRegistry.instance().register("empty", new EmptyWallTile());
 		
-		ITileLoader tileLoader = new ITileLoader(BosstrovesRevenge.get().getTextureCache());
+		ITileLoader tileLoader = new ITileLoader(BosstrovesRevenge.instance().getTextureCache());
 		
 		data.stream()
 			.filter((res) -> res.getPath().endsWith(ITileLoader.BTILE_EXTENSION))
 			.forEach((res) -> tileLoader.register(res));
 		
-		FloorTileRegistry.get().forEach((key, tile) -> phase.getLogger().log(Level.INFO, "FloorTile: " + key));
-		WallTileRegistry.get().forEach((key, tile) -> phase.getLogger().log(Level.INFO, "WallTile: " + key));
+		FloorTileRegistry.instance().forEach((key, tile) -> phase.getLogger().log(Level.INFO, "FloorTile: " + key));
+		WallTileRegistry.instance().forEach((key, tile) -> phase.getLogger().log(Level.INFO, "WallTile: " + key));
 		
 		phase = Phase.LOADING_LEVELS;
 		
-		ILevelLoader levelLoader = new ILevelLoader(BosstrovesRevenge.get().getTextureCache());
+		ILevelLoader levelLoader = new ILevelLoader(BosstrovesRevenge.instance().getTextureCache());
 		
 		data.stream()
 			.filter((res) -> res.getPath().endsWith(ILevelLoader.BLVL_EXTENSION))

@@ -66,7 +66,7 @@ public final class BosstrovesRevenge extends Thread {
 		}));
 	}
 
-	public static BosstrovesRevenge get() {
+	public static BosstrovesRevenge instance() {
 		if (INSTANCE == null)
 			throw new IllegalStateException("Class is not initilized yet!");
 		return INSTANCE;
@@ -90,7 +90,7 @@ public final class BosstrovesRevenge extends Thread {
 						isRendering = false;
 					}
 				} catch (Exception e) {
-					BosstrovesRevenge.get().handleRendererCrash(e);
+					BosstrovesRevenge.instance().handleRendererCrash(e);
 				}
 			}
 		});

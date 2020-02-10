@@ -18,7 +18,7 @@ public class Player extends Mob {
 	private boolean flipTexture;
 
 	public Player(Position initialPos, double initialHealth) {
-		super(BosstrovesRevenge.get().getTextureCache().get(new InternalResource("data/texture/entity/daniel.png")), initialPos, 0.6, initialHealth);
+		super(BosstrovesRevenge.instance().getTextureCache().get(new InternalResource("data/texture/entity/daniel.png")), initialPos, 0.6, initialHealth);
 		this.flippedTexture = new Texture(TextureUtils.flipX(super.getTexture()));
 	}
 	

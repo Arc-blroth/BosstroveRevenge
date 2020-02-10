@@ -12,7 +12,7 @@ public class KeyMap extends ConcurrentHashMap<Character, Keybind> implements IRe
 		super();
 	}
 	
-	public static KeyMap get() {
+	public static KeyMap instance() {
 		return INSTANCE;
 	}
 	

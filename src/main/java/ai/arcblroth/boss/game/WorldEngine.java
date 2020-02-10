@@ -22,7 +22,7 @@ public class WorldEngine implements IEngine {
 	private Room room;
 
 	public WorldEngine() {
-		this.room = LevelRegistry.get().get("w0l1").getRoom("0");
+		this.room = LevelRegistry.instance().get("w0l1").getRoom("0");
 		this.renderer = new WorldRenderer(room);
 		room.getEntities().add(new Xulpir(new Position(5, 5), 10));
 	}

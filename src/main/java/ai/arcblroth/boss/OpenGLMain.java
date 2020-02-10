@@ -7,8 +7,8 @@ public class OpenGLMain {
 	public static void main(String[] argz) throws Exception {
 		System.setProperty(Relauncher.FORCE_NOWINDOWS, "true");
 		Relauncher.relaunch(OpenGLMain.class, () -> {
-			BosstrovesRevenge.get().init(new OpenGLOutputRenderer());
-			BosstrovesRevenge.get().start();
+			BosstrovesRevenge.instance().init(new OpenGLOutputRenderer());
+			BosstrovesRevenge.instance().start();
 		});
 	}
 	

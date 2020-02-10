@@ -82,7 +82,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 			fontManager.init();
 		} catch (Exception e) {
 			e.printStackTrace();
-			BosstrovesRevenge.get().shutdown(-1);
+			BosstrovesRevenge.instance().shutdown(-1);
 		}
 		
 		model = new PixelModel();
@@ -258,7 +258,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 				glfwPollEvents();
 				
 				if(window.windowShouldClose()) {
-					BosstrovesRevenge.get().shutdown(0);
+					BosstrovesRevenge.instance().shutdown(0);
 				}
 				
 				//FPS Benchmarking

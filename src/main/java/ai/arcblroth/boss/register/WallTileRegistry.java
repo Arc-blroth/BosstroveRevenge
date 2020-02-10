@@ -13,7 +13,7 @@ public class WallTileRegistry extends ConcurrentHashMap<String, WallTile> implem
 		super();
 	}
 	
-	public static WallTileRegistry get() {
+	public static WallTileRegistry instance() {
 		return INSTANCE;
 	}
 	

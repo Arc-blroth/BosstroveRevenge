@@ -64,8 +64,8 @@ public class RoomLoader {
 							try {
 								
 								String floorTileName = floorTile.getAsJsonObject().get("tileId").getAsString();
-								if(FloorTileRegistry.get().containsKey(floorTileName)) {
-									outRoom.getFloorTiles().set(x, y, FloorTileRegistry.get().get(floorTileName));
+								if(FloorTileRegistry.instance().containsKey(floorTileName)) {
+									outRoom.getFloorTiles().set(x, y, FloorTileRegistry.instance().get(floorTileName));
 								} else {
 									logger.log(Level.WARNING, 
 											String.format("Could not find floorTile \"%s\" at (%s, %s) in room \"%s\"", floorTileName, x, y, roomId));
@@ -81,8 +81,8 @@ public class RoomLoader {
 							//Ignore null tiles
 						} else {
 							String floorTileName = floorTile.getAsString();
-							if(FloorTileRegistry.get().containsKey(floorTileName)) {
-								outRoom.getFloorTiles().set(x, y, FloorTileRegistry.get().get(floorTileName));
+							if(FloorTileRegistry.instance().containsKey(floorTileName)) {
+								outRoom.getFloorTiles().set(x, y, FloorTileRegistry.instance().get(floorTileName));
 							} else {
 								logger.log(Level.WARNING, 
 										String.format("Could not find floorTile \"%s\" at (%s, %s) in room \"%s\"", floorTileName, x, y, roomId));
@@ -104,8 +104,8 @@ public class RoomLoader {
 							try {
 								
 								String wallTileName = wallTile.getAsJsonObject().get("tileId").getAsString();
-								if(WallTileRegistry.get().containsKey(wallTileName)) {
-									outRoom.getWallTiles().set(x, y, WallTileRegistry.get().get(wallTileName));
+								if(WallTileRegistry.instance().containsKey(wallTileName)) {
+									outRoom.getWallTiles().set(x, y, WallTileRegistry.instance().get(wallTileName));
 								} else {
 									logger.log(Level.WARNING, 
 											String.format("Could not find wallTile \"%s\" at (%s, %s) in room \"%s\"", wallTileName, x, y, roomId));
@@ -121,8 +121,8 @@ public class RoomLoader {
 							//Ignore null tiles
 						} else {
 							String wallTileName = wallTile.getAsString();
-							if(WallTileRegistry.get().containsKey(wallTileName)) {
-								outRoom.getWallTiles().set(x, y, WallTileRegistry.get().get(wallTileName));
+							if(WallTileRegistry.instance().containsKey(wallTileName)) {
+								outRoom.getWallTiles().set(x, y, WallTileRegistry.instance().get(wallTileName));
 							} else {
 								logger.log(Level.WARNING, 
 										String.format("Could not find wallTile \"%s\" at (%s, %s) in room \"%s\"", wallTileName, x, y, roomId));

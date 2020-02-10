@@ -12,7 +12,7 @@ public class LevelRegistry extends ConcurrentHashMap<String, Level> implements I
 		super();
 	}
 	
-	public static LevelRegistry get() {
+	public static LevelRegistry instance() {
 		return INSTANCE;
 	}
 	

@@ -25,7 +25,7 @@ public class ConsoleInputHandler {
 			while(nbe.ready()) {
 				int intChar = nbe.read();
 				if(intChar != -1) {
-					BosstrovesRevenge.get().getEventBus().fireEvent(new CharacterInputEvent((char) intChar));
+					BosstrovesRevenge.instance().getEventBus().fireEvent(new CharacterInputEvent((char) intChar));
 				}
 			}
 		} catch (IOException e) {

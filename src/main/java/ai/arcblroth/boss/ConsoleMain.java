@@ -20,8 +20,8 @@ public class ConsoleMain {
 	
 	public static void main(String[] argz) throws Exception {
 		Relauncher.relaunch(ConsoleMain.class, () -> {
-			BosstrovesRevenge.get().init(new AnsiOutputRenderer());
-			BosstrovesRevenge.get().start();
+			BosstrovesRevenge.instance().init(new AnsiOutputRenderer());
+			BosstrovesRevenge.instance().start();
 		});
 	}
 	
