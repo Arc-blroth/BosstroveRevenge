@@ -1,0 +1,45 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'application'
+}
+
+dependencies {
+	
+	//Texture Loader
+	implementation 'ar.com.hjg:pngj:2.1.0'
+	
+	//JSON parser
+	implementation 'com.google.code.gson:gson:2.8.6'
+	
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/main/java'
+		}
+		resources {
+			srcDir 'src/main/res'
+		}
+	}
+}
+
+// In this section you declare where to find the dependencies of your project
+repositories {
+    jcenter()
+    
+}
+
+version = '1.0.0'
+
+mainClassName = 'ai.arcblroth.boss.llama.Main'
+
+jar {
+	baseName = 'BosstrovesLlama'
+	manifest {
+		attributes 'Main-Class': mainClassName
+	}
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+

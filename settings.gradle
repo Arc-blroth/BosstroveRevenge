@@ -8,6 +8,7 @@
  */
 
 rootProject.name = 'BosstrovesRevenge'
+include 'LlamaBuilder'
 
 buildCache {
     local {
