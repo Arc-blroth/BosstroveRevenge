@@ -1,7 +1,10 @@
+import org.gradle.plugins.ide.eclipse.model.AccessRule
+
 plugins {
     id 'java'
     id 'java-library'
     id 'application'
+    id 'eclipse'
 }
 
 dependencies {
@@ -11,6 +14,9 @@ dependencies {
 	
 	//JSON parser
 	implementation 'com.google.code.gson:gson:2.8.6'
+	
+	//MIGLayout
+	implementation 'com.miglayout:miglayout-javafx:5.2'
 	
 }
 
@@ -43,3 +49,14 @@ jar {
     from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
 }
 
+//JavaFX complaint fixer 9000
+eclipse {
+    classpath {
+        file {
+            whenMerged {
+                def jre = entries.find { it.path.contains 'org.eclipse.jdt.launching.JRE_CONTAINER' }
+                jre.accessRules.add(new AccessRule('0', 'javafx/**'))
+            }
+        }
+    }
+}
