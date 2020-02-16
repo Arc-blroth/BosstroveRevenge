@@ -9,6 +9,9 @@ plugins {
 
 dependencies {
 	
+	//The Main Bosstrove's Revenge
+	compile project(':')
+	
 	//Texture Loader
 	implementation 'ar.com.hjg:pngj:2.1.0'
 	

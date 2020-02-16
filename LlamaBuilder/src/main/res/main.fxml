@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import org.tbee.javafx.scene.layout.fxml.*?>
+
+<MigPane fx:controller="ai.arcblroth.boss.llama.ui.LlamaController" xmlns:fx="http://javafx.com/fxml" layout="ins 0 0 0 0">
+	<padding><Insets top="0" right="0" bottom="0" left="0"/></padding>
+	
+	<SplitPane orientation="vertical" MigPane.cc="left, height 100%, width 20%" styleClass="selector-pane">
+		<MigPane>
+		
+		</MigPane>
+		<MigPane layout="wrap 1, fill, ins 0 0 0 0">
+			<MigPane MigPane.cc="growx, dock north" layout="wrap 1, fill, gap 5 5 5 20">
+				<Text text="Tiles"  />
+				<TextField MigPane.cc="growx" />
+			</MigPane>
+			<MigPane fx:id="tiles" MigPane.cc="grow" layout="wrap 3, fillx" styleClass="selector-tile-pane">
+			
+			</MigPane>
+		</MigPane>
+	</SplitPane>
+	
+</MigPane>

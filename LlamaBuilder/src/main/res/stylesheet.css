@@ -1,0 +1,8 @@
+.selector-pane {
+	-fx-border-color: black;
+	-fx-border-width: 0 3 0 0;
+}
+
+.selector-tile-pane {
+	-fx-background-color: #ffffff;
+}

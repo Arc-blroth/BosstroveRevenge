@@ -1,45 +1,46 @@
 package ai.arcblroth.boss.llama.ui;
 
 import ai.arcblroth.boss.llama.LlamaStaticDefaults;
+import ai.arcblroth.boss.llama.LlamaUtils;
+import ai.arcblroth.boss.resource.InternalResource;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.StackPane;
-import javafx.scene.text.Text;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
+
+import java.io.IOException;
+
 import org.tbee.javafx.scene.layout.MigPane;
 
 public class LlamaUI {
 	
 	private Stage stage;
 	private MigPane rootPane;
-	private MigPane tileSelectorPane;
 	private Scene mainScene;
 
 	public LlamaUI(Stage stage) {
 		this.stage = stage;
-		rootPane = new MigPane("ins 0 0 0 0");
 		
-		tileSelectorPane = new MigPane("fillx");
-		tileSelectorPane.setStyle("-fx-border-color: black; -fx-border-insets: 5; -fx-border-width: 3;");
-		rootPane.add(tileSelectorPane, "left, width 20%, height 100%");
-		
-		Text selectATile = new Text("SELECT A TILE");
-		tileSelectorPane.add(selectATile, "wrap");
-		
-		Button emptyTileBtn = new Button();
-		emptyTileBtn.setText("empty");
-		tileSelectorPane.add(emptyTileBtn, "width 100%");
-		
-		mainScene = new Scene(rootPane);
-		stage.setTitle(LlamaStaticDefaults.TITLE);
-		stage.setScene(mainScene);
+		try {
+			rootPane = FXMLLoader.load(new InternalResource("main.fxml").resolve());
+			mainScene = new Scene(rootPane);
+			mainScene.getStylesheets().add("stylesheet.css");
+			stage.setTitle(LlamaStaticDefaults.TITLE);
+			stage.setScene(mainScene);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 	}
 	
 	public void display() {
+		
 		Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
 		
 		stage.setX(primaryScreenBounds.getMinX() + primaryScreenBounds.getWidth() / 6);
@@ -49,6 +50,11 @@ public class LlamaUI {
 
 		stage.show();
 		stage.centerOnScreen();
+		
+		ToggleGroup group = new ToggleGroup();
+		((MigPane)LlamaUtils.getElementById(rootPane, "tiles")).add(new ToggleButton(), "grow");
+		((MigPane)LlamaUtils.getElementById(rootPane, "tiles")).add(new ToggleButton(), "grow");
+		((MigPane)LlamaUtils.getElementById(rootPane, "tiles")).add(new ToggleButton(), "grow");
 	}
 	
 	public void shutdown() {
