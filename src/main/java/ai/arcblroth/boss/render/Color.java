@@ -41,6 +41,10 @@ public class Color {
                 	 ((b & 0xFF) << 0);
 	}
 	
+	public Color(int packedRGB) {
+		colorValue = packedRGB;
+	}
+	
 	public int getRed() {
         return (colorValue >> 16) & 0xFF;
     }

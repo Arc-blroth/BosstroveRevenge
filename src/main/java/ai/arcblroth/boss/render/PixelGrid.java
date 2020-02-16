@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.*;
 
+import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.util.Grid2D;
-import ai.arcblroth.boss.util.StaticDefaults;
 
 public class PixelGrid extends Grid2D<Color> {
 
 	public PixelGrid(int width, int height) {
-		super(width, height, StaticDefaults.RESET_COLOR);
+		super(width, height, BosstrovesRevenge.instance().getResetColor());
 	}
 	
 	public PixelGrid(Grid2D<Color> copyGrid) {
@@ -22,7 +22,7 @@ public class PixelGrid extends Grid2D<Color> {
 		if (isCoordinateValid(x, y))
 			return get(x, y);
 		else
-			return StaticDefaults.RESET_COLOR;
+			return BosstrovesRevenge.instance().getResetColor();
 	}
 
 	public void setPixel(int x, int y, Color c) {

@@ -11,6 +11,7 @@ import ai.arcblroth.boss.event.SubscribingClassLoader;
 import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.io.console.*;
 import ai.arcblroth.boss.load.LoadEngine;
+import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.resource.load.TextureCache;
 import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.ThreadUtils;
@@ -40,6 +41,7 @@ public final class BosstrovesRevenge extends Thread {
 	private final Object renderLock = new Object();
 	private volatile boolean isRendering = false;
 	private TextureCache globalTextureCache;
+	private Color resetColor = Color.BLACK;
 	private IEngine engine;
 
 	private BosstrovesRevenge(EventBus globalEventBus) throws Exception {
@@ -151,6 +153,14 @@ public final class BosstrovesRevenge extends Thread {
 	
 	public void setOutputDebug(Object o) {
 		outputRenderer.setDebugLine(o.toString());
+	}
+	
+	public Color getResetColor() {
+		return resetColor;
+	}
+
+	public void setResetColor(Color c) {
+		if(c != null) resetColor = c;
 	}
 	
 	public void setEngine(IEngine e) {

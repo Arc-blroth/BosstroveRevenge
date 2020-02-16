@@ -3,6 +3,7 @@ package ai.arcblroth.boss.render;
 import java.util.ArrayList;
 
 import ai.arcblroth.boss.util.StaticDefaults;
+import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.util.Grid2D;
 import ai.arcblroth.boss.util.Pair;
 
@@ -24,7 +25,7 @@ public class PixelAndTextGrid extends PixelGrid {
 	public PixelAndTextGrid(int width, int height) {
 		super(width, height);
 		this.textGrid = new Grid2D<Character>(width, height / 2, StaticDefaults.RESET_CHAR);
-		this.textColorGrid = new Grid2D<Color>(width, height, StaticDefaults.RESET_COLOR);
+		this.textColorGrid = new Grid2D<Color>(width, height, BosstrovesRevenge.instance().getResetColor());
 	}
 
 	public ArrayList<Character> getCharacterRow(int rowNum) {
@@ -79,7 +80,7 @@ public class PixelAndTextGrid extends PixelGrid {
 					textColorGrid.get(x, y / 2 * 2),
 					textColorGrid.get(x, y / 2 * 2 + 1));
 		else
-			return new Pair<Color, Color>(StaticDefaults.RESET_COLOR, StaticDefaults.RESET_COLOR);
+			return new Pair<Color, Color>(BosstrovesRevenge.instance().getResetColor(), BosstrovesRevenge.instance().getResetColor());
 	}
 
 	private boolean isTextCoordinateValid(int x, int y) {

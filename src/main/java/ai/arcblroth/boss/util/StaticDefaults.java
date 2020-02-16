@@ -14,7 +14,6 @@ public final class StaticDefaults {
 	public static final int OUTPUT_WIDTH = 128;
 	public static final int CHARACTER_WIDTH = 32;
 	public static final int CHARACTER_HEIGHT = 64;
-	public static final Color RESET_COLOR = Color.BLACK;
 	public static final Character RESET_CHAR = ' ';
 	
 	public static final int STEPS_PER_SECOND = 30;

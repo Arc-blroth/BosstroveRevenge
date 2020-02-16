@@ -12,6 +12,7 @@ import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
+import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.resource.load.exception.MalformedSpecificationException;
 import ai.arcblroth.boss.util.Pair;
 
@@ -50,7 +51,11 @@ public class RoomLoader {
 						roomObj.get("initialY").getAsDouble()
 				);
 			}
-			Room outRoom = new Room(width, height, initialPos);
+			Color resetColor = Color.BLACK;
+			if(roomObj.has("resetColor")) {
+				resetColor = new Color(Integer.parseUnsignedInt(roomObj.get("resetColor").getAsString().replace("#", ""), 16));
+			}
+			Room outRoom = new Room(width, height, initialPos, resetColor);
 			
 			{
 				JsonArray floorTiles = roomObj.get("floorTiles").getAsJsonArray();

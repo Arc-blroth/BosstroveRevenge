@@ -3,6 +3,7 @@ package ai.arcblroth.boss.game;
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.IInteractable.Direction;
+import ai.arcblroth.boss.engine.Level;
 import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.StepEvent;
@@ -13,26 +14,29 @@ import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.LevelRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
+import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.IRenderer;
 import ai.arcblroth.boss.util.StaticDefaults;
 
 public class WorldEngine implements IEngine {
 	
 	private WorldRenderer renderer;
-	private Room room;
+	private Level level;
+	private String currentRoom;
 
 	public WorldEngine() {
-		this.room = LevelRegistry.instance().get("w0l1").getRoom("0");
-		this.renderer = new WorldRenderer(room);
-		room.getEntities().add(new Xulpir(new Position(5, 5), 10));
+		this.level = LevelRegistry.instance().get("w0l1");
+		currentRoom = "0";
+		this.renderer = new WorldRenderer(level.getRoom(currentRoom));
+		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoom).getResetColor());
 	}
 	
 	@Override
 	@SubscribeEvent
 	public void step(StepEvent e) {
-		room.runCollisionCallbacks();
+		level.getRoom(currentRoom).runCollisionCallbacks();
 		
-		Player player = room.getPlayer();
+		Player player = level.getRoom(currentRoom).getPlayer();
 		renderer.setRenderOffset(
 				player.getPosition().getX() * StaticDefaults.TILE_WIDTH - StaticDefaults.OUTPUT_WIDTH / 2D,
 				player.getPosition().getY() * StaticDefaults.TILE_HEIGHT - StaticDefaults.OUTPUT_HEIGHT / 2D
@@ -42,7 +46,7 @@ public class WorldEngine implements IEngine {
 	@Override
 	@SubscribeEvent
 	public void handleKeyInput(CharacterInputEvent e) {
-		Player player = room.getPlayer();
+		Player player = level.getRoom(currentRoom).getPlayer();
 		if(e.getKey() == 'w') {
 			player.setDirection(Direction.NORTH);
 			player.accelerate(Direction.NORTH, 0.25);

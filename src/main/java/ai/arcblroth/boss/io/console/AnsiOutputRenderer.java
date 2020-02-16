@@ -3,6 +3,8 @@ package ai.arcblroth.boss.io.console;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Erase;
 import org.jline.terminal.*;
+
+import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.Relauncher;
 import ai.arcblroth.boss.crash.CrashReportGenerator;
 import ai.arcblroth.boss.io.IOutputRenderer;
@@ -74,7 +76,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					String blankLinesBottom = PadUtils.stringTimes(linePad + "\n", (int)Math.floor(topPadSpaces) - 1);
 					
 					//The top lines
-					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(StaticDefaults.RESET_COLOR).fgColor(Color.WHITE);
+					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(BosstrovesRevenge.instance().getResetColor()).fgColor(Color.WHITE);
 					
 					//FPS + memory
 					if(SHOW_FPS) {
@@ -89,14 +91,14 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					//Print out each row like a printer would
 					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
 						ArcAnsi rowBuilder = ArcAnsi.ansi();
-						rowBuilder.bgColor(StaticDefaults.RESET_COLOR).fgColor(StaticDefaults.RESET_COLOR).append(leftPad);
+						rowBuilder.bgColor(BosstrovesRevenge.instance().getResetColor()).fgColor(BosstrovesRevenge.instance().getResetColor()).append(leftPad);
 						ArrayList<Color> row1 = pg.getRow(rowNum);
 						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
 						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
 						
 						//Optimization 1: Don't reprint colors for every pixel.
-						Color previousFgColor = StaticDefaults.RESET_COLOR;
-						Color previousBgColor = StaticDefaults.RESET_COLOR;
+						Color previousFgColor = BosstrovesRevenge.instance().getResetColor();
+						Color previousBgColor = BosstrovesRevenge.instance().getResetColor();
 						
 						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
 
@@ -135,13 +137,13 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 							
 							
 						}
-						rowBuilder.resetAll().bgColor(StaticDefaults.RESET_COLOR);
+						rowBuilder.resetAll().bgColor(BosstrovesRevenge.instance().getResetColor());
 						ansiBuilder.append(rowBuilder.toString());
 						ansiBuilder.append(rightPad + " \n");
 					}
 					
 					//The bottom lines
-					ansiBuilder.resetAll().bgColor(StaticDefaults.RESET_COLOR).append(blankLinesBottom).append(linePad).append("\n");
+					ansiBuilder.resetAll().bgColor(BosstrovesRevenge.instance().getResetColor()).append(blankLinesBottom).append(linePad).append("\n");
 					if(debugLine.length() > s.getColumns()) {
 						ansiBuilder.append(debugLine.substring(0, s.getColumns()));
 					} else {

@@ -1,6 +1,7 @@
 package ai.arcblroth.boss.io.lwjgl;
 
 import org.joml.Matrix4f;
+import org.joml.Vector4f;
 import org.lwjgl.system.MemoryStack;
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.Relauncher;
@@ -102,6 +103,8 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 		//if(pg != null) {
 			if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
 				
+				Vector4f clearColor = OpenGLUtils.rgbToVector(BosstrovesRevenge.instance().getResetColor());
+				glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0F);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				
 				if (window.isResized()) {
@@ -211,7 +214,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 							if(rowTxt.get(colNum) == StaticDefaults.RESET_CHAR) {
 								// Draw ordinary pixels
 								// If pixel color == background color, don't draw it!
-								if(!row1.get(colNum).equals(StaticDefaults.RESET_COLOR)) {
+								if(!row1.get(colNum).equals(BosstrovesRevenge.instance().getResetColor())) {
 									drawPixel(
 										new Matrix4f(scaledModelMatrix).translate(
 											(-pg.getWidth()/2F + colNum),
@@ -221,7 +224,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 										row1.get(colNum)
 									);
 								}
-								if(!row2.get(colNum).equals(StaticDefaults.RESET_COLOR)) {
+								if(!row2.get(colNum).equals(BosstrovesRevenge.instance().getResetColor())) {
 									drawPixel(
 										new Matrix4f(scaledModelMatrix).translate(
 												(-pg.getWidth()/2F + colNum),

@@ -3,6 +3,7 @@ package ai.arcblroth.boss.engine;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.engine.hitbox.Hitbox;
@@ -12,6 +13,7 @@ import ai.arcblroth.boss.engine.tile.ITile;
 import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
+import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.util.Grid2D;
 import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.Vector2D;
@@ -24,17 +26,23 @@ public class Room {
 	private HitboxManager hitboxManager;
 	private Player player;
 	private int width, height;
-	
-	public Room(int width, int height, Position initPlayerPosition) {
+	private Color resetColor;
+
+	public Room(int width, int height, Position initPlayerPosition, Color resetColor) {
 		if(width < 1 || height < 1) throw new IllegalArgumentException("Room width and height must be >1");
 		
 		this.width = width;
 		this.height = height;
+		this.resetColor = resetColor;
 		this.floorTiles = new Grid2D<FloorTile>(width, height, FloorTileRegistry.instance().getTile("empty"));
 		this.wallTiles = new Grid2D<WallTile>(width, height, WallTileRegistry.instance().getTile("empty"));
 		this.entities = new ArrayList<>();
 		this.player = new Player(initPlayerPosition, StaticDefaults.MAX_PLAYER_HEALTH);
 		this.hitboxManager = new HitboxManager(width, height);
+	}
+	
+	public Room(int width, int height, Position initPlayerPosition) {
+		this(width, height, initPlayerPosition, Color.BLACK);
 	}
 	
 	public void runCollisionCallbacks() {
@@ -140,6 +148,10 @@ public class Room {
 
 	public int getHeight() {
 		return height;
+	}
+	
+	public Color getResetColor() {
+		return resetColor;
 	}
 	
 	

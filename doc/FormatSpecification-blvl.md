@@ -27,6 +27,7 @@ Example File:
       "roomId": "one",
       "width": 32,
       "height": 16,
+      "resetColor": "#000000",
       "initial": true,
       "initialX": 0,
       "initialY": 8,
@@ -151,6 +152,11 @@ list of floorTiles and wallTiles.
 ### `height`
 - Height, in tiles, of the room.
 - Required
+
+### `resetColor`
+- Set the color shown in the sidebars and behind any backgrounds.
+- Must be a 6-digit hex string (Example: "#00bfff")
+- Optional
 
 ### `initial`
 - Whether or not this room is the first one in the level.

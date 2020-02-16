@@ -1,8 +1,9 @@
 package ai.arcblroth.boss.render;
 
 import java.util.ArrayList;
+
+import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.register.IRegistrable;
-import ai.arcblroth.boss.util.StaticDefaults;
 
 public class AnimatedTexture extends Texture {
 	
@@ -39,7 +40,7 @@ public class AnimatedTexture extends Texture {
 		if (isCoordinateValid(x, y))
 			return frames[currentFrame].get(x, y);
 		else
-			return StaticDefaults.RESET_COLOR;
+			return BosstrovesRevenge.instance().getResetColor();
 	}
 	
 	@Override

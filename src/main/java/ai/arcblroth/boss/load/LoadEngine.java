@@ -20,7 +20,6 @@ import ai.arcblroth.boss.render.PixelGrid;
 import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.resource.Resource;
 import ai.arcblroth.boss.resource.load.ResourceLoader;
-import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.TextureUtils;
@@ -70,9 +69,9 @@ public class LoadEngine implements IEngine {
 			if(doneFadeoutAnimation <= 1) {
 				doneFadeoutAnimation += 0.05;
 				logo = TextureUtils.tintColorRGB(origLogo, new Color(
-						StaticDefaults.RESET_COLOR.getRed(),
-						StaticDefaults.RESET_COLOR.getGreen(),
-						StaticDefaults.RESET_COLOR.getBlue(),
+						BosstrovesRevenge.instance().getResetColor().getRed(),
+						BosstrovesRevenge.instance().getResetColor().getGreen(),
+						BosstrovesRevenge.instance().getResetColor().getBlue(),
 						(int)Math.round(doneFadeoutAnimation * 255)
 				));
 			} else {
@@ -102,10 +101,10 @@ public class LoadEngine implements IEngine {
 				PadUtils.stringToArrayList(PadUtils.centerPad(
 						String.format("%s - %.0f%%", loadStatus.getSecond(), Math.min(loadStatus.getFirst() * 100, 100)),
 						reallyBadGrid.getWidth())),
-				StaticDefaults.RESET_COLOR,
+				BosstrovesRevenge.instance().getResetColor(),
 				TextureUtils.interpolateRGB(
 						new Color(40, 237, 63),
-						StaticDefaults.RESET_COLOR,
+						BosstrovesRevenge.instance().getResetColor(),
 						doneFadeoutAnimation
 				)
 		);
