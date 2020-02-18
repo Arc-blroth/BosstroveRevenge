@@ -22,6 +22,12 @@ public class PixelAndTextGrid extends PixelGrid {
 		}
 	}
 	
+	public PixelAndTextGrid(PixelAndTextGrid pg) {
+		this((PixelGrid)pg);
+		this.textGrid = new Grid2D<Character>(pg.textGrid);
+		this.textColorGrid = new Grid2D<Color>(pg.textColorGrid);
+	}
+	
 	public PixelAndTextGrid(int width, int height) {
 		super(width, height);
 		this.textGrid = new Grid2D<Character>(width, height / 2, StaticDefaults.RESET_CHAR);

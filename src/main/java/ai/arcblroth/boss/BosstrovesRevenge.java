@@ -1,5 +1,6 @@
 package ai.arcblroth.boss;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,6 +13,7 @@ import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.io.console.*;
 import ai.arcblroth.boss.load.LoadEngine;
 import ai.arcblroth.boss.render.Color;
+import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.resource.load.TextureCache;
 import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.ThreadUtils;
@@ -38,8 +40,8 @@ public final class BosstrovesRevenge extends Thread {
 	private EventBus globalEventBus;
 	private IOutputRenderer outputRenderer;
 	private Thread renderThread;
-	private final Object renderLock = new Object();
-	private volatile boolean isRendering = false;
+	private AtomicBoolean newToRenderAvailable = new AtomicBoolean(false);
+	private volatile PixelAndTextGrid toRender = null;
 	private TextureCache globalTextureCache;
 	private Color resetColor = Color.BLACK;
 	private IEngine engine;
@@ -76,6 +78,7 @@ public final class BosstrovesRevenge extends Thread {
 
 	void init(IOutputRenderer renderer) {
 		//Render setup
+		toRender = new PixelAndTextGrid(2, 2);
 		if (outputRenderer != null)
 			throw new IllegalStateException("OutputRenderer has already been initilized!");
 		outputRenderer = renderer;
@@ -83,14 +86,13 @@ public final class BosstrovesRevenge extends Thread {
 		renderThread = new Thread(() -> {
 			Thread.currentThread().setName(TITLE + " Render Thread");
 			outputRenderer.init();
+			PixelAndTextGrid currentlyRenderingGrid = new PixelAndTextGrid(toRender);
 			while(isRunning) {
 				try {
-					synchronized(renderLock) {
-						renderLock.wait(1000);
-						isRendering = true;
-						outputRenderer.render(engine.getRenderer().render());
-						isRendering = false;
+					if(newToRenderAvailable.compareAndSet(true, false)) {
+						currentlyRenderingGrid = new PixelAndTextGrid(toRender);
 					}
+					outputRenderer.render(currentlyRenderingGrid);
 				} catch (Exception e) {
 					BosstrovesRevenge.instance().handleRendererCrash(e);
 				}
@@ -118,9 +120,9 @@ public final class BosstrovesRevenge extends Thread {
 				globalEventBus.fireEvent(new StepEvent(currentStepTime - lastStepTime));
 				lastStepTime = currentStepTime;
 				
-				if(!isRendering) {
-					synchronized(renderLock) {
-						renderLock.notifyAll();
+				synchronized(newToRenderAvailable) {
+					if(newToRenderAvailable.compareAndSet(false, true)) {
+						toRender = engine.getRenderer().render();
 					}
 				}
 				
