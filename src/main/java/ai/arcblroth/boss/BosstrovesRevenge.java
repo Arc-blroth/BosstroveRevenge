@@ -6,17 +6,13 @@ import java.util.logging.Logger;
 
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.StepEvent;
-import ai.arcblroth.boss.event.AutoSubscribeClass;
-import ai.arcblroth.boss.event.EventBus;
-import ai.arcblroth.boss.event.SubscribingClassLoader;
 import ai.arcblroth.boss.io.IOutputRenderer;
-import ai.arcblroth.boss.io.console.*;
+import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.load.LoadEngine;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.resource.load.TextureCache;
 import ai.arcblroth.boss.util.StaticDefaults;
-import ai.arcblroth.boss.util.ThreadUtils;
 
 public final class BosstrovesRevenge extends Thread {
 
@@ -25,7 +21,7 @@ public final class BosstrovesRevenge extends Thread {
 	static {
 		BosstrovesRevenge preInst = null;
 		try {
-			preInst = new BosstrovesRevenge(new EventBus());
+			preInst = new BosstrovesRevenge();
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);
@@ -37,7 +33,6 @@ public final class BosstrovesRevenge extends Thread {
 	private boolean isRunning = true;
 	private boolean hasAlreadyShutdown = false;
 	private final Logger globalLogger, mainLogger;
-	private EventBus globalEventBus;
 	private IOutputRenderer outputRenderer;
 	private Thread renderThread;
 	private AtomicBoolean newToRenderAvailable = new AtomicBoolean(false);
@@ -46,7 +41,7 @@ public final class BosstrovesRevenge extends Thread {
 	private Color resetColor = Color.BLACK;
 	private IEngine engine;
 
-	private BosstrovesRevenge(EventBus globalEventBus) throws Exception {
+	private BosstrovesRevenge() throws Exception {
 		if (INSTANCE != null)
 			throw new IllegalStateException("Class has already been initilized!");
 
@@ -55,14 +50,6 @@ public final class BosstrovesRevenge extends Thread {
 		
 		this.globalLogger = Logger.getGlobal();
 		this.mainLogger = Logger.getLogger("Main");
-		
-		// Register the EventBus subscribing hook
-		this.globalEventBus = globalEventBus;
-		((SubscribingClassLoader) Relauncher.class.getClassLoader()).addHook((clazz) -> {
-			if(clazz.isAnnotationPresent(AutoSubscribeClass.class)) {
-				globalEventBus.subscribe(clazz);
-			}
-		});
 		
 		//Register shutdown hook
 		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -117,7 +104,7 @@ public final class BosstrovesRevenge extends Thread {
 				outputRenderer.pollInput();
 				
 				long currentStepTime = System.currentTimeMillis();
-				globalEventBus.fireEvent(new StepEvent(currentStepTime - lastStepTime));
+				engine.step(new StepEvent(currentStepTime - lastStepTime));
 				lastStepTime = currentStepTime;
 				
 				synchronized(newToRenderAvailable) {
@@ -148,13 +135,13 @@ public final class BosstrovesRevenge extends Thread {
 			}
 		}
 	}
-
-	public EventBus getEventBus() {
-		return globalEventBus;
-	}
 	
 	public void setOutputDebug(Object o) {
 		outputRenderer.setDebugLine(o.toString());
+	}
+
+	public void handleInput(CharacterInputEvent characterInputEvent) {
+		if(engine != null) engine.handleKeyInput(characterInputEvent);
 	}
 	
 	public Color getResetColor() {
@@ -166,11 +153,7 @@ public final class BosstrovesRevenge extends Thread {
 	}
 	
 	public void setEngine(IEngine e) {
-		if(this.engine != null) {
-			globalEventBus.unsubscribe(engine.getClass());
-		}
 		this.engine = e;
-		globalEventBus.subscribe(e, e.getClass());
 	}
 	
 	public TextureCache getTextureCache() {

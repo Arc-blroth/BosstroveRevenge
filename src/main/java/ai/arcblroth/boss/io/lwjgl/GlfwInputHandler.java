@@ -63,7 +63,7 @@ public class GlfwInputHandler {
 		keyStore.forEach((charizard, uses_fire_blast) -> {
 			if(uses_fire_blast) {
 				try {
-					BosstrovesRevenge.instance().getEventBus().fireEvent(new CharacterInputEvent(charizard));
+					BosstrovesRevenge.instance().handleInput(new CharacterInputEvent(charizard));
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}

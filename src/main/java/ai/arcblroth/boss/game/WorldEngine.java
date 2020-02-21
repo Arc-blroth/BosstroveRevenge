@@ -4,17 +4,10 @@ import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.IInteractable.Direction;
 import ai.arcblroth.boss.engine.Level;
-import ai.arcblroth.boss.engine.Position;
-import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.StepEvent;
-import ai.arcblroth.boss.engine.entity.Xulpir;
 import ai.arcblroth.boss.engine.entity.player.Player;
-import ai.arcblroth.boss.event.SubscribeEvent;
 import ai.arcblroth.boss.key.CharacterInputEvent;
-import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.LevelRegistry;
-import ai.arcblroth.boss.register.WallTileRegistry;
-import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.IRenderer;
 import ai.arcblroth.boss.util.StaticDefaults;
 
@@ -32,7 +25,6 @@ public class WorldEngine implements IEngine {
 	}
 	
 	@Override
-	@SubscribeEvent
 	public void step(StepEvent e) {
 		level.getRoom(currentRoom).runCollisionCallbacks();
 		
@@ -44,7 +36,6 @@ public class WorldEngine implements IEngine {
 	}
 
 	@Override
-	@SubscribeEvent
 	public void handleKeyInput(CharacterInputEvent e) {
 		Player player = level.getRoom(currentRoom).getPlayer();
 		if(e.getKey() == 'w') {

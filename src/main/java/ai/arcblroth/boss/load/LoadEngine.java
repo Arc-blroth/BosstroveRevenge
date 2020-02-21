@@ -8,7 +8,6 @@ import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.engine.tile.EmptyFloorTile;
 import ai.arcblroth.boss.engine.tile.EmptyWallTile;
-import ai.arcblroth.boss.event.SubscribeEvent;
 import ai.arcblroth.boss.game.WorldEngine;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.register.FloorTileRegistry;
@@ -56,7 +55,6 @@ public class LoadEngine implements IEngine {
 	}
 	
 	@Override
-	@SubscribeEvent
 	public void step(StepEvent e) {
 		if(!loadProcess.isDone()) {
 			
@@ -83,7 +81,6 @@ public class LoadEngine implements IEngine {
 	}
 
 	@Override
-	@SubscribeEvent
 	public void handleKeyInput(CharacterInputEvent e) {
 		
 	}

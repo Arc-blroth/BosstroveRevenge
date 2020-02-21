@@ -2,9 +2,6 @@ package ai.arcblroth.boss;
 
 import java.util.Locale;
 import java.util.logging.*;
-
-import ai.arcblroth.boss.event.SubscribingClassLoader;
-import ai.arcblroth.boss.io.console.AnsiOutputRenderer;
 import ai.arcblroth.boss.util.ThreadUtils;
 
 import java.io.File;
@@ -12,7 +9,6 @@ import java.io.File;
 public class Relauncher {
 	public static final String IS_RELAUNCHED = "ai.arcblroth.boss.Relauncher.IS_RELAUNCHED";
 	public static final String FORCE_NOWINDOWS = "ai.arcblroth.boss.Relauncher.FORCE_NOWINDOWS";
-	public static final String FORCE_NOSUBSCRIBINGCLASSLOADER = "ai.arcblroth.boss.Relauncher.FORCE_NOSUBSCRIBINGCLASSLOADER";
 	public static final String FORCE_NORENDER = "ai.arcblroth.boss.Relauncher.FORCE_NORENDER";
 
 	// Taken from the jansi source:
@@ -39,39 +35,27 @@ public class Relauncher {
 		Logger.getLogger("org.jline").setLevel(Level.OFF);
 
 		try {
-			if (System.getProperty(IS_RELAUNCHED) == null
-					&& System.getProperty(FORCE_NOSUBSCRIBINGCLASSLOADER) == null) {
+			if (System.getProperty(IS_RELAUNCHED) == null) {
 				String javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 				String classPath = System.getProperty("java.class.path") + File.pathSeparator
 						+ Relauncher.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-				String switchRelaunched = "-D" + IS_RELAUNCHED
-						+ (System.getProperty(FORCE_NOSUBSCRIBINGCLASSLOADER) != null ? "=true" : "=false");
-				String switchSubscribingClassLoader = "-Djava.system.class.loader="
-						+ SubscribingClassLoader.class.getName();
+				String switchRelaunched = "-D" + IS_RELAUNCHED + "=true";
 				String className = main.getName();
 
 				if (IS_WINDOWS && !IS_CYGWIN && !IS_MINGW_XTERM && System.getProperty(FORCE_NOWINDOWS) == null) {
 					new ProcessBuilder("C:\\Windows\\System32\\cmd", "/C", "start", "Bosstrove's Revenge",
 							// "echo", "off", "&", "mode", (OUTPUT_WIDTH + "," + OUTPUT_HEIGHT/2), "&",
-							javaExe, switchRelaunched, switchSubscribingClassLoader, "-cp", classPath, className)
+							javaExe, switchRelaunched, "-cp", classPath, className)
 									.start().waitFor();
 					System.exit(0);
 				} else {
-					new ProcessBuilder(javaExe, switchRelaunched, switchSubscribingClassLoader, "-cp", classPath,
+					new ProcessBuilder(javaExe, switchRelaunched, "-cp", classPath,
 							className).inheritIO().start().waitFor();
 					System.exit(0);
 				}
 			} else {
 				System.out.println("Loading...");
-
-				// It's crucial that the SubscribingClassLoader is set, otherwise no hooks will
-				// work.
-				if (!(Relauncher.class.getClassLoader() instanceof SubscribingClassLoader)) {
-					throw new IllegalStateException("The system class loader should be set:"
-							+ " -Djava.system.class.loader=" + SubscribingClassLoader.class.getName());
-				} else {
-					afterRelaunch.run();
-				}
+				afterRelaunch.run();
 			}
 		} catch (Exception e) {
 			Logger.getGlobal().log(Level.SEVERE, "FATAL ERROR", e);

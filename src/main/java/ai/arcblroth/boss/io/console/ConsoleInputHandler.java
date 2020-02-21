@@ -8,7 +8,6 @@ import org.jline.terminal.Terminal;
 import org.jline.utils.NonBlockingReader;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
-import ai.arcblroth.boss.event.SubscribeEvent;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 
 public class ConsoleInputHandler {
@@ -25,7 +24,7 @@ public class ConsoleInputHandler {
 			while(nbe.ready()) {
 				int intChar = nbe.read();
 				if(intChar != -1) {
-					BosstrovesRevenge.instance().getEventBus().fireEvent(new CharacterInputEvent((char) intChar));
+					BosstrovesRevenge.instance().handleInput(new CharacterInputEvent((char) intChar));
 				}
 			}
 		} catch (IOException e) {
