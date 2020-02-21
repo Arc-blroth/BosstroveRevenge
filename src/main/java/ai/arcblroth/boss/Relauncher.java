@@ -28,8 +28,7 @@ public class Relauncher {
 		//System.setProperty(FORCE_NOWINDOWS, "true");
 		//System.setProperty(FORCE_NOSUBSCRIBINGCLASSLOADER, "true");
 		//System.setProperty(FORCE_NORENDER, "true");
-
-		// Note that this is also set in SubscribingClassLoader since that also logs things.
+		
 		// [00:00:00][Logger/LEVEL]: Message
 		System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tT][%3$s/%4$s]: %5$s %6$s%n");
 		Logger.getLogger("org.jline").setLevel(Level.OFF);
