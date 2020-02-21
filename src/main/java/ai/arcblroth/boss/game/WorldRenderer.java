@@ -10,6 +10,7 @@ import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.render.IRenderer;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.render.Texture;
+import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.TextureUtils;
 
@@ -42,7 +43,8 @@ public class WorldRenderer implements IRenderer {
 		
 		BosstrovesRevenge.instance().getTextureCache().stepAnimatedTextures();
 		
-		PixelAndTextGrid ptg = new PixelAndTextGrid(StaticDefaults.OUTPUT_WIDTH, StaticDefaults.OUTPUT_HEIGHT);
+		Pair<Integer, Integer> outputSize = BosstrovesRevenge.instance().getOutputSize();
+		PixelAndTextGrid ptg = new PixelAndTextGrid(outputSize.getFirst(), outputSize.getSecond());
 		renderTiles(ptg);
 		renderEntities(ptg);
 		return ptg;
@@ -55,8 +57,8 @@ public class WorldRenderer implements IRenderer {
 		int ySubtileOff = (int) Math.round(yOffset - yTileOff * StaticDefaults.TILE_HEIGHT);
 
 		// x and y are in tile units
-		for (int y = 0; y < Math.ceil(StaticDefaults.OUTPUT_HEIGHT / StaticDefaults.TILE_HEIGHT) + 1; y++) {
-			for (int x = 0; x < Math.ceil(StaticDefaults.OUTPUT_WIDTH / StaticDefaults.TILE_WIDTH) + 1; x++) {
+		for (int y = 0; y < Math.ceil((double)ptg.getHeight() / StaticDefaults.TILE_HEIGHT) + 1; y++) {
+			for (int x = 0; x < Math.ceil((double)ptg.getWidth() / StaticDefaults.TILE_WIDTH) + 1; x++) {
 				WallTile wallTile = room.getWallTiles().getOrNull(x + xTileOff, y + yTileOff);
 				FloorTile floorTile = room.getFloorTiles().getOrNull(x + xTileOff, y + yTileOff);
 				if (floorTile != null) {
@@ -97,8 +99,8 @@ public class WorldRenderer implements IRenderer {
 		Hitbox screenBounds = new Hitbox(
 				Math.floor(xOffset / StaticDefaults.TILE_WIDTH) - 1,
 				Math.floor(yOffset / StaticDefaults.TILE_HEIGHT) - 1,
-				Math.ceil(StaticDefaults.OUTPUT_WIDTH / (double)StaticDefaults.TILE_WIDTH) + 1,
-				Math.ceil(StaticDefaults.OUTPUT_HEIGHT / (double)StaticDefaults.TILE_HEIGHT) + 1
+				Math.ceil(ptg.getWidth() / (double)StaticDefaults.TILE_WIDTH) + 1,
+				Math.ceil(ptg.getHeight() / (double)StaticDefaults.TILE_HEIGHT) + 1
 		);
 		
 		for(IEntity ent : room.getEntities()) {

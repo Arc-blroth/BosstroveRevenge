@@ -29,6 +29,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class OpenGLOutputRenderer implements IOutputRenderer {
+
+	private static final long BYTES_IN_MEGABYTE = 1000000;
 	
 	private Throwable error;
 	private Window window;
@@ -43,7 +45,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	private static final boolean SHOW_FPS = true;
 	private double fps = 1;
 	private long lastRenderTime;
-	private static final long BYTES_IN_MEGABYTE = 1000000;
+	private volatile Pair<Integer, Integer> lastSize;
 	
 	public String debugLine = "";
 	
@@ -55,6 +57,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 			inputHandler = new GlfwInputHandler();
 			
 			lastRenderTime = System.currentTimeMillis();
+			lastSize = new Pair<Integer, Integer>(0, 0);
 		} catch (Exception e) {
 			System.err.println("Could not init display, aborting launch...");
 			e.printStackTrace();
@@ -122,6 +125,12 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 					glfwGetWindowSize(window.getHandle(), widthBuf, heightBuf);
 					int width = widthBuf.get();
 					int height = heightBuf.get();
+					
+					lastSize = new Pair<Integer, Integer>(
+							2 * (int)Math.round((double)width / (double)StaticDefaults.CHARACTER_WIDTH),
+							2 * (int)Math.round((double)height / ((double)StaticDefaults.CHARACTER_HEIGHT / 2D))
+					);
+					
 					float aspectRatio;
 					float pixelSize;
 					/*
@@ -140,14 +149,67 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 					*/
 					if(width > height) {
 						aspectRatio = (float)width / (float)height;
-						pixelSize = 2F / (float)StaticDefaults.OUTPUT_HEIGHT;
+						pixelSize = 1F / (height / ((float)StaticDefaults.CHARACTER_HEIGHT / 2F));
 						shader.setMatrix4f("projection", new Matrix4f().ortho(-aspectRatio, aspectRatio, -1, 1, 0, 1));
+						
 					} else {
 						aspectRatio = (float)height / (float)width;
-						pixelSize = 2F / (float)StaticDefaults.OUTPUT_WIDTH;
+						pixelSize = 1F / (width / (float)StaticDefaults.CHARACTER_WIDTH);
 						shader.setMatrix4f("projection", new Matrix4f().ortho(-1, 1, -aspectRatio, aspectRatio, 0, 1));
 					}
 					Matrix4f scaledModelMatrix = new Matrix4f().scale(pixelSize, pixelSize, 1F);
+					
+					// Render each row like a printer would
+					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
+						ArrayList<Color> row1 = pg.getRow(rowNum);
+						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
+						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
+						
+						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
+							
+							if(rowTxt.get(colNum) == StaticDefaults.RESET_CHAR) {
+								// Draw ordinary pixels
+								// If pixel color == background color, don't draw it!
+								if(!row1.get(colNum).equals(BosstrovesRevenge.instance().getResetColor())) {
+									drawPixel(
+										new Matrix4f(scaledModelMatrix).translate(
+											(-pg.getWidth()/2F + colNum),
+											(pg.getHeight()/2F - rowNum),
+											0
+										).scale(0.5F),
+										row1.get(colNum)
+									);
+								}
+								if(!row2.get(colNum).equals(BosstrovesRevenge.instance().getResetColor())) {
+									drawPixel(
+										new Matrix4f(scaledModelMatrix).translate(
+												(-pg.getWidth()/2F + colNum),
+												(pg.getHeight()/2F - rowNum - 1),
+												0
+										).scale(0.5F),
+										row2.get(colNum)
+									);
+								}
+							} else {
+								// Draw characters on a background color
+								drawCharacter(
+									new Matrix4f(scaledModelMatrix).translate(
+											(-pg.getWidth()/2F + colNum - 0.5F),
+											(pg.getHeight()/2F - rowNum - 1.5F),
+											0
+									).scale(1F, -1F, 1F),
+									new Matrix4f(scaledModelMatrix).translate(
+											(-pg.getWidth()/2F + colNum),
+											(pg.getHeight()/2F - rowNum - 0.5F),
+											0
+									).scale(0.5F, 1F, 1F),
+									pg.getColorsAt(colNum, rowNum),
+									rowTxt.get(colNum)
+								);
+							}
+							
+						}
+					}
 					
 					//FPS + memory
 					if(SHOW_FPS) {
@@ -199,59 +261,6 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 								new Pair<Color, Color>(Color.WHITE, Color.TRANSPARENT),
 								memString.charAt(memString.length() - 1 - memCharIndex)
 							);
-						}
-					}
-					
-					
-					// Render each row like a printer would
-					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
-						ArrayList<Color> row1 = pg.getRow(rowNum);
-						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
-						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
-						
-						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
-							
-							if(rowTxt.get(colNum) == StaticDefaults.RESET_CHAR) {
-								// Draw ordinary pixels
-								// If pixel color == background color, don't draw it!
-								if(!row1.get(colNum).equals(BosstrovesRevenge.instance().getResetColor())) {
-									drawPixel(
-										new Matrix4f(scaledModelMatrix).translate(
-											(-pg.getWidth()/2F + colNum),
-											(pg.getHeight()/2F - rowNum),
-											0
-										).scale(0.5F),
-										row1.get(colNum)
-									);
-								}
-								if(!row2.get(colNum).equals(BosstrovesRevenge.instance().getResetColor())) {
-									drawPixel(
-										new Matrix4f(scaledModelMatrix).translate(
-												(-pg.getWidth()/2F + colNum),
-												(pg.getHeight()/2F - rowNum - 1),
-												0
-										).scale(0.5F),
-										row2.get(colNum)
-									);
-								}
-							} else {
-								// Draw characters on a background color
-								drawCharacter(
-									new Matrix4f(scaledModelMatrix).translate(
-											(-pg.getWidth()/2F + colNum - 0.5F),
-											(pg.getHeight()/2F - rowNum - 1.5F),
-											0
-									).scale(1F, -1F, 1F),
-									new Matrix4f(scaledModelMatrix).translate(
-											(-pg.getWidth()/2F + colNum),
-											(pg.getHeight()/2F - rowNum - 0.5F),
-											0
-									).scale(0.5F, 1F, 1F),
-									pg.getColorsAt(colNum, rowNum),
-									rowTxt.get(colNum)
-								);
-							}
-							
 						}
 					}
 				}
@@ -326,6 +335,11 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	@Override
 	public void pollInput() {
 		inputHandler.fireEvents();
+	}
+	
+	@Override
+	public Pair<Integer, Integer> getSize() {
+		return lastSize;
 	}
 
 }

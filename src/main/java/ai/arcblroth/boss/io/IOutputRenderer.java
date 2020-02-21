@@ -1,6 +1,7 @@
 package ai.arcblroth.boss.io;
 
 import ai.arcblroth.boss.render.*;
+import ai.arcblroth.boss.util.Pair;
 
 public interface IOutputRenderer {
 
@@ -17,5 +18,7 @@ public interface IOutputRenderer {
 	public void pollInput();
 	
 	public default void dispose() {};
+	
+	public Pair<Integer, Integer> getSize();
 
 }

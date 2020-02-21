@@ -13,7 +13,7 @@ public class Grid2D<T> {
 		this.height = height;
 		this.defaultElement = defaultElement;
 		
-		if(width <= 0 || height <= 0) throw new IllegalArgumentException("Grid width and height must be >1");
+		//if(width <= 0 || height <= 0) throw new IllegalArgumentException("Grid width and height must be >1");
 		
 		grid = new ArrayList<ArrayList<T>>(height);
 		for(int y = 0; y < height; y++) {

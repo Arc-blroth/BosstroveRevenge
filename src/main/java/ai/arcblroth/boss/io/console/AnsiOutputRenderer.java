@@ -21,6 +21,9 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 	
 	private static final String PIXEL_CHAR = "\u2580";
 	private static final String FULL_CHAR = "\u2588";
+	private static final long BYTES_IN_MEGABYTE = 1000000;
+	private static final ArcAnsi CLEAR = ArcAnsi.ansi().moveCursor(0, 0).clearScreenAndBuffer().resetAll();
+	
 	private Terminal terminal;
 	ConsoleInputHandler cih = new ConsoleInputHandler();
 	private Throwable error;
@@ -28,24 +31,18 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 	private static final boolean SHOW_FPS = true;
 	private double fps = 1;
 	private long lastRenderTime;
-	private static final long BYTES_IN_MEGABYTE = 1000000;
+	private volatile Pair<Integer, Integer> lastSize;
 	
 	public String debugLine = "";
-	
-	private static final ArcAnsi CLEAR = ArcAnsi.ansi().moveCursor(0, 0).clearScreenAndBuffer().resetAll();
 	
 	public AnsiOutputRenderer() {
 		try {
 			this.terminal = TerminalBuilder.builder().name("Bosstrove's Revenge").jansi(true).jna(true)
 					.nativeSignals(true)
 					.signalHandler(true ? Terminal.SignalHandler.SIG_DFL : Terminal.SignalHandler.SIG_IGN).build();
-			if (!System.getProperty("os.name").toLowerCase().contains("win")) {
-				terminal.setSize(new Size(StaticDefaults.OUTPUT_HEIGHT, StaticDefaults.OUTPUT_WIDTH));
-			} else {
-				
-			}
 			terminal.enterRawMode();
 			lastRenderTime = System.currentTimeMillis();
+			lastSize = new Pair<Integer, Integer>(0, 0);
 		} catch (Exception e) {
 			System.err.println("Could not init terminal, aborting launch...");
 			e.printStackTrace();
@@ -63,28 +60,29 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 		
 		//if(pg != null) {
 			if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
-				Size s = terminal.getSize();
-				if (terminal.getType().equals(Terminal.TYPE_DUMB) || (s.getColumns() >= pg.getWidth() && s.getRows() >= pg.getHeight() / 2)) {
+				Size size = terminal.getSize();
+				lastSize = new Pair<Integer, Integer>(size.getColumns(), (size.getRows() - (SHOW_FPS ? 2 : 1)) * 2);
+				if (terminal.getType().equals(Terminal.TYPE_DUMB) || (size.getColumns() >= pg.getWidth() && size.getRows() >= pg.getHeight() / 2)) {
 					
-					double leftPadSpaces = (s.getColumns() - pg.getWidth()) / 2D;
-					double topPadSpaces = (s.getRows() - pg.getHeight() / 2D) / 2D;
+					double leftPadSpaces = (size.getColumns() - pg.getWidth()) / 2D;
+					double topPadSpaces = (size.getRows() - pg.getHeight() / 2D) / 2D;
 					
 					String leftPad = PadUtils.leftPad("", (int)Math.ceil(leftPadSpaces) - 1);
-					String rightPad = PadUtils.leftPad("", (int)Math.floor(leftPadSpaces));
-					String linePad = PadUtils.stringTimes(" ", s.getColumns());
+					String rightPad = PadUtils.leftPad("", (int)Math.ceil(leftPadSpaces) - 1);
+					String linePad = PadUtils.stringTimes(" ", size.getColumns());
 					String blankLinesTop = PadUtils.stringTimes(linePad + "\n", (int)Math.ceil(topPadSpaces) - (SHOW_FPS ? 2 : 1));
-					String blankLinesBottom = PadUtils.stringTimes(linePad + "\n", (int)Math.floor(topPadSpaces) - 1);
+					String blankLinesBottom = PadUtils.stringTimes(linePad + "\n", (int)Math.ceil(topPadSpaces) - 1);
 					
 					//The top lines
 					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(BosstrovesRevenge.instance().getResetColor()).fgColor(Color.WHITE);
 					
 					//FPS + memory
 					if(SHOW_FPS) {
-						ansiBuilder.append(PadUtils.rightPad(String.format("%.0f FPS", fps), (int)Math.floor(s.getColumns() / 2D)));
+						ansiBuilder.append(PadUtils.rightPad(String.format("%.0f FPS", fps), (int)Math.floor(size.getColumns() / 2D)));
 						ansiBuilder.append(PadUtils.leftPad(String.format("%s MB / %s MB", 
 								Runtime.getRuntime().freeMemory() / BYTES_IN_MEGABYTE,
 								Runtime.getRuntime().totalMemory() / BYTES_IN_MEGABYTE
-						), (int)Math.ceil(s.getColumns() / 2D)));
+						), (int)Math.ceil(size.getColumns() / 2D)));
 					}
 					ansiBuilder.append(blankLinesTop);
 					
@@ -139,18 +137,19 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 						}
 						rowBuilder.resetAll().bgColor(BosstrovesRevenge.instance().getResetColor());
 						ansiBuilder.append(rowBuilder.toString());
-						ansiBuilder.append(rightPad + " \n");
+						ansiBuilder.append(rightPad);
+						ansiBuilder.append("\n");
 					}
 					
 					//The bottom lines
-					ansiBuilder.resetAll().bgColor(BosstrovesRevenge.instance().getResetColor()).append(blankLinesBottom).append(linePad).append("\n");
-					if(debugLine.length() > s.getColumns()) {
-						ansiBuilder.append(debugLine.substring(0, s.getColumns()));
+					ansiBuilder.resetAll().bgColor(BosstrovesRevenge.instance().getResetColor()).append(blankLinesBottom);
+					if(debugLine.length() > size.getColumns()) {
+						ansiBuilder.append(debugLine.substring(0, size.getColumns()));
 					} else {
 						ansiBuilder.append(debugLine);
 					}
-					ansiBuilder.append(PadUtils.stringTimes(" ", Math.max(0, s.getColumns() - debugLine.length())));
-					ansiBuilder.moveCursorLeft(s.getColumns());
+					ansiBuilder.append(PadUtils.stringTimes(" ", Math.max(0, size.getColumns() - debugLine.length())));
+					ansiBuilder.moveCursorLeft(size.getColumns());
 					
 					//PRINT
 					if (terminal.getType() != Terminal.TYPE_DUMB) {
@@ -161,7 +160,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					}
 				} else {
 					String toPrint = Ansi.ansi().cursor(1, 1).reset()
-							.a(String.format("Screen resolution too small [%s×%s]", s.getColumns(), s.getRows()))
+							.a(String.format("Screen resolution too small [%s×%s]", size.getColumns(), size.getRows()))
 							.eraseScreen(Erase.FORWARD).toString();
 					if (terminal.getType() != Terminal.TYPE_DUMB) {
 						terminal.writer().print(toPrint + "\n");
@@ -216,6 +215,11 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public Pair<Integer, Integer> getSize() {
+		return lastSize;
 	}
 
 }

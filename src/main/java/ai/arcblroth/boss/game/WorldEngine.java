@@ -9,6 +9,7 @@ import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.register.LevelRegistry;
 import ai.arcblroth.boss.render.IRenderer;
+import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 
 public class WorldEngine implements IEngine {
@@ -29,9 +30,10 @@ public class WorldEngine implements IEngine {
 		level.getRoom(currentRoom).runCollisionCallbacks();
 		
 		Player player = level.getRoom(currentRoom).getPlayer();
+		Pair<Integer, Integer> outputSize = BosstrovesRevenge.instance().getOutputSize();
 		renderer.setRenderOffset(
-				player.getPosition().getX() * StaticDefaults.TILE_WIDTH - StaticDefaults.OUTPUT_WIDTH / 2D,
-				player.getPosition().getY() * StaticDefaults.TILE_HEIGHT - StaticDefaults.OUTPUT_HEIGHT / 2D
+				player.getPosition().getX() * StaticDefaults.TILE_WIDTH - outputSize.getFirst() / 2D,
+				player.getPosition().getY() * StaticDefaults.TILE_HEIGHT - outputSize.getSecond() / 2D
 		);
 	}
 

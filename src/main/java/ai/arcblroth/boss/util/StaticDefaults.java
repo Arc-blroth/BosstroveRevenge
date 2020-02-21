@@ -10,10 +10,8 @@ public final class StaticDefaults {
 
 	private StaticDefaults() {throw new RuntimeException("Programmer used Reflection! It wasn't very effective!");}
 	
-	public static final int OUTPUT_HEIGHT = 96;
-	public static final int OUTPUT_WIDTH = 128;
-	public static final int CHARACTER_WIDTH = 32;
-	public static final int CHARACTER_HEIGHT = 64;
+	public static final int CHARACTER_WIDTH = 16;
+	public static final int CHARACTER_HEIGHT = 32;
 	public static final Character RESET_CHAR = ' ';
 	
 	public static final int STEPS_PER_SECOND = 30;

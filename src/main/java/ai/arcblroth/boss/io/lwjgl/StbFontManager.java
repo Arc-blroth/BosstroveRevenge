@@ -7,7 +7,6 @@ import org.lwjgl.stb.STBTTFontinfo;
 import org.lwjgl.system.MemoryStack;
 
 import ai.arcblroth.boss.resource.Resource;
-import ai.arcblroth.boss.util.StaticDefaults;
 
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
@@ -62,7 +61,7 @@ public class StbFontManager {
 		characters = STBTTBakedChar.malloc(LAST_CHAR_TO_BAKE - FIRST_CHAR_TO_BAKE + 1);
 		
 		ByteBuffer alphaBitmap = BufferUtils.createByteBuffer(BITMAP_WIDTH * BITMAP_HEIGHT);
-        int baked = stbtt_BakeFontBitmap(font, StaticDefaults.CHARACTER_HEIGHT, alphaBitmap, BITMAP_WIDTH, BITMAP_HEIGHT, FIRST_CHAR_TO_BAKE, characters);
+        int baked = stbtt_BakeFontBitmap(font, OpenGLUtils.STB_FONT_CHARACTER_HEIGHT, alphaBitmap, BITMAP_WIDTH, BITMAP_HEIGHT, FIRST_CHAR_TO_BAKE, characters);
         logger.log(Level.INFO, "Font baking result: " + baked);
        
         // stb bakes a bitmap of only GL_ALPHAs. But GL_ALPHA is deprecated, thus we
@@ -103,8 +102,8 @@ public class StbFontManager {
 
 				stbtt_GetCodepointHMetrics(info, 'M', advanceWidthBuf, leftSideBearingBuf);
 
-				advanceWidth = advanceWidthBuf.get(0) / StaticDefaults.CHARACTER_WIDTH;
-				leftSideBearing = leftSideBearingBuf.get(0) / StaticDefaults.CHARACTER_WIDTH;
+				advanceWidth = advanceWidthBuf.get(0) / OpenGLUtils.STB_FONT_CHARACTER_WIDTH;
+				leftSideBearing = leftSideBearingBuf.get(0) / OpenGLUtils.STB_FONT_CHARACTER_WIDTH;
 			}
 		} else {
 			throw new RuntimeException("Could not load stb font info.");

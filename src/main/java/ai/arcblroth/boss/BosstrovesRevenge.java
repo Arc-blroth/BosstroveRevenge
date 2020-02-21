@@ -12,6 +12,7 @@ import ai.arcblroth.boss.load.LoadEngine;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.resource.load.TextureCache;
+import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 
 public final class BosstrovesRevenge extends Thread {
@@ -150,6 +151,10 @@ public final class BosstrovesRevenge extends Thread {
 
 	public void setResetColor(Color c) {
 		if(c != null) resetColor = c;
+	}
+	
+	public Pair<Integer, Integer> getOutputSize() {
+		return outputRenderer.getSize();
 	}
 	
 	public void setEngine(IEngine e) {
