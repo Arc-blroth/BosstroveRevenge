@@ -11,7 +11,7 @@ import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.TextureUtils;
 import ai.arcblroth.boss.util.Vector2D;
 
-public class Mob implements IEntity, IMortal, IAccelerable {
+public abstract class Mob implements IEntity, IMortal, IAccelerable {
 
 	private Texture texture;
 	private Position pos;
@@ -20,7 +20,7 @@ public class Mob implements IEntity, IMortal, IAccelerable {
 	private Vector2D accel;
 	private double friction;
 	
-	public Mob(Texture texture, Position initialPos, double frictionFactor, double initialHealth) {
+	protected Mob(Texture texture, Position initialPos, double frictionFactor, double initialHealth) {
 		this.texture = texture;
 		this.pos = initialPos;
 		this.health = initialHealth;

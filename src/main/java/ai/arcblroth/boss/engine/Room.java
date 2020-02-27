@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
+import ai.arcblroth.boss.engine.entity.IAccelerable;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.engine.hitbox.Hitbox;
@@ -57,6 +58,11 @@ public class Room {
 		hitboxManager.add(player);
 		
 		for(IEntity entity : entities) {
+			
+			if(entity instanceof IAccelerable) {
+				moveAccelerableEntity(entity);
+			}
+			
 			hitboxManager.getAllCollisionsOf(entity).forEach((IHitboxed other) -> {
 				if(other instanceof IEntity) {
 					entity.onEntityStep((IEntity) other);
@@ -65,59 +71,70 @@ public class Room {
 				}
 			});
 		}
+
+		moveAccelerableEntity(player);
+		
+	}
+	
+	private <E extends IEntity & IAccelerable> void moveAccelerableEntity(IEntity accelerableEntity) {
+		
+		if(!(accelerableEntity instanceof IAccelerable)) return;
+		
+		@SuppressWarnings("unchecked")
+		E ent = (E) accelerableEntity;
 		
 		AtomicBoolean isGoingToCrashX = new AtomicBoolean(false);
 		AtomicBoolean isGoingToCrashY = new AtomicBoolean(false);
 		
-		player.setAccelerationVector(player.getAccelerationVector().multiply(player.getFrictionFactor()));
+		ent.setAccelerationVector(ent.getAccelerationVector().multiply(ent.getFrictionFactor()));
 		
-		Vector2D steppedAccel = player.getAccelerationVector().multiply(1D / 16D);
+		Vector2D steppedAccel = ent.getAccelerationVector().multiply(1D / 16D);
 		
 		collisionSteps:
 		for(int collisionSubdivisions = 0; collisionSubdivisions < 16; collisionSubdivisions++) {
 			
 			if(!isGoingToCrashX.get()) {
-				player.setPosition(new Position(
-						player.getPosition().getX() + steppedAccel.getX(),
-						player.getPosition().getY()
+				ent.setPosition(new Position(
+						ent.getPosition().getX() + steppedAccel.getX(),
+						ent.getPosition().getY()
 				));
 				
-				hitboxManager.getAllCollisionsOf(player).forEach((IHitboxed other) -> {
+				hitboxManager.getAllCollisionsOf(ent).forEach((IHitboxed other) -> {
 					if(other instanceof TileHitboxWrapper) {
 						isGoingToCrashX.set(true);
-						//player.setAccelerationVector(
-						//		player.getAccelerationVector().multiply(((TileHitboxWrapper) other).getTile().getViscosity()
+						//ent.setAccelerationVector(
+						//		ent.getAccelerationVector().multiply(((TileHitboxWrapper) other).getTile().getViscosity()
 						//));
 					}
 				});
 				
 				if(isGoingToCrashX.get()) {
-					player.setPosition(new Position(
-							player.getPosition().getX() - steppedAccel.getX(),
-							player.getPosition().getY()
+					ent.setPosition(new Position(
+							ent.getPosition().getX() - steppedAccel.getX(),
+							ent.getPosition().getY()
 					));
-					player.setAccelerationVector(new Vector2D(0D, player.getAccelerationVector().getY()));
+					ent.setAccelerationVector(new Vector2D(0D, ent.getAccelerationVector().getY()));
 				}
 			}
 			
 			if(!isGoingToCrashY.get()) {
-				player.setPosition(new Position(
-						player.getPosition().getX(),
-						player.getPosition().getY() + steppedAccel.getY()
+				ent.setPosition(new Position(
+						ent.getPosition().getX(),
+						ent.getPosition().getY() + steppedAccel.getY()
 				));
 				
-				hitboxManager.getAllCollisionsOf(player).forEach((IHitboxed other) -> {
+				hitboxManager.getAllCollisionsOf(ent).forEach((IHitboxed other) -> {
 					if(other instanceof TileHitboxWrapper) {
 						isGoingToCrashY.set(true);
 					}
 				});
 				
 				if(isGoingToCrashY.get()) {
-					player.setPosition(new Position(
-							player.getPosition().getX(),
-							player.getPosition().getY() - steppedAccel.getY()
+					ent.setPosition(new Position(
+							ent.getPosition().getX(),
+							ent.getPosition().getY() - steppedAccel.getY()
 					));
-					player.setAccelerationVector(new Vector2D(player.getAccelerationVector().getX(), 0D));
+					ent.setAccelerationVector(new Vector2D(ent.getAccelerationVector().getX(), 0D));
 				}
 			}
 			
