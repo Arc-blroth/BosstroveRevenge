@@ -75,7 +75,16 @@ Example File:
           ...
         ],
         ...
+      ],
+      
+      "entities": [
+      	{
+      		"entityId": "boss.xulpir",
+      		"x": 3,
+      		"y": 5
+      	}
       ]
+      
     },
     {
       "roomId": 2,
@@ -134,6 +143,9 @@ Example File:
 - List of the rooms in this level.
 - Required
 
+### `entities`
+- List of the entities in this level. See the Format Specification for bent for more information.
+- Optional.
 
 # Rooms
 Within each level is an array of rooms. Each

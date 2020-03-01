@@ -1,7 +1,8 @@
-package ai.arcblroth.boss.engine.entity;
+package ai.arcblroth.boss.game.entity;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.Position;
+import ai.arcblroth.boss.engine.entity.Mob;
 import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.resource.InternalResource;
 

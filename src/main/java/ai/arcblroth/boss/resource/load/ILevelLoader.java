@@ -20,12 +20,10 @@ public final class ILevelLoader extends AbstractIRegisterableLoader {
 	
 	public static final String BLVL_EXTENSION = ".blvl";
 	private TextureCache cache;
-	private final Gson gson;
 	private final Logger logger;
 	
 	public ILevelLoader(TextureCache cache) {
 		this.cache = cache;
-		this.gson = new Gson();
 		this.logger = Logger.getLogger("ILevelLoader");
 	}
 	
@@ -35,7 +33,7 @@ public final class ILevelLoader extends AbstractIRegisterableLoader {
 	}
 	
 	@Override
-	public void register(Resource specification) {
+	public void register(Gson gson, Resource specification) {
 		if(!accepts(specification)) {
 			logger.log(Level.WARNING, "Refusing to load resource " + specification.toString() + " as it is not a .blvl file.");
 			return;

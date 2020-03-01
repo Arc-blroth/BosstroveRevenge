@@ -1,5 +1,4 @@
 build/**
 bin/**
 .gradle/**
-/.gradle/
-/build/
+.idea/**

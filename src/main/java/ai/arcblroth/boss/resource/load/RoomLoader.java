@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 
 import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.Room;
+import ai.arcblroth.boss.register.EntityRegistry;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.render.Color;
@@ -134,6 +135,27 @@ public class RoomLoader {
 							}
 						}
 					}
+				}
+			}
+			
+			{
+				if(roomObj.has("entities")) {
+					JsonArray entities = roomObj.get("entities").getAsJsonArray();
+					entities.forEach((entEle) -> {
+						try {
+							JsonObject ent = entEle.getAsJsonObject();
+							String entityId = ent.get("entityId").getAsString();
+							if(EntityRegistry.instance().containsKey(entityId)) {
+								outRoom.getEntities().add(EntityRegistry.instance().buildEntity(entityId, ent));
+							} else {
+								logger.log(Level.WARNING, 
+										String.format("No entity with entityId \"%s\" is registered, in room \"%s\"", entityId, roomId));
+							}
+						} catch(Exception e) {
+							logger.log(Level.WARNING, 
+									String.format("Could not load entity in room \"%s\": %s", roomId, e.getMessage()));
+						}
+					});
 				}
 			}
 			

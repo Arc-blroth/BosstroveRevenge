@@ -6,8 +6,8 @@ import ai.arcblroth.boss.engine.IInteractable.Direction;
 import ai.arcblroth.boss.engine.Level;
 import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.StepEvent;
-import ai.arcblroth.boss.engine.entity.Xulpir;
 import ai.arcblroth.boss.engine.entity.player.Player;
+import ai.arcblroth.boss.game.entity.Xulpir;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.register.LevelRegistry;
 import ai.arcblroth.boss.render.IRenderer;
@@ -25,10 +25,6 @@ public class WorldEngine implements IEngine {
 		currentRoom = "0";
 		this.renderer = new WorldRenderer(level.getRoom(currentRoom));
 		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoom).getResetColor());
-		
-		Xulpir x = new Xulpir(new Position(3, 5));
-		level.getRoom(currentRoom).getEntities().add(x);
-		x.accelerate(Direction.EAST, 0.05);
 	}
 	
 	@Override
