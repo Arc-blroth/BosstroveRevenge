@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 
 import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.Room;
+import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.register.EntityRegistry;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
@@ -21,23 +22,22 @@ public class RoomLoader {
 
 	private static final Logger logger = Logger.getLogger("RoomLoader");
 	
-	public static HashMap<String, Room> loadRooms(JsonArray roomArray) {
+	public static void loadRooms(JsonArray roomArray, ai.arcblroth.boss.engine.Level level) {
 		HashMap<String, Room> rooms = new HashMap<>();
 		roomArray.forEach((roomObj) -> {
 			try {
-				Pair<String, Room> idAndRoom = loadRoom(roomObj);
+				Pair<String, Room> idAndRoom = loadRoom(roomObj, level);
 				if(rooms.containsKey(idAndRoom.getFirst())) {
 					throw new IllegalStateException("More than one room is defined with id \"" + idAndRoom.getFirst() + "\n");
 				}
-				rooms.put(idAndRoom.getFirst(), idAndRoom.getSecond());
+				level.addRoom(idAndRoom.getFirst(), idAndRoom.getSecond());
 			} catch(Exception e) {
 				logger.log(Level.WARNING, "Could not load Room", e);
 			}
 		});
-		return rooms;
 	}
 	
-	public static Pair<String, Room> loadRoom(JsonElement roomEle) throws MalformedSpecificationException {
+	public static Pair<String, Room> loadRoom(JsonElement roomEle, ai.arcblroth.boss.engine.Level level) throws MalformedSpecificationException {
 		if(!roomEle.isJsonObject()) throw new MalformedSpecificationException("rooms");
 		JsonObject roomObj = roomEle.getAsJsonObject();
 		try {
@@ -56,7 +56,7 @@ public class RoomLoader {
 			if(roomObj.has("resetColor")) {
 				resetColor = new Color(Integer.parseUnsignedInt(roomObj.get("resetColor").getAsString().replace("#", ""), 16));
 			}
-			Room outRoom = new Room(width, height, initialPos, resetColor);
+			Room outRoom = new Room(level, width, height, initialPos, resetColor);
 			
 			{
 				JsonArray floorTiles = roomObj.get("floorTiles").getAsJsonArray();
@@ -71,7 +71,9 @@ public class RoomLoader {
 								
 								String floorTileName = floorTile.getAsJsonObject().get("tileId").getAsString();
 								if(FloorTileRegistry.instance().containsKey(floorTileName)) {
-									outRoom.getFloorTiles().set(x, y, FloorTileRegistry.instance().get(floorTileName));
+									outRoom.getFloorTiles().set(x, y, 
+											FloorTileRegistry.instance().buildTile(floorTileName, outRoom, new TilePosition(x, y), floorTile.getAsJsonObject())
+									);
 								} else {
 									logger.log(Level.WARNING, 
 											String.format("Could not find floorTile \"%s\" at (%s, %s) in room \"%s\"", floorTileName, x, y, roomId));
@@ -88,7 +90,9 @@ public class RoomLoader {
 						} else {
 							String floorTileName = floorTile.getAsString();
 							if(FloorTileRegistry.instance().containsKey(floorTileName)) {
-								outRoom.getFloorTiles().set(x, y, FloorTileRegistry.instance().get(floorTileName));
+								outRoom.getFloorTiles().set(x, y, 
+										FloorTileRegistry.instance().buildTile(floorTileName, outRoom, new TilePosition(x, y), new JsonObject())
+								);
 							} else {
 								logger.log(Level.WARNING, 
 										String.format("Could not find floorTile \"%s\" at (%s, %s) in room \"%s\"", floorTileName, x, y, roomId));
@@ -111,7 +115,9 @@ public class RoomLoader {
 								
 								String wallTileName = wallTile.getAsJsonObject().get("tileId").getAsString();
 								if(WallTileRegistry.instance().containsKey(wallTileName)) {
-									outRoom.getWallTiles().set(x, y, WallTileRegistry.instance().get(wallTileName));
+									outRoom.getWallTiles().set(x, y, 
+											WallTileRegistry.instance().buildTile(wallTileName, outRoom, new TilePosition(x, y), wallTile.getAsJsonObject())
+									);
 								} else {
 									logger.log(Level.WARNING, 
 											String.format("Could not find wallTile \"%s\" at (%s, %s) in room \"%s\"", wallTileName, x, y, roomId));
@@ -128,7 +134,9 @@ public class RoomLoader {
 						} else {
 							String wallTileName = wallTile.getAsString();
 							if(WallTileRegistry.instance().containsKey(wallTileName)) {
-								outRoom.getWallTiles().set(x, y, WallTileRegistry.instance().get(wallTileName));
+								outRoom.getWallTiles().set(x, y, 
+										WallTileRegistry.instance().buildTile(wallTileName, outRoom, new TilePosition(x, y), new JsonObject())
+								);
 							} else {
 								logger.log(Level.WARNING, 
 										String.format("Could not find wallTile \"%s\" at (%s, %s) in room \"%s\"", wallTileName, x, y, roomId));

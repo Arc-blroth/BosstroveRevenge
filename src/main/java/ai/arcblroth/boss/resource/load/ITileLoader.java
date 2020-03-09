@@ -10,11 +10,15 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
+import ai.arcblroth.boss.engine.Room;
+import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.engine.tile.EmptyFloorTile;
 import ai.arcblroth.boss.engine.tile.EmptyWallTile;
 import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.WallTile;
+import ai.arcblroth.boss.register.FloorTileBuilder;
 import ai.arcblroth.boss.register.FloorTileRegistry;
+import ai.arcblroth.boss.register.WallTileBuilder;
 import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.render.PixelGrid;
 import ai.arcblroth.boss.render.Texture;
@@ -70,14 +74,14 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 					// Resolve texture
 					// This is done last to ensure that we don't load textures
 					// for broken specifications.
-					Texture texture = new EmptyFloorTile().getTexture();
+					Texture tempTexture = StaticDefaults.DEFAULT_TEXTURE;
 					if(btile.has("texture")) {
 						if(btile.get("texture").isJsonArray()) {
 							PixelGrid overlaidTexture = new PixelGrid(StaticDefaults.TILE_WIDTH, StaticDefaults.TILE_HEIGHT);
 							JsonArray textureLocations = btile.get("texture").getAsJsonArray();
 							for(int i = textureLocations.size() - 1; i >= 0; i--) {
 								Texture specifiedTexture = cache.get(new InternalResource(textureLocations.get(i).getAsString()));
-								if(specifiedTexture == null) specifiedTexture = new EmptyFloorTile().getTexture();
+								if(specifiedTexture == null) specifiedTexture = StaticDefaults.DEFAULT_TEXTURE;
 								
 								// First overlay existing texture onto a bigger texture so that larger textures
 								// are not clipped.
@@ -91,43 +95,47 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 								
 								overlaidTexture = TextureUtils.overlay(specifiedTexture, overlaidTexture);
 							}
-							texture = new Texture(overlaidTexture);
+							tempTexture = new Texture(overlaidTexture);
 						} else {
 							Texture specifiedTexture = cache.get(new InternalResource(btile.get("texture").getAsString()));
-							if(specifiedTexture != null) texture = specifiedTexture;
+							if(specifiedTexture != null) tempTexture = specifiedTexture;
 						}
 					}
+					final Texture texture = tempTexture;
 					
 					if(tileType.equals("floortile")) {
 						
-						FloorTileRegistry.instance().register(tileId, new FloorTile(texture) {
+						FloorTileRegistry.instance().register(tileId, (room, tilePos) -> {
+							return new FloorTile(room, tilePos, texture) {
 
-							@Override
-							public boolean isPassable() {
-								return isPassable;
-							}
+								@Override
+								public boolean isPassable() {
+									return isPassable;
+								}
 
-							@Override
-							public double getViscosity() {
-								return viscosity;
-							}
-							
+								@Override
+								public double getViscosity() {
+									return viscosity;
+								};
+							};
 						});
 						
 					} else if(tileType.equals("walltile")) {
 						
-						WallTileRegistry.instance().register(tileId, new WallTile(texture) {
+						WallTileRegistry.instance().register(tileId, (room, tilePos) -> {
+							return new WallTile(room, tilePos, texture) {
 
-							@Override
-							public boolean isPassable() {
-								return isPassable;
-							}
+								@Override
+								public boolean isPassable() {
+									return isPassable;
+								}
 
-							@Override
-							public double getViscosity() {
-								return viscosity;
-							}
-							
+								@Override
+								public double getViscosity() {
+									return viscosity;
+								}
+								
+							};
 						});
 						
 					} else {

@@ -10,8 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.util.Pair;
 
-public class EntityRegistry extends ConcurrentHashMap<String, Pair<Class<? extends IEntity>, JsonDeserializer<? extends IEntity>>>
-		implements IRegistry<String, Pair<Class<? extends IEntity>, JsonDeserializer<? extends IEntity>>> {
+public class EntityRegistry extends ConcurrentHashMap<String, Pair<Class<? extends IEntity>, JsonDeserializer<? extends IEntity>>> {
 	
 	private static final EntityRegistry INSTANCE = new EntityRegistry();
 	private Object gsonLock;
@@ -34,13 +33,7 @@ public class EntityRegistry extends ConcurrentHashMap<String, Pair<Class<? exten
 			return gson.fromJson(parameters, get(entityId).getFirst());
 		}
 	}
-	
-	@Override
-	public Pair<Class<? extends IEntity>, JsonDeserializer<? extends IEntity>> getRegistered(String key) {
-		return get(key);
-	}
 
-	@Override
 	public void register(String key, Pair<Class<? extends IEntity>, JsonDeserializer<? extends IEntity>> entityDef) {
 		synchronized(gsonLock) {
 			put(key, entityDef);

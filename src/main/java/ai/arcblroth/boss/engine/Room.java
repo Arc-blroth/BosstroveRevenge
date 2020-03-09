@@ -3,6 +3,8 @@ package ai.arcblroth.boss.engine;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.google.gson.JsonObject;
+
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.entity.IAccelerable;
 import ai.arcblroth.boss.engine.entity.IEntity;
@@ -20,7 +22,8 @@ import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.Vector2D;
 
 public class Room {
-	
+
+	private Level level;
 	private Grid2D<FloorTile> floorTiles;
 	private Grid2D<WallTile> wallTiles;
 	private ArrayList<IEntity> entities;
@@ -29,21 +32,30 @@ public class Room {
 	private int width, height;
 	private Color resetColor;
 
-	public Room(int width, int height, Position initPlayerPosition, Color resetColor) {
+	public Room(Level level, int width, int height, Position initPlayerPosition, Color resetColor) {
 		if(width < 1 || height < 1) throw new IllegalArgumentException("Room width and height must be >1");
 		
+		this.level = level;
 		this.width = width;
 		this.height = height;
 		this.resetColor = resetColor;
-		this.floorTiles = new Grid2D<FloorTile>(width, height, FloorTileRegistry.instance().getTile("empty"));
-		this.wallTiles = new Grid2D<WallTile>(width, height, WallTileRegistry.instance().getTile("empty"));
+		
+		this.floorTiles = new Grid2D<FloorTile>(width, height, null);
+		this.wallTiles = new Grid2D<WallTile>(width, height, null);
+		for(int y = 0; y < height; y++) {
+			for(int x = 0; x < width; x++) {
+				floorTiles.set(x, y, FloorTileRegistry.instance().buildTile("empty", this, new TilePosition(x, y)));
+				wallTiles.set(x, y, WallTileRegistry.instance().buildTile("empty", this, new TilePosition(x, y)));
+			}
+		}
+		
 		this.entities = new ArrayList<>();
 		this.player = new Player(initPlayerPosition, StaticDefaults.MAX_PLAYER_HEALTH);
 		this.hitboxManager = new HitboxManager(width, height);
 	}
 	
-	public Room(int width, int height, Position initPlayerPosition) {
-		this(width, height, initPlayerPosition, Color.BLACK);
+	public Room(Level level, int width, int height, Position initPlayerPosition) {
+		this(level, width, height, initPlayerPosition, Color.BLACK);
 	}
 	
 	public void runCollisionCallbacks() {

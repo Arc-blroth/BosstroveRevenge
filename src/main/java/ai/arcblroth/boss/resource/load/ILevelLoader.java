@@ -55,9 +55,9 @@ public final class ILevelLoader extends AbstractIRegisterableLoader {
 					String levelString = blvl.get("level").getAsString();
 					String titleString = blvl.get("title").getAsString();
 					
-					Map<String, Room> rooms = RoomLoader.loadRooms(blvl.get("rooms").getAsJsonArray());
+					ai.arcblroth.boss.engine.Level level = new ai.arcblroth.boss.engine.Level(worldString, levelString, titleString);
+					RoomLoader.loadRooms(blvl.get("rooms").getAsJsonArray(), level);
 					
-					ai.arcblroth.boss.engine.Level level = new ai.arcblroth.boss.engine.Level(worldString, levelString, titleString, rooms);
 					LevelRegistry.instance().register(levelId, level);
 					
 				} else {

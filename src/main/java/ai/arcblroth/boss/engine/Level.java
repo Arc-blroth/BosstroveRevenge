@@ -1,5 +1,6 @@
 package ai.arcblroth.boss.engine;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -22,14 +23,18 @@ public class Level implements IRegistrable<Level> {
 	
 	private Map<String, Room> rooms;
 	
-	public Level(String world, String level, String title, Map<String, Room> rooms) {
+	public Level(String world, String level, String title) {
 		this.world = world;
 		this.level = level;
 		this.title = title;
 		this.globalData = new TreeMap<>();
 		this.persistentData = new TreeMap<>();
 		this.triggerData = new TreeMap<>();
-		this.rooms = rooms;
+		this.rooms = new HashMap<>();
+	}
+	
+	public void addRoom(String id, Room room) {
+		rooms.put(id, room);
 	}
 
 	public String getWorldString() {

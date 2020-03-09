@@ -76,8 +76,8 @@ public class LoadProcess extends Thread {
 		
 		phase = Phase.REGISTERING_TILES;
 		
-		FloorTileRegistry.instance().register("empty", new EmptyFloorTile());
-		WallTileRegistry.instance().register("empty", new EmptyWallTile());
+		FloorTileRegistry.instance().register("empty", EmptyFloorTile::new);
+		WallTileRegistry.instance().register("empty", EmptyWallTile::new);
 		
 		Gson gson = new Gson();
 		

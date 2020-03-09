@@ -1,5 +1,7 @@
 package ai.arcblroth.boss.engine.tile;
 
+import ai.arcblroth.boss.engine.Room;
+import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.render.Color;
@@ -20,8 +22,8 @@ public final class EmptyWallTile extends WallTile {
 		TEXTURE = new Texture(pg);
 	}
 
-	public EmptyWallTile() {
-		super(TEXTURE);
+	public EmptyWallTile(Room room, TilePosition pos) {
+		super(room, pos, TEXTURE);
 	}
 
 	@Override
