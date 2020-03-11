@@ -14,16 +14,10 @@ public class Hitbox {
 	}
 	
 	public boolean intersects(Hitbox other) {
-		 // If the left x-coordinate of the first hitbox is inside the other hitbox's x-range
-		if ((this.x > other.x && this.x < other.x + other.width) || 
-				(this.x + this.width > other.x && this.x + this.width < other.x + other.width)) {
-			// If the top y-coordinate of the first hitbox is inside the other hitbox y-range
-			if ((this.y > other.y && this.y < other.y + other.height) ||  
-					(this.y + this.height > other.y && this.y + this.height < other.y + other.height)) {
-				return true;
-			}
-		}
-		return false;
+		return 	   this.x < other.x + other.width
+				&& this.x + this.width > other.x
+				&& this.y < other.y + other.height
+				&& this.y + this.height > other.y;
 	}
 	
 	public Hitbox resolveRelativeTo(Position reference) {

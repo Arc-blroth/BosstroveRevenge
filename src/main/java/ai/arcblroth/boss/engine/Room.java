@@ -70,11 +70,14 @@ public class Room {
 		hitboxManager.add(player);
 		
 		for(IEntity entity : entities) {
-			
 			if(entity instanceof IAccelerable) {
 				moveAccelerableEntity(entity);
 			}
-			
+		}
+
+		moveAccelerableEntity(player);
+		
+		for(IEntity entity : entities) {
 			hitboxManager.getAllCollisionsOf(entity).forEach((IHitboxed other) -> {
 				if(other instanceof IEntity) {
 					entity.onEntityStep((IEntity) other);
@@ -83,8 +86,12 @@ public class Room {
 				}
 			});
 		}
-
-		moveAccelerableEntity(player);
+		
+		hitboxManager.getAllCollisionsOf(player).forEach((IHitboxed other) -> {
+			if(other instanceof IEntity) {
+				player.onEntityStep((IEntity) other);
+			}
+		});
 		
 	}
 	

@@ -1,5 +1,7 @@
 package ai.arcblroth.boss.game;
 
+import java.util.Random;
+
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.Room;
@@ -7,6 +9,7 @@ import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.WallTile;
+import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.IRenderer;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.render.Texture;
@@ -15,7 +18,9 @@ import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.TextureUtils;
 
 public class WorldRenderer implements IRenderer {
-
+	
+	private boolean renderEntityHitboxes = true;
+	
 	private Room room;
 	private double xOffset;
 	private double yOffset;
@@ -140,6 +145,28 @@ public class WorldRenderer implements IRenderer {
 								entTexture.getPixel(pixelX, pixelY).getAlpha() / 255D
 						)
 				);
+			}
+		}
+		
+		if(renderEntityHitboxes) {
+			int xHitboxOff = (int)Math.round(
+					((double)ent.getHitbox().getX()) * StaticDefaults.TILE_WIDTH
+					- xOffset
+			);
+			int yHitboxOff = (int)Math.round(
+					((double)ent.getHitbox().getY()) * StaticDefaults.TILE_HEIGHT
+					- yOffset
+			);
+			Random rand = new Random(ent.hashCode());
+			Color hitColor = Color.getFromHSBA(rand.nextDouble(), 1, 1);
+			for (int pixelY = 0; pixelY < ent.getHitbox().getHeight() * StaticDefaults.TILE_HEIGHT; pixelY++) {
+				for (int pixelX = 0; pixelX < ent.getHitbox().getWidth() * StaticDefaults.TILE_WIDTH; pixelX++) {
+					ptg.setPixel(
+							xHitboxOff + pixelX,
+							yHitboxOff + pixelY,
+							hitColor
+					);
+				}
 			}
 		}
 	}

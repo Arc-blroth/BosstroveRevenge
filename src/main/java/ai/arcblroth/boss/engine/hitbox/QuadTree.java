@@ -11,7 +11,7 @@ import ai.arcblroth.boss.engine.IHitboxed;
  */
 public class QuadTree {
 	
-	private static final int MAX_OBJECTS = 8;
+	private static final int MAX_OBJECTS = 256;
 	private static final int MAX_DEPTH = 8;
 	
 	private int depth;
@@ -71,7 +71,7 @@ public class QuadTree {
 		boolean topQuadrant = (obj.getHitbox().getY() < horizontalMidpoint
 				&& obj.getHitbox().getY() + obj.getHitbox().getHeight() < horizontalMidpoint);
 		// Object can completely fit within the bottom quadrants
-		boolean bottomQuadrant = (obj.getHitbox().getY() > horizontalMidpoint);
+		boolean bottomQuadrant = (obj.getHitbox().getY() >= horizontalMidpoint);
 
 		// Object can completely fit within the left quadrants
 		if (obj.getHitbox().getX() < verticalMidpoint
@@ -83,7 +83,7 @@ public class QuadTree {
 			}
 		}
 		// Object can completely fit within the right quadrants
-		else if (obj.getHitbox().getX() > verticalMidpoint) {
+		else if (obj.getHitbox().getX() >= verticalMidpoint) {
 			if (topQuadrant) {
 				index = 0;
 			} else if (bottomQuadrant) {
