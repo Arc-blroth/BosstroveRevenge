@@ -2,5 +2,5 @@
   "versionId": 1,
   "entityId": "boss.xulpir",
   "class": "ai.arcblroth.boss.game.entity.Xulpir",
-  "deserializer": "ai.arcblroth.boss.game.entity.XulpirDeserializer"
+  "builder": "ai.arcblroth.boss.game.entity.XulpirBuilder"
 }

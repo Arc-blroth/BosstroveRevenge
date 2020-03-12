@@ -8,9 +8,10 @@ import com.google.gson.JsonObject;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.engine.tile.WallTile;
+import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.util.TriFunction;
 
-public class WallTileRegistry extends ConcurrentHashMap<String, WallTileBuilder> {
+public class WallTileRegistry extends ConcurrentHashMap<String, WallTileBuilder<? extends WallTile>> {
 	
 	private static final WallTileRegistry INSTANCE = new WallTileRegistry();
 	
@@ -34,16 +35,16 @@ public class WallTileRegistry extends ConcurrentHashMap<String, WallTileBuilder>
 		put(key, builder);
 	}
 	
-	public void register(String key, TriFunction<Room, TilePosition, JsonObject, WallTile> builder) {
-		put(key, new WallTileBuilder() {
+	public void register(String key, Texture tileTexture, TriFunction<Room, TilePosition, JsonObject, WallTile> builder) {
+		put(key, new WallTileBuilder(tileTexture) {
 			public WallTile build(Room room, TilePosition tilePos, JsonObject context) {
 				return builder.apply(room, tilePos, context);
 			}
 		});
 	}
 	
-	public void register(String key, BiFunction<Room, TilePosition, WallTile> builder) {
-		put(key, new WallTileBuilder() {
+	public void register(String key, Texture tileTexture, BiFunction<Room, TilePosition, WallTile> builder) {
+		put(key, new WallTileBuilder(tileTexture) {
 			public WallTile build(Room room, TilePosition tilePos, JsonObject context) {
 				return builder.apply(room, tilePos);
 			}

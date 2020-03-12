@@ -19,7 +19,7 @@ import ai.arcblroth.boss.util.TextureUtils;
 
 public class WorldRenderer implements IRenderer {
 	
-	private boolean renderEntityHitboxes = true;
+	private boolean renderEntityHitboxes = false;
 	
 	private Room room;
 	private double xOffset;

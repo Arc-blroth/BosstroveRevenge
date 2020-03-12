@@ -153,8 +153,10 @@ public class RoomLoader {
 						try {
 							JsonObject ent = entEle.getAsJsonObject();
 							String entityId = ent.get("entityId").getAsString();
+							Double xPos = ent.get("x").getAsDouble();
+							Double yPos = ent.get("y").getAsDouble();
 							if(EntityRegistry.instance().containsKey(entityId)) {
-								outRoom.getEntities().add(EntityRegistry.instance().buildEntity(entityId, ent));
+								outRoom.getEntities().add(EntityRegistry.instance().buildEntity(entityId, outRoom, new Position(xPos, yPos), ent));
 							} else {
 								logger.log(Level.WARNING, 
 										String.format("No entity with entityId \"%s\" is registered, in room \"%s\"", entityId, roomId));

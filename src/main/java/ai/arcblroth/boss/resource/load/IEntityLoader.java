@@ -13,11 +13,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
+import ai.arcblroth.boss.engine.Position;
+import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.tile.EmptyFloorTile;
 import ai.arcblroth.boss.engine.tile.EmptyWallTile;
 import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.WallTile;
+import ai.arcblroth.boss.register.EntityBuilder;
 import ai.arcblroth.boss.register.EntityRegistry;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
@@ -66,7 +69,7 @@ public final class IEntityLoader extends AbstractIRegisterableLoader {
 					
 					String entityId = bent.get("entityId").getAsString();
 					String classString = bent.get("class").getAsString();
-					String deserializerString = bent.get("deserializer").getAsString();
+					String builderString = bent.get("builder").getAsString();
 					
 					Class<?> entityClass0 = Class.forName(classString);
 					if(!IEntity.class.isAssignableFrom(entityClass0)) {
@@ -74,17 +77,17 @@ public final class IEntityLoader extends AbstractIRegisterableLoader {
 					}
 					Class<? extends IEntity> entityClass = (Class<? extends IEntity>)entityClass0;
 					
-					Class<?> deserializerClass0 = Class.forName(deserializerString);
+					Class<?> deserializerClass0 = Class.forName(builderString);
 					if(!(
-							JsonDeserializer.class.isAssignableFrom(deserializerClass0)
-							&& deserializerClass0.getMethod("deserialize", JsonElement.class, Type.class, JsonDeserializationContext.class).getReturnType().equals(entityClass)
+							EntityBuilder.class.isAssignableFrom(deserializerClass0)
+							&& deserializerClass0.getMethod("build", Room.class, Position.class, JsonObject.class).getReturnType().equals(entityClass)
 						)) {
-						throw new IllegalArgumentException("deserializer must implement JsonDeserializer<class>");
+						throw new IllegalArgumentException("builder must implement EntityBuilder<" + classString + ">");
 					}
-					Class<? extends JsonDeserializer<? extends IEntity>> deserializerClass = (Class<? extends JsonDeserializer<? extends IEntity>>)deserializerClass0;
+					Class<? extends EntityBuilder<? extends IEntity>> deserializerClass = (Class<? extends EntityBuilder<? extends IEntity>>)deserializerClass0;
 					
 					EntityRegistry.instance().register(entityId, 
-							new Pair<Class<? extends IEntity>, JsonDeserializer<? extends IEntity>>(entityClass, deserializerClass.newInstance()));
+							new Pair<Class<? extends IEntity>, EntityBuilder<? extends IEntity>>(entityClass, deserializerClass.newInstance()));
 					
 				} else {
 					throw new UnsupportedSpecificationVersionException(versionId, BENT_EXTENSION);

@@ -9,7 +9,7 @@ Example File:
   "versionId": 1,
   "entityId": "boss.xulpir",
   "class": "ai.arcblroth.boss.game.entity.Xulpir",
-  "deserializer": "ai.arcblroth.boss.game.entity.XulpirDeserializer"
+  "builder": "ai.arcblroth.boss.game.entity.XulpirBuilder"
 }
 ```
 
@@ -27,8 +27,9 @@ Example File:
 - Fully qualified class name of an IEntity implementation.
 - Required
 
-### `deserializer`
-- Fully qualified class name of a JsonDeserializer<class>.
+### `builder`
+- Fully qualified class name of an EntityBuilder<class>.
+- This class is responsible for parsing the json of an entity and constructing the corresponding IEntity.
 - Required
 
 
@@ -46,7 +47,7 @@ Example Entity Declaration:
 ```
 
 Entities are specified as json objects, with a few required fields.
-All other fields are deserialized depending on the `deserializer` class in the entity specification.
+All other fields are deserialized depending on the `builder` class in the entity specification.
 
 ### `entityId`
 - Id of the entity.

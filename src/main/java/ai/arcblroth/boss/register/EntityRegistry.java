@@ -7,39 +7,31 @@ import com.google.gson.JsonObject;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import ai.arcblroth.boss.engine.Position;
+import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.util.Pair;
 
-public class EntityRegistry extends ConcurrentHashMap<String, Pair<Class<? extends IEntity>, JsonDeserializer<? extends IEntity>>> {
+public class EntityRegistry extends ConcurrentHashMap<String, Pair<Class<? extends IEntity>, EntityBuilder<? extends IEntity>>> {
 	
 	private static final EntityRegistry INSTANCE = new EntityRegistry();
-	private Object gsonLock;
-	private final GsonBuilder gsonBuilder;
 	private Gson gson;
 	
 	private EntityRegistry() {
 		super();
-		gsonLock = new Object();
-		gsonBuilder = new GsonBuilder();
-		gson = gsonBuilder.create();
+		gson = new Gson();
 	}
 	
 	public static EntityRegistry instance() {
 		return INSTANCE;
 	}
 	
-	public IEntity buildEntity(String entityId, JsonObject parameters) {
-		synchronized(gsonLock) {
-			return gson.fromJson(parameters, get(entityId).getFirst());
-		}
+	public IEntity buildEntity(String entityId, Room room, Position position, JsonObject context) {
+		return get(entityId).getSecond().build(room, position, context);
 	}
 
-	public void register(String key, Pair<Class<? extends IEntity>, JsonDeserializer<? extends IEntity>> entityDef) {
-		synchronized(gsonLock) {
-			put(key, entityDef);
-			gsonBuilder.registerTypeAdapter(entityDef.getFirst(), entityDef.getSecond());
-			gson = gsonBuilder.create();
-		}
+	public void register(String key, Pair<Class<? extends IEntity>, EntityBuilder<? extends IEntity>> entityDef) {
+		put(key, entityDef);
 	}
 	
 }

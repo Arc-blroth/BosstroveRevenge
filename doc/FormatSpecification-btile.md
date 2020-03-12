@@ -1,7 +1,6 @@
 # .btile File Format (Version 1)
 A Bosstrove Tile file is a json file that defines a tile object
 (specifically a subclass of either `WallTile` or `FloorTile`)
-It may also specify default behaviors.
 
 Example File:
 
@@ -15,10 +14,7 @@ Example File:
   "texture": [
     "data/texture/deco/shells.png",
     "data/texture/tiles/sand.png"
-  ],
-  "events": {
-    ...
-  }
+  ]
 }
 ```
 
@@ -38,11 +34,11 @@ Example File:
 
 ### `passable`
 - Whether or not the player can walk through/on the tile.
-- Defaults to true.
+- Defaults to true. Ignored if a builder is specified.
 
 ### `viscosity`
 - The resistance the player recieves while walking through this tile.
-- Defaults to 0.0.
+- Defaults to 0.0. Ignored if a builder is specified.
 
 ### `texture`
 - Can be either a single string, in which case that texture is used,
@@ -51,7 +47,9 @@ Example File:
   topmost texture.
 - If a texture cannot be loaded, it will be replaced with the default texture.
 - If not specified, texture will be set to the default.
+- Required, though builders may ignore the built texture.
 
-### `events`
-- Specifies the event triggers for this tile. See the
-  [Event Specification](https://github.com/Arc-blroth/BosstroveRevenge/blob/master/doc/EventSpecification.md).
+### `builder`
+- Fully qualified class name of a FloorTileBuilder<? extends FloorTile> or WallTileBuilder<? extends WallTile>.
+- If present, this class becomes responsible for parsing the json of a tile and constructing the corresponding ITile.
+- Optional.

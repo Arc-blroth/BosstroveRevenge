@@ -10,12 +10,14 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
+import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.engine.tile.EmptyFloorTile;
 import ai.arcblroth.boss.engine.tile.EmptyWallTile;
 import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.WallTile;
+import ai.arcblroth.boss.register.EntityBuilder;
 import ai.arcblroth.boss.register.FloorTileBuilder;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileBuilder;
@@ -46,6 +48,7 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 	}
 	
 	@Override
+	@SuppressWarnings("unchecked")
 	public void register(Gson gson, Resource specification) {
 		if(!accepts(specification)) {
 			logger.log(Level.WARNING, "Refusing to load resource " + specification.toString() + " as it is not a .btile file.");
@@ -105,38 +108,76 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 					
 					if(tileType.equals("floortile")) {
 						
-						FloorTileRegistry.instance().register(tileId, (room, tilePos) -> {
-							return new FloorTile(room, tilePos, texture) {
-
-								@Override
-								public boolean isPassable() {
-									return isPassable;
+						// Attempt to resolve builder
+						boolean useCustomBuilder = false;
+						Class<? extends FloorTileBuilder<? extends FloorTile>> builder = null;
+						if(btile.has("builder")) {
+							try {
+								Class<?> builder0 = Class.forName(btile.get("builder").getAsString());
+								if(FloorTileBuilder.class.isAssignableFrom(builder0)) {
+									builder = (Class<? extends FloorTileBuilder<? extends FloorTile>>)builder0;
+									useCustomBuilder = true;
 								}
-
-								@Override
-								public double getViscosity() {
-									return viscosity;
+							} catch (Exception e) {
+								logger.log(Level.WARNING, "Could not load builder for floor tile \"" + tileId + "\". Using default builder.", e);
+							}
+						}
+						
+						if(useCustomBuilder) {
+							FloorTileRegistry.instance().register(tileId, builder.getConstructor(Texture.class).newInstance(texture));
+						} else {
+							FloorTileRegistry.instance().register(tileId, texture, (room, tilePos) -> {
+								return new FloorTile(room, tilePos, texture) {
+	
+									@Override
+									public boolean isPassable() {
+										return isPassable;
+									}
+	
+									@Override
+									public double getViscosity() {
+										return viscosity;
+									};
 								};
-							};
-						});
+							});
+						}
 						
 					} else if(tileType.equals("walltile")) {
 						
-						WallTileRegistry.instance().register(tileId, (room, tilePos) -> {
-							return new WallTile(room, tilePos, texture) {
-
-								@Override
-								public boolean isPassable() {
-									return isPassable;
+						// Attempt to resolve builder
+						boolean useCustomBuilder = false;
+						Class<? extends WallTileBuilder<? extends WallTile>> builder = null;
+						if(btile.has("builder")) {
+							try {
+								Class<?> builder0 = Class.forName(btile.get("builder").getAsString());
+								if(WallTileBuilder.class.isAssignableFrom(builder0)) {
+									builder = (Class<? extends WallTileBuilder<? extends WallTile>>)builder0;
+									useCustomBuilder = true;
 								}
-
-								@Override
-								public double getViscosity() {
-									return viscosity;
-								}
-								
-							};
-						});
+							} catch (Exception e) {
+								logger.log(Level.WARNING, "Could not load builder for wall tile \"" + tileId + "\". Using default builder.", e);
+							}
+						}
+						
+						if(useCustomBuilder) {
+							WallTileRegistry.instance().register(tileId, builder.getConstructor(Texture.class).newInstance(texture));
+						} else {
+							WallTileRegistry.instance().register(tileId, texture, (room, tilePos) -> {
+								return new WallTile(room, tilePos, texture) {
+	
+									@Override
+									public boolean isPassable() {
+										return isPassable;
+									}
+	
+									@Override
+									public double getViscosity() {
+										return viscosity;
+									}
+									
+								};
+							});
+						}
 						
 					} else {
 						// This should be impossible, because of the earlier check.
