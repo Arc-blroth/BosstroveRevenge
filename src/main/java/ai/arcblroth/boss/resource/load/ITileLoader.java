@@ -71,8 +71,6 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 					if(!tileType.equals("floortile") && !tileType.equals("walltile")) {
 						throw new MalformedSpecificationException("tileType", specification);
 					}
-					final boolean isPassable = btile.get("passable").getAsBoolean();
-					final double viscosity = btile.get("viscosity").getAsDouble();
 					
 					// Resolve texture
 					// This is done last to ensure that we don't load textures
@@ -127,6 +125,10 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 							FloorTileRegistry.instance().register(tileId, builder.getConstructor(Texture.class).newInstance(texture));
 						} else {
 							FloorTileRegistry.instance().register(tileId, texture, (room, tilePos) -> {
+								
+								final boolean isPassable = btile.get("passable").getAsBoolean();
+								final double viscosity = btile.get("viscosity").getAsDouble();
+								
 								return new FloorTile(room, tilePos, texture) {
 	
 									@Override
@@ -162,6 +164,10 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 						if(useCustomBuilder) {
 							WallTileRegistry.instance().register(tileId, builder.getConstructor(Texture.class).newInstance(texture));
 						} else {
+							
+							final boolean isPassable = btile.get("passable").getAsBoolean();
+							final double viscosity = btile.get("viscosity").getAsDouble();
+							
 							WallTileRegistry.instance().register(tileId, texture, (room, tilePos) -> {
 								return new WallTile(room, tilePos, texture) {
 	

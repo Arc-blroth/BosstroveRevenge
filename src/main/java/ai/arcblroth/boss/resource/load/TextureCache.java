@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import ai.arcblroth.boss.render.AnimatedTexture;
+import ai.arcblroth.boss.render.MultiFrameTexture;
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.resource.Resource;
 
@@ -14,13 +15,13 @@ public final class TextureCache {
 	private final TreeMap<Resource, Texture> cache;
 	private final TreeMap<Resource, AnimatedTexture> animatedTextureCache;
 	private final Logger logger;
-	private AnimatedTextureLoader animatedTextureLoader;
+	private MultiFrameTextureLoader multiFrameTextureLoader;
 	
 	public TextureCache() {
 		this.cache = new TreeMap<Resource, Texture>();
 		this.animatedTextureCache = new TreeMap<>();
 		this.logger = Logger.getLogger("TextureCache");
-		this.animatedTextureLoader = new AnimatedTextureLoader(this);
+		this.multiFrameTextureLoader = new MultiFrameTextureLoader(this);
 	}
 	
 	public void add(Resource key, Texture texture) {
@@ -38,10 +39,12 @@ public final class TextureCache {
 		if(cache.containsKey(key)) {
 			return cache.get(key);
 		} else {
-			if(animatedTextureLoader.accepts(key)) {
-				AnimatedTexture loadedTexture = animatedTextureLoader.register(key);
+			if(multiFrameTextureLoader.accepts(key)) {
+				MultiFrameTexture loadedTexture = multiFrameTextureLoader.register(key);
 				cache.put(key, loadedTexture);
-				animatedTextureCache.put(key, loadedTexture);
+				if(loadedTexture instanceof AnimatedTexture) {
+					animatedTextureCache.put(key, (AnimatedTexture) loadedTexture);
+				}
 				return loadedTexture;
 			} else {
 				try {

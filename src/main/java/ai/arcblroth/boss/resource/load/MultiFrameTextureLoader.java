@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
 import ai.arcblroth.boss.render.AnimatedTexture;
+import ai.arcblroth.boss.render.MultiFrameTexture;
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.resource.Resource;
@@ -17,26 +18,26 @@ import ai.arcblroth.boss.resource.load.exception.MalformedSpecificationException
 import ai.arcblroth.boss.resource.load.exception.UnsupportedSpecificationVersionException;
 import ai.arcblroth.boss.util.TextureUtils;
 
-public class AnimatedTextureLoader /*extends AbstractIRegisterableLoader*/ {
+public class MultiFrameTextureLoader {
 
 	public static final String BTEX_EXTENSION = ".btex";
 	private TextureCache cache;
 	private final Gson gson;
 	private final Logger logger;
 	
-	public AnimatedTextureLoader(TextureCache cache) {
+	public MultiFrameTextureLoader(TextureCache cache) {
 		this.cache = cache;
 		this.gson = new Gson();
-		this.logger = Logger.getLogger("AnimatedTextureLoader");
+		this.logger = Logger.getLogger("MultiFrameTextureLoader");
 	}
 	
 	public boolean accepts(Resource specification) {
 		return specification.getPath().endsWith(BTEX_EXTENSION);
 	}
 
-	public AnimatedTexture register(Resource specification) {
+	public MultiFrameTexture register(Resource specification) {
 		if(!accepts(specification)) {
-			logger.log(Level.WARNING, "Refusing to load resource " + specification.toString() + " as it is not a .blvl file.");
+			logger.log(Level.WARNING, "Refusing to load resource " + specification.toString() + " as it is not a .btex file.");
 			return null;
 		}
 		if(!specification.exists()) {
@@ -54,7 +55,7 @@ public class AnimatedTextureLoader /*extends AbstractIRegisterableLoader*/ {
 					int frames = btex.get("frames").getAsInt();
 					int width = btex.get("width").getAsInt();
 					int height = btex.get("height").getAsInt();
-					int stepsPerFrame = btex.has("rate") ? btex.get("rate").getAsInt() : 1;
+					boolean animated = btex.has("animated") ? btex.get("animated").getAsBoolean() : false;
 					
 					Resource spritesheetRes = new InternalResource(btex.get("spritesheet").getAsString());
 					if(!spritesheetRes.exists()) throw new MalformedSpecificationException("Spritesheet does not point to a valid file.");
@@ -76,7 +77,12 @@ public class AnimatedTextureLoader /*extends AbstractIRegisterableLoader*/ {
 						}
 					}
 					
-					return new AnimatedTexture(spritesheetFrames, stepsPerFrame);
+					if(animated) {
+						int stepsPerFrame = btex.has("rate") ? btex.get("rate").getAsInt() : 1;
+						return new AnimatedTexture(spritesheetFrames, stepsPerFrame);
+					} else {
+						return new MultiFrameTexture(spritesheetFrames);
+					}
 					
 				} else {
 					throw new UnsupportedSpecificationVersionException(versionId, BTEX_EXTENSION);

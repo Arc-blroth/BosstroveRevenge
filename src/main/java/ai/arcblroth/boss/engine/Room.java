@@ -59,6 +59,11 @@ public class Room {
 	}
 	
 	public void runCollisionCallbacks() {
+		runInpassableCollisionCallbacks();
+		runPassableCollisionCallbacks();
+	}
+	
+	private void runInpassableCollisionCallbacks() {
 		hitboxManager.clear();
 		wallTiles.forEach((x, y, wallTile) -> {
 			if(!wallTile.isPassable()) hitboxManager.add(new TileHitboxWrapper(x, y, wallTile));
@@ -92,7 +97,6 @@ public class Room {
 				player.onEntityStep((IEntity) other);
 			}
 		});
-		
 	}
 	
 	private <E extends IEntity & IAccelerable> void moveAccelerableEntity(IEntity accelerableEntity) {
@@ -160,6 +164,31 @@ public class Room {
 			if(isGoingToCrashX.get() && isGoingToCrashY.get()) break collisionSteps;
 		}
 		
+	}
+	
+	private void runPassableCollisionCallbacks() {
+		for(IEntity entity : entities) {
+			runPassableCollisionCallback(entity);
+		}
+		runPassableCollisionCallback(player);
+	}
+	
+	private void runPassableCollisionCallback(IEntity entity) {
+		Hitbox entHitbox = entity.getHitbox();
+		for(int y = (int)Math.floor(entHitbox.getY()); y < Math.ceil(entHitbox.getY() + entHitbox.getHeight()); y++) {
+			for(int x = (int)Math.floor(entHitbox.getX()); x < Math.ceil(entHitbox.getX() + entHitbox.getWidth()); x++) {
+				if(floorTiles.getOrNull(x, y) != null) {
+					if(floorTiles.get(x, y).isPassable()) {
+						floorTiles.get(x, y).onEntityStep(entity);
+					}
+				}
+				if(wallTiles.getOrNull(x, y) != null) {
+					if(wallTiles.get(x, y).isPassable()) {
+						wallTiles.get(x, y).onEntityStep(entity);
+					}
+				}
+			}
+		}
 	}
 
 	public ArrayList<IEntity> getEntities() {

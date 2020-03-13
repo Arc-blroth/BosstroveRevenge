@@ -134,9 +134,14 @@ public class RoomLoader {
 						} else {
 							String wallTileName = wallTile.getAsString();
 							if(WallTileRegistry.instance().containsKey(wallTileName)) {
-								outRoom.getWallTiles().set(x, y, 
-										WallTileRegistry.instance().buildTile(wallTileName, outRoom, new TilePosition(x, y), new JsonObject())
-								);
+								try {
+									outRoom.getWallTiles().set(x, y, 
+											WallTileRegistry.instance().buildTile(wallTileName, outRoom, new TilePosition(x, y), new JsonObject())
+									);
+								} catch(Exception e) {
+									logger.log(Level.WARNING, 
+											String.format("Could not load wallTile object at (%s, %s) in room \"%s\": %s", x, y, roomId, e.toString()));
+								}
 							} else {
 								logger.log(Level.WARNING, 
 										String.format("Could not find wallTile \"%s\" at (%s, %s) in room \"%s\"", wallTileName, x, y, roomId));
@@ -174,7 +179,9 @@ public class RoomLoader {
 		} catch (IllegalArgumentException e) {
 			throw new MalformedSpecificationException(e);
 		} catch (Exception e) {
-			throw new MalformedSpecificationException("rooms");
+			MalformedSpecificationException mse = new MalformedSpecificationException("rooms");
+			mse.initCause(e);
+			throw mse;
 		}
 	}
 }

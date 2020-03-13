@@ -1,0 +1,8 @@
+{
+  "versionId": 1,
+  "spritesheet": "data/texture/tiles/lever.png",
+  "frames": 5,
+  "width": 8,
+  "height": 8,
+  "rate": 8
+}

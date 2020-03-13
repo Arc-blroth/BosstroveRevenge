@@ -1,0 +1,7 @@
+{
+	"versionId": 1,
+	"tileId": "boss.lever",
+	"tileType": "wallTile",
+	"texture": "data/texture/tiles/lever.btex",
+	"builder": "ai.arcblroth.boss.game.tile.LeverBuilder"
+}
