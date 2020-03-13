@@ -48,26 +48,6 @@ Example File:
           "boss.tree",
           {
             "tileId": "boss.trigger"
-            "events": {
-              "onEntityStep": [
-                {
-                  "operation": "set",
-                  "var": "%chaseFinishedYet",
-                  "value": "1"
-                },
-                {
-                  "operation": "math",
-                  "var": "$counter1",
-                  "lhs": "$counter1",
-	      	     "type": "multiply",
-                  "rhs": "2"
-                },
-                {
-                  "operation": "cutscene",
-                  "trigger": "boss.chaseDone"
-                }
-              ]
-            }
           },
           "boss.grass",
           "boss.coin",
@@ -198,13 +178,10 @@ list of floorTiles and wallTiles.
 Tiles can be specified by their string tileId: `"boss.sand"`.
 
 ## The Special Way
-For tiles that have special triggers, a tile can also be specified as a _json object_:
+For tiles that have special properties, a tile can also be specified as a _json object_:
 
 ### `tileId`
 - The id of this tile.
 - Required
 
-### `events`
-- Specifies the event triggers for this tile. See the
-  [Event Specification](https://github.com/Arc-blroth/BosstroveRevenge/blob/master/doc/EventSpecification.md).
-- Required
+All other properties are deserialized by the tile's FloorTileBuilder or a WallTileBuilder.
