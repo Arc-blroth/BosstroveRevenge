@@ -19,6 +19,16 @@ public class LeverTile extends WallTile {
 		this.activated = activated;
 		this.texture = t;
 	}
+	
+	@Override
+	public void onStep() {
+		if(activated) {
+			currentAnimationFrame = Math.min(currentAnimationFrame + 0.1, texture.getFrames() - 1);
+		} else {
+			currentAnimationFrame = Math.max(currentAnimationFrame - 0.1, 0);
+		}
+		texture.setCurrentFrame((int)Math.round(currentAnimationFrame));
+	}
 
 	@Override
 	public void onEntityStep(IEntity entity) {
@@ -29,13 +39,6 @@ public class LeverTile extends WallTile {
 	
 	@Override
 	public Texture getTexture() {
-		if(activated) {
-			currentAnimationFrame = Math.min(currentAnimationFrame + 0.1, texture.getFrames() - 1);
-		} else {
-			currentAnimationFrame = Math.max(currentAnimationFrame - 0.1, 0);
-		}
-		System.out.println(currentAnimationFrame);
-		texture.setCurrentFrame((int)Math.round(currentAnimationFrame));
 		return texture;
 	}
 	

@@ -30,6 +30,11 @@ public abstract class Mob implements IEntity, IMortal, IAccelerable {
 	}
 	
 	@Override
+	public void onStep() {
+		
+	}
+	
+	@Override
 	public void onEntityHit(IEntity e, Direction s) {
 		
 	}

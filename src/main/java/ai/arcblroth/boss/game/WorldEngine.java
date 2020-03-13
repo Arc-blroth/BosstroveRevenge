@@ -29,6 +29,7 @@ public class WorldEngine implements IEngine {
 	
 	@Override
 	public void step(StepEvent e) {
+		level.getRoom(currentRoom).runStepCallbacks();
 		level.getRoom(currentRoom).runCollisionCallbacks();
 		
 		Player player = level.getRoom(currentRoom).getPlayer();

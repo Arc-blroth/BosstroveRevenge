@@ -8,6 +8,11 @@ public interface IInteractable {
 	public enum Direction {NORTH, EAST, SOUTH, WEST};
 	
 	/**
+	 * Called on every game step.
+	 */
+	public void onStep();
+	
+	/**
 	 * Called whenever an entity steps on edge of an object.
 	 * @param s - which direction the entity came from
 	 */

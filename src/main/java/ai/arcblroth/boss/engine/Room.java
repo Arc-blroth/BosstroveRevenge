@@ -2,6 +2,7 @@ package ai.arcblroth.boss.engine;
 
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 import com.google.gson.JsonObject;
 
@@ -22,7 +23,8 @@ import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.Vector2D;
 
 public class Room {
-
+	
+	private Logger logger;
 	private Level level;
 	private Grid2D<FloorTile> floorTiles;
 	private Grid2D<WallTile> wallTiles;
@@ -35,6 +37,7 @@ public class Room {
 	public Room(Level level, int width, int height, Position initPlayerPosition, Color resetColor) {
 		if(width < 1 || height < 1) throw new IllegalArgumentException("Room width and height must be >1");
 		
+		this.logger = Logger.getLogger("Room");
 		this.level = level;
 		this.width = width;
 		this.height = height;
@@ -56,6 +59,35 @@ public class Room {
 	
 	public Room(Level level, int width, int height, Position initPlayerPosition) {
 		this(level, width, height, initPlayerPosition, Color.BLACK);
+	}
+
+	public void runStepCallbacks() {
+		floorTiles.forEach((x, y, tile) -> {
+			try {
+				tile.onStep();
+			} catch(Exception e) {
+				logger.log(java.util.logging.Level.SEVERE, "Caught exception from floorTile onStep handler", e);
+			}
+		});
+		wallTiles.forEach((x, y, tile) -> {
+			try {
+				tile.onStep();
+			} catch(Exception e) {
+				logger.log(java.util.logging.Level.SEVERE, "Caught exception from wallTile onStep handler", e);
+			}
+		});
+		entities.forEach(ent -> {
+			try {
+				ent.onStep();
+			} catch(Exception e) {
+				logger.log(java.util.logging.Level.SEVERE, "Caught exception from entity onStep handler", e);
+			}
+		});
+		try {
+			player.onStep();
+		} catch(Exception e) {
+			logger.log(java.util.logging.Level.SEVERE, "Caught exception from player onStep handler", e);
+		}
 	}
 	
 	public void runCollisionCallbacks() {
@@ -85,7 +117,11 @@ public class Room {
 		for(IEntity entity : entities) {
 			hitboxManager.getAllCollisionsOf(entity).forEach((IHitboxed other) -> {
 				if(other instanceof IEntity) {
-					entity.onEntityStep((IEntity) other);
+					try {
+						entity.onEntityStep((IEntity) other);
+					} catch(Exception e) {
+						logger.log(java.util.logging.Level.SEVERE, "Caught exception from onEntityStep handler", e);
+					}
 					// We don't call onEntityStep on the other entity
 					// to prevent duplicate calls.
 				}
@@ -94,7 +130,11 @@ public class Room {
 		
 		hitboxManager.getAllCollisionsOf(player).forEach((IHitboxed other) -> {
 			if(other instanceof IEntity) {
-				player.onEntityStep((IEntity) other);
+				try {
+					player.onEntityStep((IEntity) other);
+				} catch(Exception e) {
+					logger.log(java.util.logging.Level.SEVERE, "Caught exception from player onEntityStep handler", e);
+				}
 			}
 		});
 	}
@@ -179,12 +219,20 @@ public class Room {
 			for(int x = (int)Math.floor(entHitbox.getX()); x < Math.ceil(entHitbox.getX() + entHitbox.getWidth()); x++) {
 				if(floorTiles.getOrNull(x, y) != null) {
 					if(floorTiles.get(x, y).isPassable()) {
-						floorTiles.get(x, y).onEntityStep(entity);
+						try {
+							floorTiles.get(x, y).onEntityStep(entity);
+						} catch(Exception e) {
+							logger.log(java.util.logging.Level.SEVERE, "Caught exception from floorTile onEntityStep handler", e);
+						}
 					}
 				}
 				if(wallTiles.getOrNull(x, y) != null) {
 					if(wallTiles.get(x, y).isPassable()) {
-						wallTiles.get(x, y).onEntityStep(entity);
+						try {
+							wallTiles.get(x, y).onEntityStep(entity);
+						} catch(Exception e) {
+							logger.log(java.util.logging.Level.SEVERE, "Caught exception from wallTile onEntityStep handler", e);
+						}
 					}
 				}
 			}
