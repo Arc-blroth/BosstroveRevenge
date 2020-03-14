@@ -23,9 +23,9 @@ public class LeverTile extends WallTile {
 	@Override
 	public void onStep() {
 		if(activated) {
-			currentAnimationFrame = Math.min(currentAnimationFrame + 0.1, texture.getFrames() - 1);
+			currentAnimationFrame = Math.min(currentAnimationFrame + 0.5, texture.getFrames() - 1);
 		} else {
-			currentAnimationFrame = Math.max(currentAnimationFrame - 0.1, 0);
+			currentAnimationFrame = Math.max(currentAnimationFrame - 0.5, 0);
 		}
 		texture.setCurrentFrame((int)Math.round(currentAnimationFrame));
 	}

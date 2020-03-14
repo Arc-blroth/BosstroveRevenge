@@ -1,6 +1,8 @@
 package ai.arcblroth.boss.game;
 
+import java.util.LinkedList;
 import java.util.Random;
+import java.util.TreeMap;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.Position;
@@ -50,57 +52,14 @@ public class WorldRenderer implements IRenderer {
 		
 		Pair<Integer, Integer> outputSize = BosstrovesRevenge.instance().getOutputSize();
 		PixelAndTextGrid ptg = new PixelAndTextGrid(outputSize.getFirst(), outputSize.getSecond());
-		renderTiles(ptg);
-		renderEntities(ptg);
+		renderMap(ptg);
 		return ptg;
 	}
 	
-	private void renderTiles(PixelAndTextGrid ptg) {
-		int xTileOff = (int) Math.floor(xOffset / StaticDefaults.TILE_WIDTH);
-		int yTileOff = (int) Math.floor(yOffset / StaticDefaults.TILE_HEIGHT);
-		int xSubtileOff = (int) Math.round(xOffset - xTileOff * StaticDefaults.TILE_WIDTH);
-		int ySubtileOff = (int) Math.round(yOffset - yTileOff * StaticDefaults.TILE_HEIGHT);
-
-		// x and y are in tile units
-		for (int y = 0; y < Math.ceil((double)ptg.getHeight() / StaticDefaults.TILE_HEIGHT) + 1; y++) {
-			for (int x = 0; x < Math.ceil((double)ptg.getWidth() / StaticDefaults.TILE_WIDTH) + 1; x++) {
-				WallTile wallTile = room.getWallTiles().getOrNull(x + xTileOff, y + yTileOff);
-				FloorTile floorTile = room.getFloorTiles().getOrNull(x + xTileOff, y + yTileOff);
-				if (floorTile != null) {
-					// pixelX and pixelY are in pixels
-					// Note: we iterate from the bottomost pixel to the first
-					// so that textures larger than 8x8 will extend up.
-					for (int pixelY = floorTile.getTexture().getHeight() - 1; pixelY >= 0; pixelY--) {
-						for (int pixelX = floorTile.getTexture().getWidth() - 1; pixelX >= 0; pixelX--) {
-							ptg.setPixel(
-									(x + 1) * StaticDefaults.TILE_WIDTH - xSubtileOff - floorTile.getTexture().getWidth() + pixelX,
-									(y + 1) * StaticDefaults.TILE_HEIGHT - ySubtileOff - floorTile.getTexture().getHeight() + pixelY,
-									floorTile.getTexture().getPixel(pixelX, pixelY)
-							);
-						}
-					}
-					for (int pixelY = wallTile.getTexture().getHeight() - 1; pixelY >= 0; pixelY--) {
-						for (int pixelX = wallTile.getTexture().getWidth() - 1; pixelX >= 0; pixelX--) {
-							ptg.setPixel(
-									(x + 1) * StaticDefaults.TILE_WIDTH - xSubtileOff - wallTile.getTexture().getWidth()  + pixelX,
-									(y + 1) * StaticDefaults.TILE_HEIGHT - ySubtileOff - wallTile.getTexture().getHeight() + pixelY,
-									TextureUtils.interpolateRGB(
-											ptg.getPixel(
-													(x + 1) * StaticDefaults.TILE_WIDTH - xSubtileOff - wallTile.getTexture().getWidth() + pixelX,
-													(y + 1) * StaticDefaults.TILE_HEIGHT - ySubtileOff - wallTile.getTexture().getHeight() + pixelY
-											),
-											wallTile.getTexture().getPixel(pixelX, pixelY),
-											wallTile.getTexture().getPixel(pixelX, pixelY).getAlpha() / 255D
-									)
-							);
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	private void renderEntities(PixelAndTextGrid ptg) {
+	private void renderMap(PixelAndTextGrid ptg) {
+		
+		TreeMap<Integer, LinkedList<IEntity>> renderLayerEntity = new TreeMap<>();
+		
 		Hitbox screenBounds = new Hitbox(
 				Math.floor(xOffset / StaticDefaults.TILE_WIDTH) - 1,
 				Math.floor(yOffset / StaticDefaults.TILE_HEIGHT) - 1,
@@ -109,12 +68,85 @@ public class WorldRenderer implements IRenderer {
 		);
 		
 		for(IEntity ent : room.getEntities()) {
-			if(ent.getHitbox().intersects(screenBounds)) {
-				renderEntity(ptg, ent);
+			Hitbox entBox = ent.getHitbox();
+			if(entBox.intersects(screenBounds)) {
+				int layer = (int)Math.ceil(entBox.getY() - yOffset / StaticDefaults.TILE_HEIGHT);
+				if(!renderLayerEntity.containsKey(layer)) {
+					renderLayerEntity.put(layer, new LinkedList<IEntity>());
+				}
+				renderLayerEntity.get(layer).add(ent);
 			}
 		}
-		renderEntity(ptg, room.getPlayer());
+		{
+			int layer = (int)Math.ceil(room.getPlayer().getHitbox().getY() - yOffset / StaticDefaults.TILE_HEIGHT);
+			if(!renderLayerEntity.containsKey(layer)) {
+				renderLayerEntity.put(layer, new LinkedList<IEntity>());
+			}
+			renderLayerEntity.get(layer).add(room.getPlayer());
+		}
 		
+		int xTileOff = (int) Math.floor(xOffset / StaticDefaults.TILE_WIDTH);
+		int yTileOff = (int) Math.floor(yOffset / StaticDefaults.TILE_HEIGHT);
+		int xSubtileOff = (int) Math.round(xOffset - xTileOff * StaticDefaults.TILE_WIDTH);
+		int ySubtileOff = (int) Math.round(yOffset - yTileOff * StaticDefaults.TILE_HEIGHT);
+
+		// x and y are in tile units
+		for (int y = 0; y < Math.ceil((double)ptg.getHeight() / StaticDefaults.TILE_HEIGHT) + 1; y++) {
+			for (int x = 0; x < Math.ceil((double)ptg.getWidth() / StaticDefaults.TILE_WIDTH) + 1; x++) {
+				renderFloorTile(
+						room.getFloorTiles().getOrNull(x + xTileOff, y + yTileOff),
+						xSubtileOff, ySubtileOff, x, y, ptg);
+			}
+		}
+		for (int y = 0; y < Math.ceil((double)ptg.getHeight() / StaticDefaults.TILE_HEIGHT) + 1; y++) {
+			for (int x = 0; x < Math.ceil((double)ptg.getWidth() / StaticDefaults.TILE_WIDTH) + 1; x++) {
+				renderWallTile(
+						room.getWallTiles().getOrNull(x + xTileOff, y + yTileOff),
+						xSubtileOff, ySubtileOff, x, y, ptg);
+			}
+			if(renderLayerEntity.containsKey(y)) {
+				renderLayerEntity.get(y).forEach(ent -> renderEntity(ptg, ent));
+			}
+		}
+		
+	}
+	
+	private void renderFloorTile(FloorTile floorTile, int xSubtileOff, int ySubtileOff, int x, int y, PixelAndTextGrid ptg) {
+		if(floorTile != null) {
+			// pixelX and pixelY are in pixels
+			// Note: we iterate from the bottomost pixel to the first
+			// so that textures larger than 8x8 will extend up.
+			for (int pixelY = floorTile.getTexture().getHeight() - 1; pixelY >= 0; pixelY--) {
+				for (int pixelX = floorTile.getTexture().getWidth() - 1; pixelX >= 0; pixelX--) {
+					ptg.setPixel(
+							(x + 1) * StaticDefaults.TILE_WIDTH - xSubtileOff - floorTile.getTexture().getWidth() + pixelX,
+							(y + 1) * StaticDefaults.TILE_HEIGHT - ySubtileOff - floorTile.getTexture().getHeight() + pixelY,
+							floorTile.getTexture().getPixel(pixelX, pixelY)
+					);
+				}
+			}
+		}
+	}
+	
+	private void renderWallTile(WallTile wallTile, int xSubtileOff, int ySubtileOff, int x, int y, PixelAndTextGrid ptg) {
+		if(wallTile != null) {
+			for (int pixelY = wallTile.getTexture().getHeight() - 1; pixelY >= 0; pixelY--) {
+				for (int pixelX = wallTile.getTexture().getWidth() - 1; pixelX >= 0; pixelX--) {
+					ptg.setPixel(
+							(x + 1) * StaticDefaults.TILE_WIDTH - xSubtileOff - wallTile.getTexture().getWidth()  + pixelX,
+							(y + 1) * StaticDefaults.TILE_HEIGHT - ySubtileOff - wallTile.getTexture().getHeight() + pixelY,
+							TextureUtils.interpolateRGB(
+									ptg.getPixel(
+											(x + 1) * StaticDefaults.TILE_WIDTH - xSubtileOff - wallTile.getTexture().getWidth() + pixelX,
+											(y + 1) * StaticDefaults.TILE_HEIGHT - ySubtileOff - wallTile.getTexture().getHeight() + pixelY
+									),
+									wallTile.getTexture().getPixel(pixelX, pixelY),
+									wallTile.getTexture().getPixel(pixelX, pixelY).getAlpha() / 255D
+							)
+					);
+				}
+			}
+		}
 	}
 	
 	private void renderEntity(PixelAndTextGrid ptg, IEntity ent) {

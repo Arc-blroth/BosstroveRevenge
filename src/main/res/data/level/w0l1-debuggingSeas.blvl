@@ -101,7 +101,7 @@
         "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
         ],
         [
-        "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "boss.stone", "boss.stone", "boss.stone", "empty", "empty", "empty", "boss.stone", "boss.stone", "empty", "empty", "empty", "empty"
+        "boss.column", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "boss.stone", "boss.stone", "boss.stone", "empty", "empty", "empty", "boss.stone", "boss.stone", "empty", "empty", "empty", "empty"
         ],
         [
         "empty", "empty", "empty", "empty", "empty", "empty", "empty", "boss.stone", "boss.stone", "boss.stone", "boss.stone", "boss.stone", "empty", "empty", "empty", "boss.stone", "boss.stone", "boss.stone", "empty", "empty"
