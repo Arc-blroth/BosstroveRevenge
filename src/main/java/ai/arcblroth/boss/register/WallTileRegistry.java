@@ -1,6 +1,7 @@
 package ai.arcblroth.boss.register;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
 import com.google.gson.JsonObject;
@@ -11,12 +12,13 @@ import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.util.TriFunction;
 
-public class WallTileRegistry extends ConcurrentHashMap<String, WallTileBuilder<? extends WallTile>> {
+public class WallTileRegistry {
 	
 	private static final WallTileRegistry INSTANCE = new WallTileRegistry();
+	private final ConcurrentHashMap<String, WallTileBuilder<? extends WallTile>> map;
 	
 	private WallTileRegistry() {
-		super();
+		map = new ConcurrentHashMap<>();
 	}
 	
 	public static WallTileRegistry instance() {
@@ -24,19 +26,19 @@ public class WallTileRegistry extends ConcurrentHashMap<String, WallTileBuilder<
 	}
 	
 	public WallTile buildTile(String key, Room room, TilePosition position, JsonObject context) {
-		return get(key).apply(room, position, context);
+		return map.get(key).apply(room, position, context);
 	}
 	
 	public WallTile buildTile(String key, Room room, TilePosition position) {
-		return get(key).apply(room, position, new JsonObject());
+		return map.get(key).apply(room, position, new JsonObject());
 	}
 	
 	public void register(String key, WallTileBuilder builder) {
-		put(key, builder);
+		map.put(key, builder);
 	}
 	
 	public void register(String key, Texture tileTexture, TriFunction<Room, TilePosition, JsonObject, WallTile> builder) {
-		put(key, new WallTileBuilder(tileTexture) {
+		map.put(key, new WallTileBuilder(tileTexture) {
 			public WallTile build(Room room, TilePosition tilePos, JsonObject context) {
 				return builder.apply(room, tilePos, context);
 			}
@@ -44,11 +46,15 @@ public class WallTileRegistry extends ConcurrentHashMap<String, WallTileBuilder<
 	}
 	
 	public void register(String key, Texture tileTexture, BiFunction<Room, TilePosition, WallTile> builder) {
-		put(key, new WallTileBuilder(tileTexture) {
+		map.put(key, new WallTileBuilder(tileTexture) {
 			public WallTile build(Room room, TilePosition tilePos, JsonObject context) {
 				return builder.apply(room, tilePos);
 			}
 		});
+	}
+
+	public void forEach(BiConsumer<String, WallTileBuilder<? extends WallTile>> action) {
+		map.forEach(action);
 	}
 	
 }

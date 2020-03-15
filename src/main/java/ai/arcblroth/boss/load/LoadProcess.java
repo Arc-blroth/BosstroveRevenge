@@ -97,7 +97,7 @@ public class LoadProcess extends Thread {
 			.filter((res) -> res.getPath().endsWith(IEntityLoader.BENT_EXTENSION))
 			.forEach((res) -> entLoader.register(gson, res));
 		
-		EntityRegistry.instance().forEach((key, ent) -> phase.getLogger().log(Level.INFO, "Entity: " + key));
+		EntityRegistry.instance().forEach((key, entClass, entBuilder) -> phase.getLogger().log(Level.INFO, "Entity: " + key));
 		
 		phase = Phase.LOADING_LEVELS;
 		

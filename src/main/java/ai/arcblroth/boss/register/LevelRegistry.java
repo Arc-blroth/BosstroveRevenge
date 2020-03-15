@@ -1,15 +1,17 @@
 package ai.arcblroth.boss.register;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 
 import ai.arcblroth.boss.engine.Level;
 
-public class LevelRegistry extends ConcurrentHashMap<String, Level> {
+public class LevelRegistry {
 	
 	private static final LevelRegistry INSTANCE = new LevelRegistry();
+	private final ConcurrentHashMap<String, Level> map;
 	
 	private LevelRegistry() {
-		super();
+		map = new ConcurrentHashMap<>();
 	}
 	
 	public static LevelRegistry instance() {
@@ -17,11 +19,16 @@ public class LevelRegistry extends ConcurrentHashMap<String, Level> {
 	}
 	
 	public Level getLevel(String key) {
-		return get(key);
+		return map.get(key);
 	}
 	
 	public void register(String key, Level level) {
-		put(key, level);
+		map.put(key, level);
 	}
+	
+	public void forEach(BiConsumer<String, Level> action) {
+		map.forEach(action);
+	}
+	
 	
 }

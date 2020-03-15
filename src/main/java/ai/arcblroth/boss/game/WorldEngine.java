@@ -21,7 +21,7 @@ public class WorldEngine implements IEngine {
 	private String currentRoom;
 
 	public WorldEngine() {
-		this.level = LevelRegistry.instance().get("w0l1");
+		this.level = LevelRegistry.instance().getLevel("w0l1");
 		currentRoom = "0";
 		this.renderer = new WorldRenderer(level.getRoom(currentRoom));
 		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoom).getResetColor());

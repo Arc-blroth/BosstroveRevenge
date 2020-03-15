@@ -4,7 +4,7 @@ import ai.arcblroth.boss.register.IRegistrable;
 
 /**
  * Represents an abstracted key input.
- * Used with {@link ai.arcblroth.boss.key.KeyMap KeyMap}
+ * Used with {@link ai.arcblroth.boss.key.KeybindRegistry KeybindRegistry}
  * to enable custom keybinds.
  */
 public class Keybind implements IRegistrable<Keybind> {
