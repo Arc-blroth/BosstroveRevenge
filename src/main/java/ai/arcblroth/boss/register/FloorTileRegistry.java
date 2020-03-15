@@ -56,4 +56,16 @@ public class FloorTileRegistry {
 		map.forEach(action);
 	}
 	
+	public boolean containsKey(String key) {
+		return map.containsKey(key);
+	}
+	
+	public boolean containsValue(FloorTileBuilder<? extends FloorTile> value) {
+		return map.containsValue(value);
+	}
+	
+	public boolean contains(FloorTileBuilder<? extends FloorTile> value) {
+		return map.contains(value);
+	}
+	
 }

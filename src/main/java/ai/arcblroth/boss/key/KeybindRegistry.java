@@ -28,4 +28,16 @@ public class KeybindRegistry {
 		map.forEach(action);
 	}
 	
+	public boolean containsKey(Character key) {
+		return map.containsKey(key);
+	}
+	
+	public boolean containsValue(Keybind value) {
+		return map.containsValue(value);
+	}
+	
+	public boolean contains(Keybind value) {
+		return map.contains(value);
+	}
+	
 }

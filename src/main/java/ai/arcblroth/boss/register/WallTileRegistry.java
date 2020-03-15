@@ -57,4 +57,16 @@ public class WallTileRegistry {
 		map.forEach(action);
 	}
 	
+	public boolean containsKey(String key) {
+		return map.containsKey(key);
+	}
+	
+	public boolean containsValue(WallTileBuilder<? extends WallTile> value) {
+		return map.containsValue(value);
+	}
+	
+	public boolean contains(WallTileBuilder<? extends WallTile> value) {
+		return map.contains(value);
+	}
+	
 }

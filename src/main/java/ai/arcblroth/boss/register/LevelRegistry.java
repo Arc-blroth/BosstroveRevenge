@@ -30,5 +30,17 @@ public class LevelRegistry {
 		map.forEach(action);
 	}
 	
+	public boolean containsKey(String key) {
+		return map.containsKey(key);
+	}
+	
+	public boolean containsValue(Level value) {
+		return map.containsValue(value);
+	}
+	
+	public boolean contains(Level value) {
+		return map.contains(value);
+	}
+	
 	
 }

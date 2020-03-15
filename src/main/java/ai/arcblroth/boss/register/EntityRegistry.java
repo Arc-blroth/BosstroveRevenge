@@ -34,4 +34,16 @@ public class EntityRegistry {
 		map.forEach((key, value) -> action.accept(key, value.getFirst(), value.getSecond()));
 	}
 	
+	public boolean containsKey(String key) {
+		return map.containsKey(key);
+	}
+	
+	public boolean containsValue(Pair<Class<? extends IEntity>, EntityBuilder<? extends IEntity>> value) {
+		return map.containsValue(value);
+	}
+	
+	public boolean contains(Pair<Class<? extends IEntity>, EntityBuilder<? extends IEntity>> value) {
+		return map.contains(value);
+	}
+	
 }
