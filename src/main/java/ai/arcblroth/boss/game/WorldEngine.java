@@ -1,15 +1,13 @@
 package ai.arcblroth.boss.game;
 
 import java.util.ArrayList;
-
+import java.util.HashMap;
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.IInteractable.Direction;
 import ai.arcblroth.boss.engine.Level;
-import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.engine.entity.player.Player;
-import ai.arcblroth.boss.game.entity.Xulpir;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;
@@ -23,21 +21,31 @@ public class WorldEngine implements IEngine {
 	private WorldRenderer renderer;
 	private Level level;
 	private String currentRoom;
-	private ArrayList<Keybind> firedKeys;
+	private HashMap<Keybind, Long> firedKeys;
 
 	public WorldEngine() {
 		this.level = LevelRegistry.instance().getLevel("w0l1");
 		currentRoom = "0";
 		this.renderer = new WorldRenderer(level.getRoom(currentRoom));
-		this.firedKeys = new ArrayList<>();
+		this.firedKeys = new HashMap<>();
 		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoom).getResetColor());
 	}
 	
 	@Override
 	public void step(StepEvent e) {
+		
 		level.getRoom(currentRoom).runStepCallbacks();
-		level.getRoom(currentRoom).runCollisionCallbacks(firedKeys);
-		firedKeys.clear();
+		
+		firedKeys.replaceAll((key, stepsFiredAgo) -> Math.min(stepsFiredAgo + 1, StaticDefaults.KEYBIND_DELAY));
+		ArrayList<Keybind> firingKeys = new ArrayList<>();
+		firedKeys.forEach((key, stepsFiredAgo) -> {
+			if(stepsFiredAgo == 0) {
+				firingKeys.add(key);
+			}
+		});
+		
+		level.getRoom(currentRoom).runCollisionCallbacks(firingKeys);
+		firingKeys.clear();
 		
 		Player player = level.getRoom(currentRoom).getPlayer();
 		Pair<Integer, Integer> outputSize = BosstrovesRevenge.instance().getOutputSize();
@@ -65,7 +73,14 @@ public class WorldEngine implements IEngine {
 		}
 		
 		if(KeybindRegistry.instance().containsKey(e.getKey())) {
-			firedKeys.add(KeybindRegistry.instance().getRegistered(e.getKey()));
+			Keybind keybind = KeybindRegistry.instance().getRegistered(e.getKey());
+			if(!firedKeys.containsKey(keybind)) {
+				firedKeys.put(keybind, -1L);
+			} else {
+				if(firedKeys.get(keybind) >= StaticDefaults.KEYBIND_DELAY) {
+					firedKeys.put(keybind, -1L);
+				}
+			}
 		}
 	}
 

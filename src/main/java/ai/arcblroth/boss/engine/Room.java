@@ -1,6 +1,7 @@
 package ai.arcblroth.boss.engine;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -91,12 +92,12 @@ public class Room {
 		}
 	}
 	
-	public void runCollisionCallbacks(ArrayList<Keybind> firedKeys) {
+	public void runCollisionCallbacks(List<Keybind> firedKeys) {
 		runInpassableCollisionCallbacks(firedKeys);
 		runPassableCollisionCallbacks(firedKeys);
 	}
 	
-	private void runInpassableCollisionCallbacks(ArrayList<Keybind> firedKeys) {
+	private void runInpassableCollisionCallbacks(List<Keybind> firedKeys) {
 		hitboxManager.clear();
 		wallTiles.forEach((x, y, wallTile) -> {
 			if(!wallTile.isPassable()) hitboxManager.add(new TileHitboxWrapper(x, y, wallTile));
@@ -212,14 +213,14 @@ public class Room {
 		
 	}
 	
-	private void runPassableCollisionCallbacks(ArrayList<Keybind> firedKeys) {
+	private void runPassableCollisionCallbacks(List<Keybind> firedKeys) {
 		for(IEntity entity : entities) {
 			runPassableCollisionCallback(entity, firedKeys);
 		}
 		runPassableCollisionCallback(player, firedKeys);
 	}
 	
-	private void runPassableCollisionCallback(IEntity entity, ArrayList<Keybind> firedKeys) {
+	private void runPassableCollisionCallback(IEntity entity, List<Keybind> firedKeys) {
 		Hitbox entHitbox = entity.getHitbox();
 		for(int y = (int)Math.floor(entHitbox.getY()); y < Math.ceil(entHitbox.getY() + entHitbox.getHeight()); y++) {
 			for(int x = (int)Math.floor(entHitbox.getX()); x < Math.ceil(entHitbox.getX() + entHitbox.getWidth()); x++) {

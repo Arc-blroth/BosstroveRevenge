@@ -39,7 +39,7 @@ public class LeverTile extends WallTile {
 	@Override
 	public void onPlayerInteract(Keybind k) {
 		if(k.getKeybindId().equals("boss.use")) {
-			activated = true;
+			activated = !activated;
 		}
 	}
 	
