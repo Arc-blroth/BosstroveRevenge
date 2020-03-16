@@ -13,12 +13,14 @@ public interface IOutputRenderer {
 	
 	public void displayFatalError(Throwable e);
 
-	public void setDebugLine(String string);
-
 	public void pollInput();
 	
 	public default void dispose() {};
 	
 	public Pair<Integer, Integer> getSize();
+	
+	public boolean isShowingFPS();
+	
+	public void setShowingFPS(boolean showFPS);
 
 }

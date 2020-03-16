@@ -136,10 +136,6 @@ public final class BosstrovesRevenge extends Thread {
 			}
 		}
 	}
-	
-	public void setOutputDebug(Object o) {
-		outputRenderer.setDebugLine(o.toString());
-	}
 
 	public void handleInput(CharacterInputEvent characterInputEvent) {
 		if(engine != null) engine.handleKeyInput(characterInputEvent);
@@ -163,6 +159,14 @@ public final class BosstrovesRevenge extends Thread {
 	
 	public TextureCache getTextureCache() {
 		return globalTextureCache;
+	}
+	
+	public boolean isRendererShowingFPS() {
+		return outputRenderer.isShowingFPS();
+	}
+	
+	public void setRendererShowingFPS(boolean showFPS) {
+		outputRenderer.setShowingFPS(showFPS);
 	}
 
 	private void handleRendererCrash(Exception e) {

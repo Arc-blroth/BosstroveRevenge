@@ -216,5 +216,10 @@ public class ArcAnsi {
 		sb.append(cs);
 		return this;
 	}
+	
+	public ArcAnsi deleteCharsFromEnd(int i) {
+		sb.setLength(sb.length() - i);
+		return this;
+	}
 
 }

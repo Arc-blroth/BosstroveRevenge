@@ -45,6 +45,11 @@ public class WorldEngine implements IEngine {
 		});
 		
 		level.getRoom(currentRoom).runCollisionCallbacks(firingKeys);
+		
+		if(firingKeys.contains(new Keybind("boss.debug"))) {
+			BosstrovesRevenge.instance().setRendererShowingFPS(!BosstrovesRevenge.instance().isRendererShowingFPS());
+		}
+		
 		firingKeys.clear();
 		
 		Player player = level.getRoom(currentRoom).getPlayer();

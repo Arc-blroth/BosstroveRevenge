@@ -13,6 +13,12 @@ import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.Pair;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -28,15 +34,30 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 	ConsoleInputHandler cih = new ConsoleInputHandler();
 	private Throwable error;
 	
-	private static final boolean SHOW_FPS = true;
+	private PrintStream originalOut;
+	private PrintStream redirectedOut;
+	private PipedOutputStream redirectedOutPipe;
+	private PipedInputStream redirectedOutAsInPipe;
+	private BufferedReader redirectedOutAsIn;
+	
+	private boolean showFPS = true;
 	private double fps = 1;
 	private long lastRenderTime;
 	private volatile Pair<Integer, Integer> lastSize;
 	
-	public String debugLine = "";
+	private String debugLine = "";
 	
 	public AnsiOutputRenderer() {
 		try {
+			
+			originalOut = System.out;
+			redirectedOutPipe = new PipedOutputStream();
+			redirectedOutAsInPipe = new PipedInputStream(redirectedOutPipe);
+			redirectedOut = new PrintStream(redirectedOutPipe);
+			redirectedOutAsIn = new BufferedReader(new InputStreamReader(redirectedOutAsInPipe));
+			System.setOut(redirectedOut);
+			System.setErr(redirectedOut);
+			
 			this.terminal = TerminalBuilder.builder().name("Bosstrove's Revenge").jansi(true).jna(true)
 					.nativeSignals(true)
 					.signalHandler(true ? Terminal.SignalHandler.SIG_DFL : Terminal.SignalHandler.SIG_IGN).build();
@@ -58,10 +79,19 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 		
 		if(error != null) return;
 		
+		//Read in debugLine
+		try {
+			if(redirectedOutAsIn.ready()) {
+				debugLine = redirectedOutAsIn.readLine();
+			}
+		} catch(IOException e) {
+			debugLine = "Error in reading outputDebug: " + e.getClass().getName() + ": " + e.getMessage();
+		}
+		
 		//if(pg != null) {
 			if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
 				Size size = terminal.getSize();
-				lastSize = new Pair<Integer, Integer>(size.getColumns(), (size.getRows() - (SHOW_FPS ? 2 : 1)) * 2);
+				lastSize = new Pair<Integer, Integer>(size.getColumns(), (size.getRows() - (showFPS ? 2 : 0)) * 2);
 				if (terminal.getType().equals(Terminal.TYPE_DUMB) || (size.getColumns() >= pg.getWidth() && size.getRows() >= pg.getHeight() / 2)) {
 					
 					double leftPadSpaces = (size.getColumns() - pg.getWidth()) / 2D;
@@ -70,14 +100,14 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					String leftPad = PadUtils.leftPad("", (int)Math.ceil(leftPadSpaces) - 1);
 					String rightPad = PadUtils.leftPad("", (int)Math.ceil(leftPadSpaces) - 1);
 					String linePad = PadUtils.stringTimes(" ", size.getColumns());
-					String blankLinesTop = PadUtils.stringTimes(linePad + "\n", (int)Math.ceil(topPadSpaces) - (SHOW_FPS ? 2 : 1));
+					String blankLinesTop = PadUtils.stringTimes(linePad + "\n", (int)Math.ceil(topPadSpaces) - (showFPS ? 2 : 1));
 					String blankLinesBottom = PadUtils.stringTimes(linePad + "\n", (int)Math.ceil(topPadSpaces) - 1);
 					
 					//The top lines
 					ArcAnsi ansiBuilder = ArcAnsi.ansi().moveCursor(0, 0).resetAll().bgColor(BosstrovesRevenge.instance().getResetColor()).fgColor(Color.WHITE);
 					
 					//FPS + memory
-					if(SHOW_FPS) {
+					if(showFPS) {
 						ansiBuilder.append(PadUtils.rightPad(String.format("%.0f FPS", fps), (int)Math.floor(size.getColumns() / 2D)));
 						ansiBuilder.append(PadUtils.leftPad(String.format("%s MB / %s MB", 
 								Runtime.getRuntime().freeMemory() / BYTES_IN_MEGABYTE,
@@ -142,13 +172,16 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					}
 					
 					//The bottom lines
+					if(!showFPS) ansiBuilder.deleteCharsFromEnd(1);
 					ansiBuilder.resetAll().bgColor(BosstrovesRevenge.instance().getResetColor()).append(blankLinesBottom);
-					if(debugLine.length() > size.getColumns()) {
-						ansiBuilder.append(debugLine.substring(0, size.getColumns()));
-					} else {
-						ansiBuilder.append(debugLine);
+					if(showFPS) {
+						if(debugLine.length() > size.getColumns()) {
+							ansiBuilder.append(debugLine.substring(0, size.getColumns()));
+						} else {
+							ansiBuilder.append(debugLine);
+						}
+						ansiBuilder.append(PadUtils.stringTimes(" ", Math.max(0, size.getColumns() - debugLine.length())));
 					}
-					ansiBuilder.append(PadUtils.stringTimes(" ", Math.max(0, size.getColumns() - debugLine.length())));
 					ansiBuilder.moveCursorLeft(size.getColumns());
 					
 					//PRINT
@@ -175,10 +208,6 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 				lastRenderTime = currTime;
 			}
 		//}
-	}
-	
-	public void setDebugLine(String s) {
-		debugLine = s;
 	}
 
 	public void displayFatalError(Throwable e) {
@@ -220,6 +249,16 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 	@Override
 	public Pair<Integer, Integer> getSize() {
 		return lastSize;
+	}
+
+	@Override
+	public boolean isShowingFPS() {
+		return showFPS;
+	}
+
+	@Override
+	public void setShowingFPS(boolean showFPS) {
+		this.showFPS = showFPS;
 	}
 
 }

@@ -42,12 +42,10 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	private Logger logger;
 	private Logger debugLinelogger;
 	
-	private static final boolean SHOW_FPS = true;
+	private boolean showFPS = true;
 	private double fps = 1;
 	private long lastRenderTime;
 	private volatile Pair<Integer, Integer> lastSize;
-	
-	public String debugLine = "";
 	
 	public OpenGLOutputRenderer() {
 		try {
@@ -212,7 +210,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 					}
 					
 					//FPS + memory
-					if(SHOW_FPS) {
+					if(showFPS) {
 						
 						//"Undo" the above aspect ratio.
 						float topTranslation, leftTranslation;
@@ -311,11 +309,6 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 		glfwSetErrorCallback(null).free();
 		glfwTerminate();
 	}
-	
-	public void setDebugLine(String s) {
-		debugLine = s;
-		debugLinelogger.log(Level.INFO, s);
-	}
 
 	public void displayFatalError(Throwable e) {
 		error = e;
@@ -340,6 +333,16 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	@Override
 	public Pair<Integer, Integer> getSize() {
 		return lastSize;
+	}
+
+	@Override
+	public boolean isShowingFPS() {
+		return showFPS;
+	}
+
+	@Override
+	public void setShowingFPS(boolean showFPS) {
+		this.showFPS = showFPS;
 	}
 
 }
