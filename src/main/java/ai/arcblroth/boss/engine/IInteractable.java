@@ -27,7 +27,7 @@ public interface IInteractable {
 	 * Called whenever the player "interacts," via
 	 * additional inputs, with an object. Punching, 
 	 * for instance, would call this method.
-	 * @param char - the input that the player used to interact with
+	 * @param keybind - the input that the player used to interact with
 	 */
 	public void onPlayerInteract(Keybind keybind);
 

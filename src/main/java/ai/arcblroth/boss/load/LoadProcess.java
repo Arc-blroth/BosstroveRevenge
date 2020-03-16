@@ -12,6 +12,8 @@ import com.google.gson.Gson;
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.tile.EmptyFloorTile;
 import ai.arcblroth.boss.engine.tile.EmptyWallTile;
+import ai.arcblroth.boss.key.Keybind;
+import ai.arcblroth.boss.key.KeybindRegistry;
 import ai.arcblroth.boss.register.EntityRegistry;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
@@ -108,6 +110,9 @@ public class LoadProcess extends Thread {
 			.forEach((res) -> levelLoader.register(gson, res));
 		
 		phase = Phase.DONE;
+		
+		KeybindRegistry.instance().register('e', new Keybind("boss.use"));
+		
 		doneYet = true;
 	}
 	

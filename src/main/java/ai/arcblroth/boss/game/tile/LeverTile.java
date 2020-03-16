@@ -5,6 +5,7 @@ import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.engine.tile.WallTile;
+import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.render.MultiFrameTexture;
 import ai.arcblroth.boss.render.Texture;
 
@@ -32,7 +33,12 @@ public class LeverTile extends WallTile {
 
 	@Override
 	public void onEntityStep(IEntity entity) {
-		if(entity instanceof Player) {
+		
+	}
+	
+	@Override
+	public void onPlayerInteract(Keybind k) {
+		if(k.getKeybindId().equals("boss.use")) {
 			activated = true;
 		}
 	}

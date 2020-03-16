@@ -15,6 +15,7 @@ import ai.arcblroth.boss.engine.hitbox.HitboxManager;
 import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.ITile;
 import ai.arcblroth.boss.engine.tile.WallTile;
+import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.render.Color;
@@ -90,12 +91,12 @@ public class Room {
 		}
 	}
 	
-	public void runCollisionCallbacks() {
-		runInpassableCollisionCallbacks();
-		runPassableCollisionCallbacks();
+	public void runCollisionCallbacks(ArrayList<Keybind> firedKeys) {
+		runInpassableCollisionCallbacks(firedKeys);
+		runPassableCollisionCallbacks(firedKeys);
 	}
 	
-	private void runInpassableCollisionCallbacks() {
+	private void runInpassableCollisionCallbacks(ArrayList<Keybind> firedKeys) {
 		hitboxManager.clear();
 		wallTiles.forEach((x, y, wallTile) -> {
 			if(!wallTile.isPassable()) hitboxManager.add(new TileHitboxWrapper(x, y, wallTile));
@@ -134,6 +135,11 @@ public class Room {
 					player.onEntityStep((IEntity) other);
 				} catch(Exception e) {
 					logger.log(java.util.logging.Level.SEVERE, "Caught exception from player onEntityStep handler", e);
+				}
+				try {
+					firedKeys.forEach(((IEntity) other)::onPlayerInteract);
+				} catch(Exception e) {
+					logger.log(java.util.logging.Level.SEVERE, "Caught exception from player onPlayerInteract handler", e);
 				}
 			}
 		});
@@ -206,14 +212,14 @@ public class Room {
 		
 	}
 	
-	private void runPassableCollisionCallbacks() {
+	private void runPassableCollisionCallbacks(ArrayList<Keybind> firedKeys) {
 		for(IEntity entity : entities) {
-			runPassableCollisionCallback(entity);
+			runPassableCollisionCallback(entity, firedKeys);
 		}
-		runPassableCollisionCallback(player);
+		runPassableCollisionCallback(player, firedKeys);
 	}
 	
-	private void runPassableCollisionCallback(IEntity entity) {
+	private void runPassableCollisionCallback(IEntity entity, ArrayList<Keybind> firedKeys) {
 		Hitbox entHitbox = entity.getHitbox();
 		for(int y = (int)Math.floor(entHitbox.getY()); y < Math.ceil(entHitbox.getY() + entHitbox.getHeight()); y++) {
 			for(int x = (int)Math.floor(entHitbox.getX()); x < Math.ceil(entHitbox.getX() + entHitbox.getWidth()); x++) {
@@ -224,6 +230,14 @@ public class Room {
 						} catch(Exception e) {
 							logger.log(java.util.logging.Level.SEVERE, "Caught exception from floorTile onEntityStep handler", e);
 						}
+
+						if(entity instanceof Player) {
+							try {
+								firedKeys.forEach(floorTiles.get(x, y)::onPlayerInteract);
+							} catch(Exception e) {
+								logger.log(java.util.logging.Level.SEVERE, "Caught exception from floorTile onPlayerInteract handler", e);
+							}
+						}
 					}
 				}
 				if(wallTiles.getOrNull(x, y) != null) {
@@ -232,6 +246,14 @@ public class Room {
 							wallTiles.get(x, y).onEntityStep(entity);
 						} catch(Exception e) {
 							logger.log(java.util.logging.Level.SEVERE, "Caught exception from wallTile onEntityStep handler", e);
+						}
+						
+						if(entity instanceof Player) {
+							try {
+								firedKeys.forEach(wallTiles.get(x, y)::onPlayerInteract);
+							} catch(Exception e) {
+								logger.log(java.util.logging.Level.SEVERE, "Caught exception from wallTile onPlayerInteract handler", e);
+							}
 						}
 					}
 				}

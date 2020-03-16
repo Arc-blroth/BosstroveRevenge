@@ -1,5 +1,7 @@
 package ai.arcblroth.boss.game;
 
+import java.util.ArrayList;
+
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.IInteractable.Direction;
@@ -9,6 +11,8 @@ import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.game.entity.Xulpir;
 import ai.arcblroth.boss.key.CharacterInputEvent;
+import ai.arcblroth.boss.key.Keybind;
+import ai.arcblroth.boss.key.KeybindRegistry;
 import ai.arcblroth.boss.register.LevelRegistry;
 import ai.arcblroth.boss.render.IRenderer;
 import ai.arcblroth.boss.util.Pair;
@@ -19,18 +23,21 @@ public class WorldEngine implements IEngine {
 	private WorldRenderer renderer;
 	private Level level;
 	private String currentRoom;
+	private ArrayList<Keybind> firedKeys;
 
 	public WorldEngine() {
 		this.level = LevelRegistry.instance().getLevel("w0l1");
 		currentRoom = "0";
 		this.renderer = new WorldRenderer(level.getRoom(currentRoom));
+		this.firedKeys = new ArrayList<>();
 		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoom).getResetColor());
 	}
 	
 	@Override
 	public void step(StepEvent e) {
 		level.getRoom(currentRoom).runStepCallbacks();
-		level.getRoom(currentRoom).runCollisionCallbacks();
+		level.getRoom(currentRoom).runCollisionCallbacks(firedKeys);
+		firedKeys.clear();
 		
 		Player player = level.getRoom(currentRoom).getPlayer();
 		Pair<Integer, Integer> outputSize = BosstrovesRevenge.instance().getOutputSize();
@@ -55,6 +62,10 @@ public class WorldEngine implements IEngine {
 		} else if(e.getKey() == 's') {
 			player.setDirection(Direction.SOUTH);
 			player.accelerate(Direction.SOUTH, 0.25);
+		}
+		
+		if(KeybindRegistry.instance().containsKey(e.getKey())) {
+			firedKeys.add(KeybindRegistry.instance().getRegistered(e.getKey()));
 		}
 	}
 
