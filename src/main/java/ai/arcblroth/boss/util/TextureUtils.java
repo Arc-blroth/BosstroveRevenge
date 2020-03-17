@@ -39,6 +39,15 @@ public class TextureUtils {
 		);
 	}
 	
+	public static Color invert(Color in) {
+		return new Color(
+			255 - in.getRed(),
+			255 - in.getGreen(),
+			255 - in.getBlue(),
+			in.getAlpha()
+		);
+	}
+	
 	public static PixelGrid tintColor(PixelGrid in, Color tint) {
 		//Don't modify original
 		in = new PixelGrid(in);

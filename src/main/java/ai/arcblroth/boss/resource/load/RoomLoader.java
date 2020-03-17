@@ -54,7 +54,7 @@ public class RoomLoader {
 			}
 			Color resetColor = Color.BLACK;
 			if(roomObj.has("resetColor")) {
-				resetColor = new Color(Integer.parseUnsignedInt(roomObj.get("resetColor").getAsString().replace("#", ""), 16));
+				resetColor = new Color(Integer.parseUnsignedInt("ff" + roomObj.get("resetColor").getAsString().replace("#", ""), 16));
 			}
 			Room outRoom = new Room(level, width, height, initialPos, resetColor);
 			

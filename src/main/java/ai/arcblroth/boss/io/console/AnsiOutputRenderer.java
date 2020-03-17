@@ -10,6 +10,7 @@ import ai.arcblroth.boss.crash.CrashReportGenerator;
 import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.render.*;
 import ai.arcblroth.boss.util.StaticDefaults;
+import ai.arcblroth.boss.util.TextureUtils;
 import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.Pair;
 
@@ -108,6 +109,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					
 					//FPS + memory
 					if(showFPS) {
+						ansiBuilder.fgColor(TextureUtils.invert(BosstrovesRevenge.instance().getResetColor()));
 						ansiBuilder.append(PadUtils.rightPad(String.format("%.0f FPS", fps), (int)Math.floor(size.getColumns() / 2D)));
 						ansiBuilder.append(PadUtils.leftPad(String.format("%s MB / %s MB", 
 								Runtime.getRuntime().freeMemory() / BYTES_IN_MEGABYTE,
@@ -175,6 +177,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					if(!showFPS) ansiBuilder.deleteCharsFromEnd(1);
 					ansiBuilder.resetAll().bgColor(BosstrovesRevenge.instance().getResetColor()).append(blankLinesBottom);
 					if(showFPS) {
+						ansiBuilder.fgColor(TextureUtils.invert(BosstrovesRevenge.instance().getResetColor()));
 						if(debugLine.length() > size.getColumns()) {
 							ansiBuilder.append(debugLine.substring(0, size.getColumns()));
 						} else {
@@ -188,8 +191,8 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					if (terminal.getType() != Terminal.TYPE_DUMB) {
 						terminal.writer().print(ansiBuilder);
 					} else {
-						System.out.print(CLEAR);
-						System.out.print(ansiBuilder);
+						originalOut.print(CLEAR);
+						originalOut.print(ansiBuilder);
 					}
 				} else {
 					String toPrint = Ansi.ansi().cursor(1, 1).reset()
@@ -198,7 +201,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					if (terminal.getType() != Terminal.TYPE_DUMB) {
 						terminal.writer().print(toPrint + "\n");
 					} else {
-						System.out.print(toPrint + "\n");
+						originalOut.print(toPrint + "\n");
 					}
 				}
 				
@@ -212,11 +215,11 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 
 	public void displayFatalError(Throwable e) {
 		error = e;
-		System.out.print(ArcAnsi.ansi()
+		originalOut.print(ArcAnsi.ansi()
 				.moveCursor(1, 1).bgColor(Color.WHITE).fgColor(Color.RED)
 				.clearScreenAndBuffer().clearScreen()
 				.moveCursor(1, 1).bgColor(Color.WHITE).fgColor(Color.RED));
-		System.out.print(CrashReportGenerator.generateCrashReport(e));
+		originalOut.print(CrashReportGenerator.generateCrashReport(e));
 	}
 	
 	public void clear() {
@@ -224,7 +227,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 			if (terminal.getType() != Terminal.TYPE_DUMB) {
 				terminal.writer().print(CLEAR);
 			} else {
-				System.out.print(CLEAR);
+				originalOut.print(CLEAR);
 			}
 		}
 	}
