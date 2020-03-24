@@ -12,7 +12,7 @@ public final class StaticDefaults {
 	
 	public static final int CHARACTER_WIDTH = 16;
 	public static final int CHARACTER_HEIGHT = 32;
-	public static final Character RESET_CHAR = ' ';
+	public static final Character RESET_CHAR = '\0';
 	
 	public static final int STEPS_PER_SECOND = 30;
 	public static final double MILLISECONDS_PER_STEP = 1000D / (double)STEPS_PER_SECOND;
