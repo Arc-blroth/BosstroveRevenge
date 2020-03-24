@@ -58,25 +58,22 @@ public class PixelAndTextGrid extends PixelGrid {
 	}
 
 	public char getCharacterAt(int x, int y) {
-		y /= 2;
 		if (isTextCoordinateValid(x, y))
-			return textGrid.get(x, y);
+			return textGrid.get(x, y / 2);
 		else
 			return StaticDefaults.RESET_CHAR;
 	}
 	
 	public void setCharacter(int x, int y, char c) {
-		y /= 2;
-		textGrid.set(x, y, c);
+		textGrid.set(x, y / 2, c);
 	}
 
 	public void setCharacterAt(int x, int y, char c, Color back, Color fore) {
-		y /= 2;
 		if (isTextCoordinateValid(x, y)) {
-			textGrid.set(x, y, c);
+			textGrid.set(x, y / 2, c);
 			//This makes clever and kinda bad use of integer division
-			setPixel(x, y / 2 * 2, fore);
-			setPixel(x, y / 2 * 2 + 1, back);
+			textColorGrid.set(x, y / 2 * 2, fore);
+			textColorGrid.set(x, y / 2 * 2 + 1, back);
 		}
 	}
 	

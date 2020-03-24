@@ -1,6 +1,7 @@
 package ai.arcblroth.boss.util;
 
 import ai.arcblroth.boss.render.Color;
+import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.render.PixelGrid;
 
 public class TextureUtils {
@@ -93,14 +94,40 @@ public class TextureUtils {
 	public static PixelGrid overlay(PixelGrid src, PixelGrid dest, int xOffset, int yOffset) {
 		for(int y = yOffset; y < dest.getHeight(); y++) {
 			for(int x = xOffset; x < dest.getWidth(); x++) {
-				Color destPx = dest.getPixel(x - xOffset, y - yOffset);
+				Color destPx = dest.getPixel(x, y);
 				Color srcPx = src.getPixel(x - xOffset, y - yOffset);
 				dest.setPixel(x, y, 
 						TextureUtils.interpolate(
 								destPx,
 								srcPx,
-								(destPx.getAlpha())/255D)
+								(srcPx.getAlpha())/255D)
 				);
+			}
+		}
+		return dest;
+	}
+	
+	public static PixelGrid overlay(PixelAndTextGrid src, PixelAndTextGrid dest) {
+		return overlay(src, dest, 0, 0);
+	}
+	
+	public static PixelGrid overlayText(PixelAndTextGrid src, PixelAndTextGrid dest, int xOffset, int yOffset) {
+		//overlay((PixelGrid)src, (PixelGrid)dest, xOffset, yOffset);
+		yOffset = yOffset / 2 * 2;
+		for(int y = yOffset; y < dest.getHeight(); y += 2) {
+			for(int x = xOffset; x < dest.getWidth(); x++) {
+				if(src.getCharacterAt(x - xOffset, y - yOffset) != StaticDefaults.RESET_CHAR) {
+					Color srcForePx = src.getColorsAt(x - xOffset, y - yOffset).getFirst();
+					Color srcBackPx = src.getColorsAt(x - xOffset, y - yOffset).getSecond();
+					Color destForePx = dest.getColorsAt(x, y).getFirst();
+					Color destBackPx = dest.getColorsAt(x, y).getSecond();
+					dest.setCharacterAt(
+							x, y,
+							src.getCharacterAt(x - xOffset, y - yOffset),
+							TextureUtils.interpolate(destBackPx, srcBackPx, (srcBackPx.getAlpha()) / 255D),
+							TextureUtils.interpolate(destForePx, srcForePx, (srcForePx.getAlpha()) / 255D)
+					);
+				}
 			}
 		}
 		return dest;

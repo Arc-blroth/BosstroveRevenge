@@ -8,6 +8,7 @@ import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.entity.IEntity;
+import ai.arcblroth.boss.engine.gui.GUI;
 import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.WallTile;
@@ -20,15 +21,17 @@ import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.TextureUtils;
 
 public class WorldRenderer implements IRenderer {
-	
+
 	private boolean renderEntityHitboxes = false;
 	
 	private Room room;
+	private GUI gui;
 	private double xOffset;
 	private double yOffset;
 
-	public WorldRenderer(Room r) {
+	public WorldRenderer(Room r, GUI gui) {
 		this.room = r;
+		this.gui = gui;
 	}
 	
 	public void setRenderOffset(double d, double e) {
@@ -53,6 +56,7 @@ public class WorldRenderer implements IRenderer {
 		Pair<Integer, Integer> outputSize = BosstrovesRevenge.instance().getOutputSize();
 		PixelAndTextGrid ptg = new PixelAndTextGrid(outputSize.getFirst(), outputSize.getSecond());
 		renderMap(ptg);
+		gui.render(ptg);
 		return ptg;
 	}
 	

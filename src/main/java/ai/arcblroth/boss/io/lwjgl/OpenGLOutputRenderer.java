@@ -16,6 +16,11 @@ import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.TextureUtils;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.GL_BLEND;
+import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
+import static org.lwjgl.opengl.GL11.glBlendFunc;
+import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 import static org.lwjgl.opengl.GL20.glUniform1i;
 import static org.lwjgl.opengl.GL30.*;
@@ -107,6 +112,9 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 				Vector4f clearColor = OpenGLUtils.rgbToVector(BosstrovesRevenge.instance().getResetColor());
 				glClearColor(clearColor.x, clearColor.y, clearColor.z, 1.0F);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		        glEnable(GL_BLEND);
+		        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		        glBlendEquation(GL_FUNC_ADD);
 				
 				if (window.isResized()) {
 					glViewport(0, 0, window.getWidth(), window.getHeight());
@@ -222,6 +230,9 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 							leftTranslation = aspectRatio;
 						}
 						
+						//For inverted-ness
+						//glBlendFuncSeparate(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ZERO);
+						
 						String fpsString = String.format("%.0f FPS", fps);
 						for(int fpsCharIndex = 0; fpsCharIndex < fpsString.length(); fpsCharIndex++) {
 							drawCharacter(
@@ -235,7 +246,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 										(leftTranslation / pixelSize - 0.75F),
 										0
 								).scale(0.5F, 1F, 1F),
-								new Pair<Color, Color>(Color.WHITE, Color.TRANSPARENT),
+								new Pair<Color, Color>(Color.WHITE, null),
 								fpsString.charAt(fpsCharIndex)
 							);
 						}
@@ -256,7 +267,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 										(leftTranslation / pixelSize - 0.75F),
 										0
 								).scale(0.5F, 1F, 1F),
-								new Pair<Color, Color>(Color.WHITE, Color.TRANSPARENT),
+								new Pair<Color, Color>(Color.WHITE, null),
 								memString.charAt(memString.length() - 1 - memCharIndex)
 							);
 						}
@@ -288,16 +299,20 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	
 	private void drawCharacter(Matrix4f characterModelMatrix, Matrix4f backgroundModelMatrix, Pair<Color, Color> colors, char character) {
 		// Draw background first
-		shader.setMatrix4f("model", backgroundModelMatrix);
-		shader.setVector4f("color", rgbToVector(colors.getSecond()));
-		model.render();
+		if(colors.getSecond() != null) {
+			shader.setMatrix4f("model", backgroundModelMatrix);
+			shader.setVector4f("color", rgbToVector(colors.getSecond()));
+			model.render();
+		}
 		
 		// Draw the character second, because OpenGL
-		shader.setBool("useTexture", true);
-		shader.setMatrix4f("model", characterModelMatrix);
-		shader.setVector4f("color", rgbToVector(colors.getFirst()));
-		fontManager.renderCharacter(character);
-		shader.setBool("useTexture", false);
+		if(colors.getFirst() != null) {
+			shader.setBool("useTexture", true);
+			shader.setMatrix4f("model", characterModelMatrix);
+			shader.setVector4f("color", rgbToVector(colors.getFirst()));
+			fontManager.renderCharacter(character);
+			shader.setBool("useTexture", false);
+		}
 	}
 	
 	@Override
