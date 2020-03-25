@@ -13,9 +13,6 @@ import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.resource.Resource;
 
 public class OpenGLUtils {
-
-	static final int STB_FONT_CHARACTER_WIDTH = 32;
-	static final int STB_FONT_CHARACTER_HEIGHT = 64;
 	
 	public static Vector4f rgbToVector(Color in) {
 		return new Vector4f(in.getRed()/255F, in.getGreen()/255F, in.getBlue()/255F, in.getAlpha()/255F);

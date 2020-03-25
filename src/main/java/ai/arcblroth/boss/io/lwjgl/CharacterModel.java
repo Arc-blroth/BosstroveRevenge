@@ -28,7 +28,7 @@ public class CharacterModel {
 	private final int VBO;
 	private final int EBO;
 	
-	public CharacterModel(STBTTAlignedQuad quad, int characterWidth) {
+	public CharacterModel(STBTTAlignedQuad quad, float characterWidth) {
 		
 		float[] verticesAndTextureCoords = new float[] {
 				//                   ----Vertices----                           ----TexCoords----

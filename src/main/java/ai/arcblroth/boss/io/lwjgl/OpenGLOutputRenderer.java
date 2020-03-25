@@ -166,54 +166,60 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 					Matrix4f scaledModelMatrix = new Matrix4f().scale(pixelSize, pixelSize, 1F);
 					
 					// Render each row like a printer would
+					// Text is always printed on top of background stuff.
 					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
 						ArrayList<Color> row1 = pg.getRow(rowNum);
 						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
 						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
 						
 						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
-							
-							if(rowTxt.get(colNum) == StaticDefaults.RESET_CHAR) {
-								// Draw ordinary pixels
-								// If pixel color == background color, don't draw it!
-								if(!row1.get(colNum).equals(BosstrovesRevenge.instance().getResetColor())) {
-									drawPixel(
-										new Matrix4f(scaledModelMatrix).translate(
-											(-pg.getWidth()/2F + colNum),
-											(pg.getHeight()/2F - rowNum),
-											0
-										).scale(0.5F),
-										row1.get(colNum)
-									);
-								}
-								if(!row2.get(colNum).equals(BosstrovesRevenge.instance().getResetColor())) {
-									drawPixel(
-										new Matrix4f(scaledModelMatrix).translate(
-												(-pg.getWidth()/2F + colNum),
-												(pg.getHeight()/2F - rowNum - 1),
-												0
-										).scale(0.5F),
-										row2.get(colNum)
-									);
-								}
-							} else {
-								// Draw characters on a background color
-								drawCharacter(
+							// Draw ordinary pixels
+							// If pixel color == background color, don't draw it!
+							if(!row1.get(colNum).equals(BosstrovesRevenge.instance().getResetColor())) {
+								drawPixel(
 									new Matrix4f(scaledModelMatrix).translate(
-											(-pg.getWidth()/2F + colNum - 0.5F),
-											(pg.getHeight()/2F - rowNum - 1.5F),
-											0
-									).scale(1F, -1F, 1F),
-									new Matrix4f(scaledModelMatrix).translate(
-											(-pg.getWidth()/2F + colNum),
-											(pg.getHeight()/2F - rowNum - 0.5F),
-											0
-									).scale(0.5F, 1F, 1F),
-									pg.getColorsAt(colNum, rowNum),
-									rowTxt.get(colNum)
+										(-pg.getWidth()/2F + colNum),
+										(pg.getHeight()/2F - rowNum),
+										0
+									).scale(0.5F),
+									row1.get(colNum)
 								);
 							}
-							
+							if(!row2.get(colNum).equals(BosstrovesRevenge.instance().getResetColor())) {
+								drawPixel(
+									new Matrix4f(scaledModelMatrix).translate(
+											(-pg.getWidth()/2F + colNum),
+											(pg.getHeight()/2F - rowNum - 1),
+											0
+									).scale(0.5F),
+									row2.get(colNum)
+								);
+							}
+						}
+					}
+					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
+						ArrayList<Color> row1 = pg.getRow(rowNum);
+						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
+						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
+
+						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
+							if(rowTxt.get(colNum) != StaticDefaults.RESET_CHAR) {
+								// Draw characters on a background color
+								drawCharacter(
+										new Matrix4f(scaledModelMatrix).translate(
+												(-pg.getWidth()/2F + colNum - 0.5F),
+												(pg.getHeight()/2F - rowNum - 1.5F),
+												0
+										).scale(1F, -1F, 1F),
+										new Matrix4f(scaledModelMatrix).translate(
+												(-pg.getWidth()/2F + colNum),
+												(pg.getHeight()/2F - rowNum - 0.5F),
+												0
+										).scale(0.5F, 1F, 1F),
+										pg.getColorsAt(colNum, rowNum),
+										rowTxt.get(colNum)
+								);
+							}
 						}
 					}
 					
