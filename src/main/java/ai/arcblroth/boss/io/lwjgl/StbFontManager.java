@@ -1,18 +1,12 @@
 package ai.arcblroth.boss.io.lwjgl;
 
-import ai.arcblroth.boss.util.StaticDefaults;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.*;
 import org.lwjgl.system.MemoryStack;
 
 import ai.arcblroth.boss.resource.Resource;
 
-import static org.lwjgl.opengl.GL11.GL_BLEND;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
-import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
-import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_UNPACK_ALIGNMENT;
-import static org.lwjgl.opengl.GL11.glBlendFunc;
 import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glPixelStorei;
 import static org.lwjgl.opengl.GL30.*;
@@ -22,8 +16,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,11 +24,10 @@ import java.util.logging.Logger;
 public class StbFontManager {
 	
 	private static final int FIRST_CHAR_TO_BAKE = 32;
-	private static final int LAST_CHAR_TO_BAKE = 255;
-	private static final int ACTUAL_CHARACTER_WIDTH = StaticDefaults.CHARACTER_WIDTH / 2;
-	private static final int ACTUAL_CHARACTER_HEIGHT = StaticDefaults.CHARACTER_HEIGHT / 2;
-	private static final int H_OVERSAMPLING = 8;
-	private static final int V_OVERSAMPLING = 8;
+	private static final int LAST_CHAR_TO_BAKE = 767;
+	private static final int FONT_SIZE = 18;
+	private static final int H_OVERSAMPLING = 4;
+	private static final int V_OVERSAMPLING = 4;
 	private static final int BITMAP_WIDTH = 512 * H_OVERSAMPLING;
 	private static final int BITMAP_HEIGHT = 512 * V_OVERSAMPLING;
 
@@ -67,7 +58,7 @@ public class StbFontManager {
 		packedChars = STBTTPackedchar.malloc(LAST_CHAR_TO_BAKE - FIRST_CHAR_TO_BAKE + 1);
         boolean packBeginResult = stbtt_PackBegin(packContext, alphaBitmap, BITMAP_WIDTH, BITMAP_HEIGHT, 0, 1);
 		stbtt_PackSetOversampling(packContext, H_OVERSAMPLING, V_OVERSAMPLING);
-		boolean packRangeResult = stbtt_PackFontRange(packContext, font, 0, ACTUAL_CHARACTER_HEIGHT, FIRST_CHAR_TO_BAKE, packedChars);
+		boolean packRangeResult = stbtt_PackFontRange(packContext, font, 0, FONT_SIZE, FIRST_CHAR_TO_BAKE, packedChars);
 		stbtt_PackEnd(packContext);
 		packContext.free();
 		logger.log(Level.INFO, "Font baking result: " + packBeginResult + " " + packRangeResult);
@@ -110,7 +101,7 @@ public class StbFontManager {
 				IntBuffer leftSideBearingBuf = stack.mallocInt(1);
 
 				stbtt_GetCodepointHMetrics(info, 'M', advanceWidthBuf, leftSideBearingBuf);
-				advanceWidth = advanceWidthBuf.get(0) / 128; // too lazy to figure out why 128 works
+				advanceWidth = advanceWidthBuf.get(0) / (2048 / FONT_SIZE);
 			}
 		} else {
 			throw new RuntimeException("Could not load stb font info.");
