@@ -38,11 +38,11 @@ public abstract class GUIParent extends GUIComponent {
 			GUIConstraints constraints = children.get(child);
 			int resolvedX = constraints.resolveX(targetWidth, targetHeight);
 			int resolvedY = constraints.resolveY(targetWidth, targetHeight);
-			if(resolvedX < target.getWidth() && resolvedY < target.getHeight()) {
-				PixelAndTextGrid childTarget = new PixelAndTextGrid(
-						constraints.resolveWidth(targetWidth, targetHeight),
-						constraints.resolveHeight(targetWidth, targetHeight)
-				);
+			int resolvedWidth = constraints.resolveWidth(targetWidth, targetHeight);
+			int resolvedHeight = constraints.resolveHeight(targetWidth, targetHeight);
+			if(resolvedX < target.getWidth() && resolvedY < target.getHeight()
+					&& resolvedWidth > 0 && resolvedHeight > 0) {
+				PixelAndTextGrid childTarget = new PixelAndTextGrid(resolvedWidth, resolvedHeight);
 				childTarget.forEach(((x, y, color) -> childTarget.set(x, y, Color.TRANSPARENT)));
 				child.render(childTarget);
 				TextureUtils.overlay(childTarget, target, resolvedX, resolvedY);

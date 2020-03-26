@@ -36,8 +36,8 @@ public class WorldEngine implements IEngine {
 		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoom).getResetColor());
 
 		Color gradient = new Color(0, 0, 0, 255 * 2 / 3);
-		level.getGui().add(new GUIPanel(gradient, gradient), new GUIConstraints("5px", "5px", "25%", "25%", 1));
-		level.getGui().add(new GUIText("one fish two fish red fish blue fish reallylongwordthingybob"), new GUIConstraints("2px", "2px", "100%", "100%", 0));
+		level.getGui().add(new GUIPanel(gradient, gradient), new GUIConstraints(0, 0, 1, 1, 5, 5, -10, -10, 0));
+		level.getGui().add(new GUIText("one fish two fish red fish blue fish reallylongwordthingybob"), new GUIConstraints("2px", "2px", "100%", "100%", 1));
 	}
 	
 	@Override
