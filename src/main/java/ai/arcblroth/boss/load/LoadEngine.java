@@ -1,23 +1,15 @@
 package ai.arcblroth.boss.load;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.StepEvent;
-import ai.arcblroth.boss.engine.tile.EmptyFloorTile;
-import ai.arcblroth.boss.engine.tile.EmptyWallTile;
 import ai.arcblroth.boss.game.WorldEngine;
 import ai.arcblroth.boss.key.CharacterInputEvent;
-import ai.arcblroth.boss.register.FloorTileRegistry;
-import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.IRenderer;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.render.PixelGrid;
 import ai.arcblroth.boss.resource.InternalResource;
-import ai.arcblroth.boss.resource.Resource;
 import ai.arcblroth.boss.resource.load.ResourceLoader;
 import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.Pair;
@@ -40,7 +32,7 @@ public class LoadEngine implements IEngine {
 	private PixelGrid logo;
 	
 	public LoadEngine() {
-		origLogo = TextureUtils.tintColor(ResourceLoader.loadPNG(new InternalResource("bitmap.png")), satBlue);
+		origLogo = TextureUtils.tintColorHSB(ResourceLoader.loadPNG(new InternalResource("bitmap.png")), satBlue);
 		logo = new PixelGrid(origLogo);
 		reallyBadGrid = new PixelAndTextGrid(logo.getWidth(), logo.getHeight() + arbitraryPaddingHeight);
 		reallyBadGrid = new PixelAndTextGrid(TextureUtils.overlay(logo, reallyBadGrid, 0, 0));
@@ -60,13 +52,13 @@ public class LoadEngine implements IEngine {
 			
 			blueInterpolation += 0.01;
 			if(blueInterpolation >= 1) blueInterpolation = -1;
-			logo = TextureUtils.tintColorRGB(origLogo, 
-					TextureUtils.interpolate(satBlue, lightBlue, Math.abs(blueInterpolation))
+			logo = TextureUtils.tintColor(origLogo,
+					TextureUtils.interpolateHSB(satBlue, lightBlue, Math.abs(blueInterpolation))
 			);
 		} else {
 			if(doneFadeoutAnimation <= 1) {
 				doneFadeoutAnimation += 0.05;
-				logo = TextureUtils.tintColorRGB(origLogo, new Color(
+				logo = TextureUtils.tintColor(origLogo, new Color(
 						BosstrovesRevenge.instance().getResetColor().getRed(),
 						BosstrovesRevenge.instance().getResetColor().getGreen(),
 						BosstrovesRevenge.instance().getResetColor().getBlue(),

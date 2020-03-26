@@ -10,11 +10,13 @@ import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.engine.gui.GUI;
 import ai.arcblroth.boss.engine.gui.GUIConstraints;
+import ai.arcblroth.boss.engine.gui.GUIPanel;
 import ai.arcblroth.boss.engine.gui.GUIText;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;
 import ai.arcblroth.boss.register.LevelRegistry;
+import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.IRenderer;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
@@ -33,6 +35,8 @@ public class WorldEngine implements IEngine {
 		this.firedKeys = new HashMap<>();
 		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoom).getResetColor());
 
+		Color gradient = new Color(0, 0, 0, 255 * 2 / 3);
+		level.getGui().add(new GUIPanel(gradient, gradient), new GUIConstraints("5px", "5px", "25%", "25%", 1));
 		level.getGui().add(new GUIText("one fish two fish red fish blue fish reallylongwordthingybob"), new GUIConstraints("2px", "2px", "100%", "100%", 0));
 	}
 	

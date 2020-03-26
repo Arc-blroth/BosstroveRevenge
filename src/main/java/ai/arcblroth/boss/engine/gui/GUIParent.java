@@ -1,8 +1,6 @@
 package ai.arcblroth.boss.engine.gui;
 
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
 import java.util.TreeMap;
 
 import ai.arcblroth.boss.render.Color;
@@ -20,6 +18,10 @@ public abstract class GUIParent extends GUIComponent {
 	
 	public void add(GUIComponent comp, GUIConstraints constraints) {
 		children.put(comp, constraints);
+	}
+
+	public void remove(GUIComponent comp) {
+		children.remove(comp);
 	}
 	
 	@Override
@@ -43,7 +45,7 @@ public abstract class GUIParent extends GUIComponent {
 				);
 				childTarget.forEach(((x, y, color) -> childTarget.set(x, y, Color.TRANSPARENT)));
 				child.render(childTarget);
-				TextureUtils.overlayText(childTarget, target, resolvedX, resolvedY);
+				TextureUtils.overlay(childTarget, target, resolvedX, resolvedY);
 			}
 		}
 	}

@@ -10,14 +10,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 
-import ai.arcblroth.boss.engine.Position;
-import ai.arcblroth.boss.engine.Room;
-import ai.arcblroth.boss.engine.TilePosition;
-import ai.arcblroth.boss.engine.tile.EmptyFloorTile;
-import ai.arcblroth.boss.engine.tile.EmptyWallTile;
 import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.WallTile;
-import ai.arcblroth.boss.register.EntityBuilder;
 import ai.arcblroth.boss.register.FloorTileBuilder;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileBuilder;

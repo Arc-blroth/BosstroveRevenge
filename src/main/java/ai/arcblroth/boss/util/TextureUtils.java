@@ -5,12 +5,20 @@ import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.render.PixelGrid;
 
 public class TextureUtils {
-	
-	public static Color interpolate(Color color1, Color color2, double between) {
-		return interpolate(color1, color2, between, false);
+
+	public static Color interpolateRGB(Color color1, Color color2, double between) {
+		return new Color(
+				(int)Math.round(color1.getRed() + between * (color2.getRed() - color1.getRed())),
+				(int)Math.round(color1.getGreen() + between * (color2.getGreen() - color1.getGreen())),
+				(int)Math.round(color1.getBlue() + between * (color2.getBlue() - color1.getBlue()))
+		);
+	}
+
+	public static Color interpolateHSB(Color color1, Color color2, double between) {
+		return interpolateHSB(color1, color2, between, false);
 	}
 	
-	public static Color interpolate(Color color1, Color color2, double between, boolean lerp) {
+	public static Color interpolateHSB(Color color1, Color color2, double between, boolean lerp) {
 		double[] c1HSB = color1.getAsHSBA();
 		double[] c2HSB = color2.getAsHSBA();
 		
@@ -32,14 +40,6 @@ public class TextureUtils {
 				c1HSB[3] + between * (c2HSB[3] - c1HSB[3]));
 	}
 	
-	public static Color interpolateRGB(Color color1, Color color2, double between) {
-		return new Color(
-				(int)Math.round(color1.getRed() + between * (color2.getRed() - color1.getRed())),
-				(int)Math.round(color1.getGreen() + between * (color2.getGreen() - color1.getGreen())),
-				(int)Math.round(color1.getBlue() + between * (color2.getBlue() - color1.getBlue()))
-		);
-	}
-	
 	public static Color invert(Color in) {
 		return new Color(
 			255 - in.getRed(),
@@ -48,34 +48,23 @@ public class TextureUtils {
 			in.getAlpha()
 		);
 	}
-	
+
 	public static PixelGrid tintColor(PixelGrid in, Color tint) {
-		//Don't modify original
-		in = new PixelGrid(in);
-		Color solidTint = new Color(tint.getRed(), tint.getGreen(), tint.getBlue());
-		int tintAlpha = tint.getAlpha();
-		for (int rowNum = 0; rowNum < in.getHeight(); rowNum++) {
-			for (int colNum = 0; colNum < in.getWidth(); colNum++) {
-				Color interpolated = interpolate(in.getPixel(colNum, rowNum), solidTint, tintAlpha/255D);
-				in.setPixel(colNum, rowNum, new Color(
-						interpolated.getRed(),
-						interpolated.getGreen(),
-						interpolated.getBlue(),
-						in.getPixel(colNum, rowNum).getAlpha()
-				));
-			}
-		}
-		return in;
+		return tintColor0(in, tint, TextureUtils::interpolateRGB);
 	}
 	
-	public static PixelGrid tintColorRGB(PixelGrid in, Color tint) {
+	public static PixelGrid tintColorHSB(PixelGrid in, Color tint) {
+		return tintColor0(in, tint, TextureUtils::interpolateHSB);
+	}
+
+	private static PixelGrid tintColor0(PixelGrid in, Color tint, TriFunction<Color, Color, Double, Color> interFunction) {
 		//Don't modify original
 		in = new PixelGrid(in);
 		Color solidTint = new Color(tint.getRed(), tint.getGreen(), tint.getBlue());
 		int tintAlpha = tint.getAlpha();
 		for (int rowNum = 0; rowNum < in.getHeight(); rowNum++) {
 			for (int colNum = 0; colNum < in.getWidth(); colNum++) {
-				Color interpolated = interpolateRGB(in.getPixel(colNum, rowNum), solidTint, tintAlpha/255D);
+				Color interpolated = interFunction.apply(in.getPixel(colNum, rowNum), solidTint, tintAlpha/255D);
 				in.setPixel(colNum, rowNum, new Color(
 						interpolated.getRed(),
 						interpolated.getGreen(),
@@ -92,12 +81,25 @@ public class TextureUtils {
 	}
 	
 	public static PixelGrid overlay(PixelGrid src, PixelGrid dest, int xOffset, int yOffset) {
-		for(int y = yOffset; y < dest.getHeight(); y++) {
-			for(int x = xOffset; x < dest.getWidth(); x++) {
+		return overlay0(src, dest, xOffset, yOffset, TextureUtils::interpolateRGB);
+	}
+
+	public static PixelGrid overlayHSB(PixelGrid src, PixelGrid dest) {
+		return overlayHSB(src, dest, 0, 0);
+	}
+
+	public static PixelGrid overlayHSB(PixelGrid src, PixelGrid dest, int xOffset, int yOffset) {
+		return overlay0(src, dest, xOffset, yOffset, TextureUtils::interpolateHSB);
+	}
+
+	private static PixelGrid overlay0(PixelGrid src, PixelGrid dest, int xOffset, int yOffset, TriFunction<Color, Color, Double, Color> interFunction) {
+		yOffset =  yOffset / 2 * 2;
+		for(int y = yOffset; y < dest.getHeight() / 2 * 2 && y - yOffset < src.getHeight() / 2 * 2; y++) {
+			for(int x = xOffset; x < dest.getWidth() && x - xOffset < src.getWidth(); x++) {
 				Color destPx = dest.getPixel(x, y);
 				Color srcPx = src.getPixel(x - xOffset, y - yOffset);
-				dest.setPixel(x, y, 
-						TextureUtils.interpolate(
+				dest.setPixel(x, y,
+						interFunction.apply(
 								destPx,
 								srcPx,
 								(srcPx.getAlpha())/255D)
@@ -111,11 +113,23 @@ public class TextureUtils {
 		return overlay(src, dest, 0, 0);
 	}
 	
-	public static PixelGrid overlayText(PixelAndTextGrid src, PixelAndTextGrid dest, int xOffset, int yOffset) {
-		//overlay((PixelGrid)src, (PixelGrid)dest, xOffset, yOffset);
+	public static PixelGrid overlay(PixelAndTextGrid src, PixelAndTextGrid dest, int xOffset, int yOffset) {
+		return overlay0(src, dest, xOffset, yOffset, TextureUtils::interpolateRGB);
+	}
+
+	public static PixelGrid overlayHSB(PixelAndTextGrid src, PixelAndTextGrid dest) {
+		return overlay(src, dest, 0, 0);
+	}
+
+	public static PixelGrid overlayHSB(PixelAndTextGrid src, PixelAndTextGrid dest, int xOffset, int yOffset) {
+		return overlay0(src, dest, xOffset, yOffset, TextureUtils::interpolateHSB);
+	}
+
+	private static PixelGrid overlay0(PixelAndTextGrid src, PixelAndTextGrid dest, int xOffset, int yOffset, TriFunction<Color, Color, Double, Color> interFunction) {
+		overlay0((PixelGrid)src, (PixelGrid)dest, xOffset, yOffset, interFunction);
 		yOffset = yOffset / 2 * 2;
-		for(int y = yOffset; y < dest.getHeight(); y += 2) {
-			for(int x = xOffset; x < dest.getWidth(); x++) {
+		for(int y = yOffset; y < dest.getHeight() / 2 * 2 && y - yOffset < src.getHeight() / 2 * 2; y += 2) {
+			for(int x = xOffset; x < dest.getWidth() && x - xOffset < src.getWidth(); x++) {
 				if(src.getCharacterAt(x - xOffset, y - yOffset) != StaticDefaults.RESET_CHAR) {
 					Color srcForePx = src.getColorsAt(x - xOffset, y - yOffset).getFirst();
 					Color srcBackPx = src.getColorsAt(x - xOffset, y - yOffset).getSecond();
@@ -124,8 +138,8 @@ public class TextureUtils {
 					dest.setCharacterAt(
 							x, y,
 							src.getCharacterAt(x - xOffset, y - yOffset),
-							TextureUtils.interpolate(destBackPx, srcBackPx, (srcBackPx.getAlpha()) / 255D),
-							TextureUtils.interpolate(destForePx, srcForePx, (srcForePx.getAlpha()) / 255D)
+							interFunction.apply(destBackPx, srcBackPx, (srcBackPx.getAlpha()) / 255D),
+							interFunction.apply(destForePx, srcForePx, (srcForePx.getAlpha()) / 255D)
 					);
 				}
 			}
