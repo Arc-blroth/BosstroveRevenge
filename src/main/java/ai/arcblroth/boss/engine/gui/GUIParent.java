@@ -33,7 +33,11 @@ public abstract class GUIParent extends GUIComponent {
 		
 		TreeMap<Integer, GUIComponent> sortedChildren = new TreeMap<>();
 		children.forEach((comp, constraints) -> {
-			sortedChildren.put(constraints.getZOrder(), comp);
+			if(!sortedChildren.containsKey(constraints.getZOrder())) {
+				sortedChildren.put(constraints.getZOrder(), comp);
+			} else {
+				sortedChildren.put(constraints.getZOrder() + 1, comp);
+			}
 		});
 		while(!sortedChildren.isEmpty()) {
 			GUIComponent child = sortedChildren.pollFirstEntry().getValue();
