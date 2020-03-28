@@ -30,7 +30,7 @@ public class GUIText extends GUIComponent {
 		// We only support english :)
 		if(wordWrap) {
 			String[] words = textBuf.toString().split(" ");
-			
+
 			int lastX = -1;
 			int lastY = 0;
 			for(String word : words) {
@@ -83,7 +83,7 @@ public class GUIText extends GUIComponent {
 					lastX = 0;
 					lastY++;
 				}
-				
+
 				target.setCharacterAt(lastX, lastY, jabug, backgroundColor, foregroundColor);
 			}
 		}

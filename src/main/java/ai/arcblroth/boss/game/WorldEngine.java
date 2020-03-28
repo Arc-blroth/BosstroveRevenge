@@ -35,9 +35,11 @@ public class WorldEngine implements IEngine {
 		this.firedKeys = new HashMap<>();
 		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoom).getResetColor());
 
-		Color gradient = new Color(0, 0, 0, 255 * 2 / 3);
-		level.getGui().add(new GUIPanel(gradient, gradient), new GUIConstraints(0, 0, 1, 1, 5, 5, -10, -10, 0));
-		level.getGui().add(new GUIText("one fish two fish red fish blue fish reallylongwordthingybob"), new GUIConstraints("2px", "2px", "100%", "100%", 1));
+		GUIPanel panel = new GUIPanel(new Color(0, 0, 0, 255 * 5 / 6), Color.BLACK);
+		GUIPanel panel2 = new GUIPanel(new Color(0, 150, 250, 255 * 2 / 3), Color.BLACK);
+		level.getGui().add(panel, new GUIConstraints(0, 0, 0.8, 0.8, 6, 6, -12, -12, 1));
+		level.getGui().add(panel2, new GUIConstraints(0.2, 0.2, 0.8, 0.8, 6, 6, -12, -12, 0));
+		panel.add(new GUIText("one fish two fish red fish blue fish reallylongwordthingybob", new Color(0, 0, 0, 0), Color.WHITE), new GUIConstraints("50%", "50%", "100%", "100%", 1));
 	}
 	
 	@Override

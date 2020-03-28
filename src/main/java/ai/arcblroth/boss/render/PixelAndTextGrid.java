@@ -31,7 +31,7 @@ public class PixelAndTextGrid extends PixelGrid {
 	public PixelAndTextGrid(int width, int height) {
 		super(width, height);
 		this.textGrid = new Grid2D<Character>(width, height / 2, StaticDefaults.RESET_CHAR);
-		this.textColorGrid = new Grid2D<Color>(width, height, BosstrovesRevenge.instance().getResetColor());
+		this.textColorGrid = new Grid2D<Color>(width, height, Color.TRANSPARENT);
 	}
 
 	public ArrayList<Character> getCharacterRow(int rowNum) {
@@ -87,7 +87,7 @@ public class PixelAndTextGrid extends PixelGrid {
 	}
 
 	private boolean isTextCoordinateValid(int x, int y) {
-		if (x >= 0 && x < getWidth() && y >= 0 && y < getHeight())
+		if (x >= 0 && x < getWidth() && y >= 0 && y < getHeight() / 2 * 2)
 			return true;
 		else
 			return false;

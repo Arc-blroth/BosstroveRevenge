@@ -7,37 +7,47 @@ import ai.arcblroth.boss.render.PixelGrid;
 public class TextureUtils {
 
 	public static Color interpolateRGB(Color color1, Color color2, double between) {
+		return interpolateRGB(color1, color2, 1 - between, between);
+	}
+
+	public static Color interpolateRGB(Color color1, Color color2, double k1, double k2) {
 		return new Color(
-				(int)Math.round(color1.getRed() + between * (color2.getRed() - color1.getRed())),
-				(int)Math.round(color1.getGreen() + between * (color2.getGreen() - color1.getGreen())),
-				(int)Math.round(color1.getBlue() + between * (color2.getBlue() - color1.getBlue()))
+				(int)Math.round(color1.getRed() * k1 + (color2.getRed() * k2)),
+				(int)Math.round(color1.getGreen() * k1 + (color2.getGreen() * k2)),
+				(int)Math.round(color1.getBlue() * k1 + (color2.getBlue() * k2)),
+				(int)Math.round(color1.getAlpha() * k1 + (color2.getAlpha() * k2))
 		);
 	}
 
 	public static Color interpolateHSB(Color color1, Color color2, double between) {
 		return interpolateHSB(color1, color2, between, false);
 	}
-	
+
 	public static Color interpolateHSB(Color color1, Color color2, double between, boolean lerp) {
+		return interpolateHSB(color1, color2, 1 - between, between, lerp);
+	}
+	
+	public static Color interpolateHSB(Color color1, Color color2, double k1, double k2, boolean lerp) {
 		double[] c1HSB = color1.getAsHSBA();
 		double[] c2HSB = color2.getAsHSBA();
 		
-		double finalHue = c1HSB[0] + between * (c2HSB[0] - c1HSB[0]);
+		double finalHue = c1HSB[0] * k1 + c2HSB[0] * k2;
 		
 		//Color lerping
 		if(lerp) {
 			double delta = c2HSB[0] - c1HSB[0];
 			if(delta > 0.5) {
 				c1HSB[0] = c1HSB[0] + 1;
-				finalHue = Math.abs((c1HSB[0] + between * (c2HSB[0] - c1HSB[0])) % 1);
+				finalHue = Math.abs((c1HSB[0] * k1 + c2HSB[0] * k2) % 1);
 			}
 		}
 		
 		return Color.getFromHSBA(
 				finalHue,
-				c1HSB[1] + between * (c2HSB[1] - c1HSB[1]),
-				c1HSB[2] + between * (c2HSB[2] - c1HSB[2]),
-				c1HSB[3] + between * (c2HSB[3] - c1HSB[3]));
+				c1HSB[1] * k1 + c2HSB[0] * k2,
+				c1HSB[2] * k1 + c2HSB[0] * k2,
+				c1HSB[3] * k1 + c2HSB[0] * k2
+		);
 	}
 	
 	public static Color invert(Color in) {

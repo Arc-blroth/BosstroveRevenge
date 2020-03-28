@@ -170,7 +170,6 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
 						ArrayList<Color> row1 = pg.getRow(rowNum);
 						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
-						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
 						
 						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
 							// Draw ordinary pixels
@@ -179,7 +178,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 								drawPixel(
 									new Matrix4f(scaledModelMatrix).translate(
 										(-pg.getWidth()/2F + colNum),
-										(pg.getHeight()/2F - rowNum),
+										( pg.getHeight()/2F - rowNum),
 										0
 									).scale(0.5F),
 									row1.get(colNum)
@@ -189,7 +188,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 								drawPixel(
 									new Matrix4f(scaledModelMatrix).translate(
 											(-pg.getWidth()/2F + colNum),
-											(pg.getHeight()/2F - rowNum - 1),
+											( pg.getHeight()/2F - rowNum - 1),
 											0
 									).scale(0.5F),
 									row2.get(colNum)
@@ -198,8 +197,6 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 						}
 					}
 					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
-						ArrayList<Color> row1 = pg.getRow(rowNum);
-						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
 						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
 
 						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
@@ -208,12 +205,12 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 								drawCharacter(
 										new Matrix4f(scaledModelMatrix).translate(
 												(-pg.getWidth()/2F + colNum - 0.5F),
-												(pg.getHeight()/2F - rowNum - 1.5F),
+												( pg.getHeight()/2F - rowNum - 1.5F),
 												0
 										).scale(1F, -1F, 1F),
 										new Matrix4f(scaledModelMatrix).translate(
 												(-pg.getWidth()/2F + colNum),
-												(pg.getHeight()/2F - rowNum - 0.5F),
+												( pg.getHeight()/2F - rowNum - 0.5F),
 												0
 										).scale(0.5F, 1F, 1F),
 										pg.getColorsAt(colNum, rowNum),
@@ -244,12 +241,12 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 							drawCharacter(
 								new Matrix4f(scaledModelMatrix).translate(
 										(-topTranslation / pixelSize + fpsCharIndex + 0.25F),
-										(leftTranslation / pixelSize - 1.75F),
+										( leftTranslation / pixelSize - 1.75F),
 										0
 								).scale(1F, -1F, 1F),
 								new Matrix4f(scaledModelMatrix).translate(
 										(-topTranslation / pixelSize + fpsCharIndex + 0.75F),
-										(leftTranslation / pixelSize - 0.75F),
+										( leftTranslation / pixelSize - 0.75F),
 										0
 								).scale(0.5F, 1F, 1F),
 								new Pair<Color, Color>(Color.WHITE, null),
