@@ -15,7 +15,7 @@ public class TextureUtils {
 				(int)Math.round(color1.getRed() * k1 + (color2.getRed() * k2)),
 				(int)Math.round(color1.getGreen() * k1 + (color2.getGreen() * k2)),
 				(int)Math.round(color1.getBlue() * k1 + (color2.getBlue() * k2)),
-				(int)Math.round(color1.getAlpha() * k1 + (color2.getAlpha() * k2))
+				(int)Math.max(color1.getAlpha(), color2.getAlpha())
 		);
 	}
 
@@ -44,9 +44,9 @@ public class TextureUtils {
 		
 		return Color.getFromHSBA(
 				finalHue,
-				c1HSB[1] * k1 + c2HSB[0] * k2,
-				c1HSB[2] * k1 + c2HSB[0] * k2,
-				c1HSB[3] * k1 + c2HSB[0] * k2
+				c1HSB[1] * k1 + c2HSB[1] * k2,
+				c1HSB[2] * k1 + c2HSB[2] * k2,
+				Math.max(c1HSB[3], c2HSB[3])
 		);
 	}
 	
@@ -103,8 +103,7 @@ public class TextureUtils {
 	}
 
 	private static PixelGrid overlay0(PixelGrid src, PixelGrid dest, int xOffset, int yOffset, TriFunction<Color, Color, Double, Color> interFunction) {
-		yOffset =  yOffset / 2 * 2;
-		for(int y = yOffset; y < dest.getHeight() / 2 * 2 && y - yOffset < src.getHeight() / 2 * 2; y++) {
+		for(int y = yOffset; y < dest.getHeight() && y - yOffset < src.getHeight(); y++) {
 			for(int x = xOffset; x < dest.getWidth() && x - xOffset < src.getWidth(); x++) {
 				Color destPx = dest.getPixel(x, y);
 				Color srcPx = src.getPixel(x - xOffset, y - yOffset);
