@@ -39,7 +39,7 @@ public class WorldEngine implements IEngine {
 		GUIPanel panel2 = new GUIPanel(new Color(0, 150, 250, 255 * 2 / 3), Color.BLACK);
 		level.getGui().add(panel, new GUIConstraints(0, 0, 0.8, 0.8, 6, 6, -12, -12, 1));
 		level.getGui().add(panel2, new GUIConstraints(0.2, 0.2, 0.8, 0.8, 6, 6, -12, -12, 0));
-		panel.add(new GUIText("one fish two fish red fish blue fish reallylongwordthingybob", new Color(0, 0, 0, 0), Color.WHITE), new GUIConstraints("50%", "50%", "100%", "100%", 1));
+		panel.add(new GUIText("one fish two fish red fish blue fish reallylongwordthingybob", Color.TRANSPARENT, Color.WHITE), new GUIConstraints("50%", "50%", "100%", "100%", 1));
 	}
 	
 	@Override

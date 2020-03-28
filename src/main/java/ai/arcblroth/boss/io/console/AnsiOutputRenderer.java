@@ -152,12 +152,17 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 								
 								rowBuilder.append(toPrint);
 							} else {
-								Pair<Color, Color> colors = pg.getColorsAt(colNum, rowNum);
-								if(previousFgColor != colors.getFirst()) {
-									previousFgColor = colors.getFirst();
+								Pair<Color, Color> textColors = pg.getColorsAt(colNum, rowNum);
+								Color bgColor = TextureUtils.interpolateRGB(
+										TextureUtils.interpolateRGB(row1.get(colNum), row2.get(colNum), 0.5, 0.5),
+										textColors.getSecond(),
+										textColors.getSecond().getAlpha()/255D
+								);
+								if(previousFgColor != textColors.getFirst()) {
+									previousFgColor = textColors.getFirst();
 								}
-								if(previousBgColor != colors.getSecond()) {
-									previousBgColor = colors.getSecond();
+								if(previousBgColor != bgColor) {
+									previousBgColor = bgColor;
 								}
 								
 								rowBuilder.fgColor(previousFgColor);
