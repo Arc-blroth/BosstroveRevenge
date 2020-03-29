@@ -1,8 +1,6 @@
 import org.gradle.plugins.ide.eclipse.model.AccessRule
 
 plugins {
-    id 'java'
-    id 'java-library'
     id 'application'
     id 'eclipse'
 }
@@ -10,13 +8,7 @@ plugins {
 dependencies {
 	
 	//The Main Bosstrove's Revenge
-	compile project(':')
-	
-	//Texture Loader
-	implementation 'ar.com.hjg:pngj:2.1.0'
-	
-	//JSON parser
-	implementation 'com.google.code.gson:gson:2.8.6'
+	compile project(':core')
 	
 	//MIGLayout
 	implementation 'com.miglayout:miglayout-javafx:5.2'
@@ -32,12 +24,6 @@ sourceSets {
 			srcDir 'src/main/res'
 		}
 	}
-}
-
-// In this section you declare where to find the dependencies of your project
-repositories {
-    jcenter()
-    
 }
 
 version = '1.0.0'

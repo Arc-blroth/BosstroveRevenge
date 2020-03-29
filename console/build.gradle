@@ -1,0 +1,36 @@
+plugins {
+    id 'application'
+}
+
+dependencies {
+	
+	//The Main Bosstrove's Revenge
+	compile project(':core')
+	
+	//Terminal Utils
+	implementation 'net.java.dev.jna:jna:5.4.0'
+	implementation 'org.fusesource.jansi:jansi:1.18'
+	implementation 'org.jline:jline-terminal-jansi:3.12.1'
+	implementation 'org.jline:jline-terminal-jna:3.12.1'
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/main/java'
+		}
+		resources {
+			srcDir 'src/main/res'
+		}
+	}
+}
+
+mainClassName = 'ai.arcblroth.boss.ConsoleMain'
+
+jar {
+	baseName = 'BosstrovesRevenge'
+	manifest {
+		attributes 'Main-Class': mainClassName
+	}
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+}

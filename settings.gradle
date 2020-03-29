@@ -8,10 +8,4 @@
  */
 
 rootProject.name = 'BosstrovesRevenge'
-include 'LlamaBuilder'
-
-buildCache {
-    local {
-        directory = "${settingsDir}/build-cache"
-    }
-}
+include 'core', 'console', 'opengl', 'LlamaBuilder'

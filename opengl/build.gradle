@@ -1,0 +1,66 @@
+import org.gradle.internal.os.OperatingSystem
+
+plugins {
+	id 'application'
+}
+
+project.ext.lwjglVersion = "3.2.3"
+
+switch (OperatingSystem.current()) {
+	case OperatingSystem.LINUX:
+		def osArch = System.getProperty("os.arch")
+		project.ext.lwjglNatives = osArch.startsWith("arm") || osArch.startsWith("aarch64")
+			? "natives-linux-${osArch.contains("64") || osArch.startsWith("armv8") ? "arm64" : "arm32"}"
+			: "natives-linux"
+		break
+	case OperatingSystem.MAC_OS:
+		project.ext.lwjglNatives = "natives-macos"
+		break
+	case OperatingSystem.WINDOWS:
+		project.ext.lwjglNatives = "natives-windows"
+		break
+}
+
+dependencies {
+	
+	//The Main Bosstrove's Revenge
+	compile project(':core')
+	
+	//LWJGL, minimal libraries required for OpenGL ES and OpenAL
+	implementation "org.lwjgl:lwjgl:$lwjglVersion"
+	implementation "org.lwjgl:lwjgl-egl:$lwjglVersion"
+	implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
+	implementation "org.lwjgl:lwjgl-openal:$lwjglVersion"
+	implementation "org.lwjgl:lwjgl-opengl:$lwjglVersion"
+	implementation "org.lwjgl:lwjgl-stb:$lwjglVersion"
+	
+	//Java Matrices, because too lazy to make own library
+	implementation "org.joml:joml:1.9.19"
+	
+	runtimeOnly "org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives"
+	runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:$lwjglNatives"
+	runtimeOnly "org.lwjgl:lwjgl-openal:$lwjglVersion:$lwjglNatives"
+	runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:$lwjglNatives"
+	runtimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:$lwjglNatives"
+}
+
+sourceSets {
+	main {
+		java {
+			srcDir 'src/main/java'
+		}
+		resources {
+			srcDir 'src/main/res'
+		}
+	}
+}
+
+mainClassName = 'ai.arcblroth.boss.OpenGLMain'
+
+jar {
+	baseName = 'BosstrovesRevenge'
+	manifest {
+		attributes 'Main-Class': mainClassName
+	}
+    from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
+}
