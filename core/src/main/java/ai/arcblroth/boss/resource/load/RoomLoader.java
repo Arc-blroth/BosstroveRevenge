@@ -47,9 +47,8 @@ public class RoomLoader {
 			String roomId = roomObj.get("roomId").getAsString();
 			int width = roomObj.get("width").getAsInt();
 			int height = roomObj.get("height").getAsInt();
-			boolean initial = roomObj.get("initial").getAsBoolean();
 			Position initialPos = new Position(0, 0);
-			if(initial) {
+			if(roomObj.has("initialX") && roomObj.has("initialY")) {
 				initialPos = new Position(
 						roomObj.get("initialX").getAsDouble(),
 						roomObj.get("initialY").getAsDouble()

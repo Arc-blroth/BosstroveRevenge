@@ -10,17 +10,8 @@ Example File:
   "levelId": "boss.w1l1",
   "world": 1,
   "level": 1,
-  "title": "Lockdown",
-  
-  "globalData": [],
-  
-  "persistentData": [
-    "chaseFinishedYet"
-  ],
-  
-  "triggerData": [
-    "counter1"
-  ],
+  "title": "Lockdown",,
+  "initialRoom": "one",
   
   "rooms": [
     {
@@ -96,28 +87,9 @@ Example File:
 - Level display title
 - Required
 
-### `globalData`
-- Global data stores variables that persist
-  on the save file and between levels.
-- Global variables are referred to in events
-  as `#variableName`.
-- Optional
-
-### `persistentData`
-- Persistent data stores variables that persist
-  on the save file, and thus between replays of
-  a level.
-- Persistent variables are referred to in events
-  as `%variableName`.
-- Optional
-
-### `triggerData`
-- Trigger data stores variables that are not stored
-  between replays of a level. These variables can
-  be used for temporary keys, etc.
-- Trigger variables are referred to in events
-  as `$variableName`.
-- Optional
+### `initialRoom`
+- ID of the first room in this level.
+- Optional. Defaults to the first room in the `rooms` array.
 
 ### `rooms`
 - List of the rooms in this level.
@@ -150,14 +122,9 @@ list of floorTiles and wallTiles.
 - Must be a 6-digit hex string (Example: "#00bfff")
 - Optional
 
-### `initial`
-- Whether or not this room is the first one in the level.
-- Only one room may be the initial. If multiple rooms are marked as "initial", the first room marked is picked. If no rooms are marked as "initial", the first room in the array is used.
-- Required
-
 ### `initialX` and `initialY`
 - Marks the spawn point for the player when they enter a level.
-- Required for the initial room, ignored for every other room
+- Highly suggested. If not present, defaults to (0, 0).
 
 ### `background` and `foreground`
 - Specify background and foreground textures that are overlaid onto the level's tiles.

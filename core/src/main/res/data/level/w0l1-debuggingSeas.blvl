@@ -4,10 +4,7 @@
   "world": "Test",
   "level": "1",
   "title": "Debugging Seas",
-  
-  "globalData": [],
-  "persistentData": [],
-  "triggerData": [],
+  "initialRoom": "0",
   
   "rooms": [
     {
