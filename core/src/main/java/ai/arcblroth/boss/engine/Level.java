@@ -6,6 +6,7 @@ import java.util.TreeMap;
 
 import ai.arcblroth.boss.engine.ast.Variable;
 import ai.arcblroth.boss.engine.gui.GUI;
+import ai.arcblroth.boss.game.WorldEngine;
 import ai.arcblroth.boss.register.IRegistrable;
 
 public class Level implements IRegistrable<Level> {
@@ -23,10 +24,8 @@ public class Level implements IRegistrable<Level> {
 	private Map<String, Variable> triggerData;
 	
 	private Map<String, Room> rooms;
-
-	private GUI gui;
 	
-	public Level(String world, String level, String title) {
+	public Level(String world, String level, String title, WorldEngine engine) {
 		this.world = world;
 		this.level = level;
 		this.title = title;
@@ -34,10 +33,10 @@ public class Level implements IRegistrable<Level> {
 		this.persistentData = new TreeMap<>();
 		this.triggerData = new TreeMap<>();
 		this.rooms = new HashMap<>();
-		this.gui = new GUI();
 	}
 	
 	public void addRoom(String id, Room room) {
+		room._setLevel(this);
 		rooms.put(id, room);
 	}
 
@@ -55,10 +54,6 @@ public class Level implements IRegistrable<Level> {
 
 	public Room getRoom(String key) {
 		return rooms.get(key);
-	}
-
-	public GUI getGui() {
-		return gui;
 	}
 
 }

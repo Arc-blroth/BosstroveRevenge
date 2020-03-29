@@ -1,6 +1,8 @@
 package ai.arcblroth.boss.resource.load;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,22 +24,23 @@ public class RoomLoader {
 
 	private static final Logger logger = Logger.getLogger("RoomLoader");
 	
-	public static void loadRooms(JsonArray roomArray, ai.arcblroth.boss.engine.Level level) {
+	public static Map<String, Room> loadRooms(JsonArray roomArray) {
 		HashMap<String, Room> rooms = new HashMap<>();
 		roomArray.forEach((roomObj) -> {
 			try {
-				Pair<String, Room> idAndRoom = loadRoom(roomObj, level);
+				Pair<String, Room> idAndRoom = loadRoom(roomObj);
 				if(rooms.containsKey(idAndRoom.getFirst())) {
 					throw new IllegalStateException("More than one room is defined with id \"" + idAndRoom.getFirst() + "\n");
 				}
-				level.addRoom(idAndRoom.getFirst(), idAndRoom.getSecond());
+				rooms.put(idAndRoom.getFirst(), idAndRoom.getSecond());
 			} catch(Exception e) {
 				logger.log(Level.WARNING, "Could not load Room", e);
 			}
 		});
+		return rooms;
 	}
 	
-	public static Pair<String, Room> loadRoom(JsonElement roomEle, ai.arcblroth.boss.engine.Level level) throws MalformedSpecificationException {
+	public static Pair<String, Room> loadRoom(JsonElement roomEle) throws MalformedSpecificationException {
 		if(!roomEle.isJsonObject()) throw new MalformedSpecificationException("rooms");
 		JsonObject roomObj = roomEle.getAsJsonObject();
 		try {
@@ -56,7 +59,7 @@ public class RoomLoader {
 			if(roomObj.has("resetColor")) {
 				resetColor = new Color(Integer.parseUnsignedInt("ff" + roomObj.get("resetColor").getAsString().replace("#", ""), 16));
 			}
-			Room outRoom = new Room(level, width, height, initialPos, resetColor);
+			Room outRoom = new Room(width, height, initialPos, resetColor);
 			
 			{
 				JsonArray floorTiles = roomObj.get("floorTiles").getAsJsonArray();

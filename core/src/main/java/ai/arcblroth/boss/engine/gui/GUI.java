@@ -1,6 +1,8 @@
 package ai.arcblroth.boss.engine.gui;
 
-public class GUI extends GUIParent {
+import ai.arcblroth.boss.engine.IShader;
+
+public class GUI extends GUIParent implements IShader {
 	
 	public GUI() {
 		

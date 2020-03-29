@@ -1,11 +1,9 @@
 package ai.arcblroth.boss.game;
 
-import java.util.LinkedList;
-import java.util.Random;
-import java.util.TreeMap;
+import java.util.*;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
-import ai.arcblroth.boss.engine.Position;
+import ai.arcblroth.boss.engine.IShader;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.gui.GUI;
@@ -13,7 +11,7 @@ import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.render.Color;
-import ai.arcblroth.boss.render.IRenderer;
+import ai.arcblroth.boss.engine.IRenderer;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.util.Pair;
@@ -26,26 +24,17 @@ public class WorldRenderer implements IRenderer {
 	
 	private Room room;
 	private GUI gui;
+	private TreeMap<Integer, IShader> worldShaders;
+	private TreeMap<Integer, IShader> globalShaders;
 	private double xOffset;
 	private double yOffset;
 
 	public WorldRenderer(Room r, GUI gui) {
 		this.room = r;
 		this.gui = gui;
-	}
-	
-	public void setRenderOffset(double d, double e) {
-		xOffset = d;
-		yOffset = e;
-	}
-	
 
-	public double getRenderOffsetX() {
-		return xOffset;
-	}
-	
-	public double getRenderOffsetY() {
-		return yOffset;
+		this.worldShaders = new TreeMap<>();
+		this.globalShaders = new TreeMap<>();
 	}
 	
 	@Override
@@ -56,7 +45,9 @@ public class WorldRenderer implements IRenderer {
 		Pair<Integer, Integer> outputSize = BosstrovesRevenge.instance().getOutputSize();
 		PixelAndTextGrid ptg = new PixelAndTextGrid(outputSize.getFirst(), outputSize.getSecond());
 		renderMap(ptg);
+		worldShaders.forEach((key, value) -> value.render(ptg));
 		gui.render(ptg);
+		globalShaders.forEach((key, value) -> value.render(ptg));
 		return ptg;
 	}
 	
@@ -205,6 +196,41 @@ public class WorldRenderer implements IRenderer {
 				}
 			}
 		}
+	}
+
+	public void putWorldShader(int priority, IShader shader) {
+		while(worldShaders.containsKey(priority)) {
+			priority++;
+		}
+		worldShaders.put(priority, shader);
+	}
+
+	public void removeWorldShader(IShader shader) {
+		worldShaders.entrySet().removeIf(entry -> shader.equals(entry.getValue()));
+	}
+
+	public void putGlobalShader(int priority, IShader shader) {
+		while(globalShaders.containsKey(priority)) {
+			priority++;
+		}
+		globalShaders.put(priority, shader);
+	}
+
+	public void removeGlobalShader(IShader shader) {
+		globalShaders.entrySet().removeIf(entry -> shader.equals(entry.getValue()));
+	}
+
+	public void setRenderOffset(double d, double e) {
+		xOffset = d;
+		yOffset = e;
+	}
+
+	public double getRenderOffsetX() {
+		return xOffset;
+	}
+
+	public double getRenderOffsetY() {
+		return yOffset;
 	}
 
 }

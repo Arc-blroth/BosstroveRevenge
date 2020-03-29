@@ -6,7 +6,7 @@ import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.game.WorldEngine;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.render.Color;
-import ai.arcblroth.boss.render.IRenderer;
+import ai.arcblroth.boss.engine.IRenderer;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.render.PixelGrid;
 import ai.arcblroth.boss.resource.InternalResource;

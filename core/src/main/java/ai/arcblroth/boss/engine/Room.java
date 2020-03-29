@@ -2,6 +2,7 @@ package ai.arcblroth.boss.engine;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -36,11 +37,11 @@ public class Room {
 	private int width, height;
 	private Color resetColor;
 
-	public Room(Level level, int width, int height, Position initPlayerPosition, Color resetColor) {
+	public Room(int width, int height, Position initPlayerPosition, Color resetColor) {
 		if(width < 1 || height < 1) throw new IllegalArgumentException("Room width and height must be >1");
 		
 		this.logger = Logger.getLogger("Room");
-		this.level = level;
+		this.level = null;
 		this.width = width;
 		this.height = height;
 		this.resetColor = resetColor;
@@ -59,8 +60,14 @@ public class Room {
 		this.hitboxManager = new HitboxManager(width, height);
 	}
 	
-	public Room(Level level, int width, int height, Position initPlayerPosition) {
-		this(level, width, height, initPlayerPosition, Color.BLACK);
+	public Room(int width, int height, Position initPlayerPosition) {
+		this(width, height, initPlayerPosition, Color.BLACK);
+	}
+
+	final void _setLevel(Level level) {
+		if(this.level != null) throw new IllegalStateException("Can only set the level once!");
+		if(level == null) throw new NullPointerException("Set level cannot be null");
+		this.level = level;
 	}
 
 	public void runStepCallbacks() {

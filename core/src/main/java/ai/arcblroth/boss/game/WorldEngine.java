@@ -14,7 +14,7 @@ import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;
 import ai.arcblroth.boss.register.LevelRegistry;
 import ai.arcblroth.boss.render.Color;
-import ai.arcblroth.boss.render.IRenderer;
+import ai.arcblroth.boss.engine.IRenderer;
 import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
@@ -23,20 +23,22 @@ public class WorldEngine implements IEngine {
 
 	private WorldRenderer renderer;
 	private Level level;
+	private GUI gui;
 	private String currentRoom;
 	private HashMap<Keybind, Long> firedKeys;
 
 	public WorldEngine() {
-		this.level = LevelRegistry.instance().getLevel("w0l1");
+		this.level = LevelRegistry.instance().getLevel("w0l1", this);
 		currentRoom = "0";
-		this.renderer = new WorldRenderer(level.getRoom(currentRoom), level.getGui());
+		this.gui = new GUI();
+		this.renderer = new WorldRenderer(level.getRoom(currentRoom), gui);
 		this.firedKeys = new HashMap<>();
 		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoom).getResetColor());
 
 		GUIPanel panel = new GUIPanel(new Color(150, 0, 0, 255 * 2 / 3), Color.BLACK);
 		GUIPanel panel2 = new GUIPanel(new Color(0, 150, 250, 255 / 2), Color.BLACK);
-		level.getGui().add(panel, new GUIConstraints(0, 0, 0.8, 0.8, 6, 6, -12, -12, 0));
-		level.getGui().add(panel2, new GUIConstraints(0.2, 0.2, 0.8, 0.8, 6, 6, -12, -12, 1));
+		gui.add(panel, new GUIConstraints(0, 0, 0.8, 0.8, 6, 6, -12, -12, 0));
+		gui.add(panel2, new GUIConstraints(0.2, 0.2, 0.8, 0.8, 6, 6, -12, -12, 1));
 		panel.add(new GUIText("one fish two fish red fish blue fish reallylongwordthingybob", Color.TRANSPARENT, Color.WHITE), new GUIConstraints("50%", "50%", "100%", "100%", 1));
 		panel.add(new GUIImage(BosstrovesRevenge.instance().getTextureCache().get(new InternalResource("yeet.png"))), new GUIConstraints("2", "2", "100%", "100%", 1));
 	}
@@ -99,8 +101,12 @@ public class WorldEngine implements IEngine {
 		}
 	}
 
+	public GUI getGUI() {
+		return gui;
+	}
+
 	@Override
-	public IRenderer getRenderer() {
+	public WorldRenderer getRenderer() {
 		return renderer;
 	}
 

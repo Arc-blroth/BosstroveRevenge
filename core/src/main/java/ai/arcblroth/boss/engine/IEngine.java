@@ -1,7 +1,6 @@
 package ai.arcblroth.boss.engine;
 
 import ai.arcblroth.boss.key.CharacterInputEvent;
-import ai.arcblroth.boss.render.IRenderer;
 
 public interface IEngine {
 	
