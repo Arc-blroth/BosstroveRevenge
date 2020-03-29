@@ -8,16 +8,14 @@ import ai.arcblroth.boss.engine.IInteractable.Direction;
 import ai.arcblroth.boss.engine.Level;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.engine.entity.player.Player;
-import ai.arcblroth.boss.engine.gui.GUI;
-import ai.arcblroth.boss.engine.gui.GUIConstraints;
-import ai.arcblroth.boss.engine.gui.GUIPanel;
-import ai.arcblroth.boss.engine.gui.GUIText;
+import ai.arcblroth.boss.engine.gui.*;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;
 import ai.arcblroth.boss.register.LevelRegistry;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.IRenderer;
+import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 
@@ -38,8 +36,9 @@ public class WorldEngine implements IEngine {
 		GUIPanel panel = new GUIPanel(new Color(150, 0, 0, 255 * 2 / 3), Color.BLACK);
 		GUIPanel panel2 = new GUIPanel(new Color(0, 150, 250, 255 / 2), Color.BLACK);
 		level.getGui().add(panel, new GUIConstraints(0, 0, 0.8, 0.8, 6, 6, -12, -12, 0));
-		level.getGui().add(panel2, new GUIConstraints(0.2, 0.2, 0.8, 0.8, 6, 6, -12, -12, 0));
+		level.getGui().add(panel2, new GUIConstraints(0.2, 0.2, 0.8, 0.8, 6, 6, -12, -12, 1));
 		panel.add(new GUIText("one fish two fish red fish blue fish reallylongwordthingybob", Color.TRANSPARENT, Color.WHITE), new GUIConstraints("50%", "50%", "100%", "100%", 1));
+		panel.add(new GUIImage(BosstrovesRevenge.instance().getTextureCache().get(new InternalResource("yeet.png"))), new GUIConstraints("2", "2", "100%", "100%", 1));
 	}
 	
 	@Override
