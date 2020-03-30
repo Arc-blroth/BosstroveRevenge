@@ -24,6 +24,8 @@ public class Level implements IRegistrable<Level> {
 	private Map<String, Variable> triggerData;
 	
 	private Map<String, Room> rooms;
+
+	private String initalRoom;
 	
 	public Level(String world, String level, String title, WorldEngine engine) {
 		this.world = world;
@@ -54,6 +56,15 @@ public class Level implements IRegistrable<Level> {
 
 	public Room getRoom(String key) {
 		return rooms.get(key);
+	}
+
+	public void setInitialRoom(String id) {
+		if(!rooms.containsKey(id)) throw new IllegalArgumentException("initalRoom id is not a valid room id");
+		this.initalRoom = id;
+	}
+
+	public String getInitialRoom() {
+		return initalRoom;
 	}
 
 }

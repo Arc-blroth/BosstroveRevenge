@@ -29,7 +29,7 @@ public class WorldEngine implements IEngine {
 
 	public WorldEngine() {
 		this.level = LevelRegistry.instance().getLevel("w0l1", this);
-		currentRoom = "0";
+		currentRoom = level.getInitialRoom();
 		this.gui = new GUI();
 		this.renderer = new WorldRenderer(level.getRoom(currentRoom), gui);
 		this.firedKeys = new HashMap<>();
