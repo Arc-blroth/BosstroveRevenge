@@ -107,7 +107,7 @@ public class GUIConstraints {
 	}
 	
 	public int resolveHeight(int guiWidth, int guiHeight) {
-		return (int)Math.round(wFactor * guiHeight + wOffset);
+		return (int)Math.round(hFactor * guiHeight + hOffset);
 	}
 	
 	public int getZOrder() {
