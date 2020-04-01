@@ -1,14 +1,15 @@
 package ai.arcblroth.boss.game;
 
-import java.util.*;
-
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.IInteractable.Direction;
 import ai.arcblroth.boss.engine.Level;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.engine.entity.player.Player;
-import ai.arcblroth.boss.engine.gui.*;
+import ai.arcblroth.boss.engine.gui.GUI;
+import ai.arcblroth.boss.engine.gui.GUIConstraints;
+import ai.arcblroth.boss.engine.gui.GUIPanel;
+import ai.arcblroth.boss.engine.gui.GUIText;
 import ai.arcblroth.boss.engine.gui.dialog.GUIListDialog;
 import ai.arcblroth.boss.engine.gui.dialog.SimpleDialogOption;
 import ai.arcblroth.boss.key.CharacterInputEvent;
@@ -19,11 +20,14 @@ import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 
+import java.util.*;
+
 public class WorldEngine implements IEngine {
 
 	private WorldRenderer renderer;
 	private Level level;
 	private GUI gui;
+	private boolean guiHasFocus;
 	private String currentRoom;
 	private HashMap<Keybind, Long> firedKeys;
 
@@ -31,9 +35,12 @@ public class WorldEngine implements IEngine {
 		this.level = LevelRegistry.instance().getLevel("w0l1", this);
 		currentRoom = level.getInitialRoom();
 		this.gui = new GUI();
+		this.guiHasFocus = false;
 		this.renderer = new WorldRenderer(level.getRoom(currentRoom), gui);
 		this.firedKeys = new HashMap<>();
 		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoom).getResetColor());
+
+		setGuiHasFocus(true);
 
 		GUIPanel panel = new GUIPanel(new Color(150, 0, 0, 255 * 2 / 3), Color.BLACK, 1);
 		GUIPanel panel2 = new GUIPanel(new Color(0, 150, 250, 255 / 2), Color.BLACK, 1);
@@ -47,7 +54,7 @@ public class WorldEngine implements IEngine {
 		Color deselectedFgColor = Color.WHITE;
 		Color deselectedBgColor = Color.TRANSPARENT;
 
-		panel.add(new GUIListDialog(
+		GUIListDialog dialog = new GUIListDialog(
 				Arrays.asList(
 						new SimpleDialogOption("Yes", selectedBgColor, selectedFgColor, deselectedBgColor, deselectedFgColor),
 						new SimpleDialogOption("No", selectedBgColor, selectedFgColor, deselectedBgColor, deselectedFgColor),
@@ -59,7 +66,11 @@ public class WorldEngine implements IEngine {
 				new Color(35, 103, 219, 255 * 2 / 3),
 				Color.BLUE,
 				1
-		), new GUIConstraints("5", "5", "12", "29", 3));
+		);
+		panel.add(dialog, new GUIConstraints("5", "5", "12", "29", 3));
+
+		gui.setFocusedComponent(panel);
+		panel.setFocusedComponent(dialog);
 	}
 	
 	@Override
@@ -85,21 +96,26 @@ public class WorldEngine implements IEngine {
 		if(firingKeys.contains(new Keybind("boss.debug"))) {
 			BosstrovesRevenge.instance().setRendererShowingFPS(!BosstrovesRevenge.instance().isRendererShowingFPS());
 		}
-		if(firingKeys.contains(new Keybind("boss.up"))) {
-			player.setDirection(Direction.NORTH);
-			player.accelerate(Direction.NORTH, 0.25);
-		}
-		if(firingKeys.contains(new Keybind("boss.down"))) {
-			player.setDirection(Direction.SOUTH);
-			player.accelerate(Direction.SOUTH, 0.25);
-		}
-		if(firingKeys.contains(new Keybind("boss.left"))) {
-			player.setDirection(Direction.WEST);
-			player.accelerate(Direction.WEST, 0.25);
-		}
-		if(firingKeys.contains(new Keybind("boss.right"))) {
-			player.setDirection(Direction.EAST);
-			player.accelerate(Direction.EAST, 0.25);
+
+		if(guiHasFocus) {
+			firingKeys.forEach(gui::onInput);
+		} else {
+			if (firingKeys.contains(new Keybind("boss.north"))) {
+				player.setDirection(Direction.NORTH);
+				player.accelerate(Direction.NORTH, 0.25);
+			}
+			if (firingKeys.contains(new Keybind("boss.south"))) {
+				player.setDirection(Direction.SOUTH);
+				player.accelerate(Direction.SOUTH, 0.25);
+			}
+			if (firingKeys.contains(new Keybind("boss.west"))) {
+				player.setDirection(Direction.WEST);
+				player.accelerate(Direction.WEST, 0.25);
+			}
+			if (firingKeys.contains(new Keybind("boss.east"))) {
+				player.setDirection(Direction.EAST);
+				player.accelerate(Direction.EAST, 0.25);
+			}
 		}
 		
 		firingKeys.clear();
@@ -113,20 +129,29 @@ public class WorldEngine implements IEngine {
 
 	@Override
 	public void handleKeyInput(CharacterInputEvent e) {
-		if(KeybindRegistry.instance().containsKey(e.getKey())) {
-			Keybind keybind = KeybindRegistry.instance().getRegistered(e.getKey());
-			if(!firedKeys.containsKey(keybind)) {
-				firedKeys.put(keybind, -1L);
-			} else {
-				if(firedKeys.get(keybind) >= keybind.getFiringDelay()) {
+		if(KeybindRegistry.instance().containsValue(e.getKey())) {
+			KeybindRegistry.instance().getRegistered(e.getKey()).forEach(keybind -> {
+				if (!firedKeys.containsKey(keybind)) {
 					firedKeys.put(keybind, -1L);
+				} else {
+					if (firedKeys.get(keybind) >= keybind.getFiringDelay()) {
+						firedKeys.put(keybind, -1L);
+					}
 				}
-			}
+			});
 		}
 	}
 
 	public GUI getGUI() {
 		return gui;
+	}
+
+	public boolean doesGuiHasFocus() {
+		return guiHasFocus;
+	}
+
+	public void setGuiHasFocus(boolean guiHasFocus) {
+		this.guiHasFocus = guiHasFocus;
 	}
 
 	@Override

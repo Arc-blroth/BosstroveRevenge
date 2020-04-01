@@ -1,12 +1,12 @@
 package ai.arcblroth.boss.engine.gui;
 
-import java.util.HashMap;
-import java.util.TreeMap;
-
+import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
-import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.TextureUtils;
+
+import java.util.HashMap;
+import java.util.TreeMap;
 
 public abstract class GUIParent extends GUIComponent {
 	
@@ -83,9 +83,9 @@ public abstract class GUIParent extends GUIComponent {
 	}
 	
 	@Override
-	public void onInput(Character c) {
+	public void onInput(Keybind k) {
 		if(currentFocus != null) {
-			currentFocus.onInput(c);
+			currentFocus.onInput(k);
 		}
 	}
 	

@@ -1,5 +1,6 @@
 package ai.arcblroth.boss.engine.gui;
 
+import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 
@@ -90,7 +91,7 @@ public class GUIText extends GUIComponent {
 	}
 
 	@Override
-	public void onInput(Character c) {
+	public void onInput(Keybind k) {
 		
 	}
 	

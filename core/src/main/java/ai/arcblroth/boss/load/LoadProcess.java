@@ -1,14 +1,5 @@
 package ai.arcblroth.boss.load;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Stream;
-
-import com.google.gson.Gson;
-
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.tile.EmptyFloorTile;
 import ai.arcblroth.boss.engine.tile.EmptyWallTile;
@@ -24,7 +15,12 @@ import ai.arcblroth.boss.resource.load.ILevelLoader;
 import ai.arcblroth.boss.resource.load.ITileLoader;
 import ai.arcblroth.boss.resource.load.ResourceLoader;
 import ai.arcblroth.boss.util.Pair;
-import ai.arcblroth.boss.util.ThreadUtils;
+import com.google.gson.Gson;
+
+import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 public class LoadProcess extends Thread {
 	
@@ -111,12 +107,16 @@ public class LoadProcess extends Thread {
 		
 		phase = Phase.DONE;
 		
-		KeybindRegistry.instance().register(' ', new Keybind("boss.use"));
-		KeybindRegistry.instance().register('`', new Keybind("boss.debug"));
-		KeybindRegistry.instance().register('w', new Keybind("boss.up", 0));
-		KeybindRegistry.instance().register('s', new Keybind("boss.down", 0));
-		KeybindRegistry.instance().register('a', new Keybind("boss.left", 0));
-		KeybindRegistry.instance().register('d', new Keybind("boss.right", 0));
+		KeybindRegistry.instance().register(new Keybind("boss.use"), ' ');
+		KeybindRegistry.instance().register(new Keybind("boss.debug"), '`');
+		KeybindRegistry.instance().register(new Keybind("boss.north", 0), 'w');
+		KeybindRegistry.instance().register(new Keybind("boss.south", 0), 's');
+		KeybindRegistry.instance().register(new Keybind("boss.west", 0), 'a');
+		KeybindRegistry.instance().register(new Keybind("boss.east", 0), 'd');
+		KeybindRegistry.instance().register(new Keybind("boss.up"), 'w');
+		KeybindRegistry.instance().register(new Keybind("boss.down"), 's');
+		KeybindRegistry.instance().register(new Keybind("boss.left"), 'a');
+		KeybindRegistry.instance().register(new Keybind("boss.right"), 'd');
 		
 		doneYet = true;
 	}
