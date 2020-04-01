@@ -35,6 +35,6 @@ public final class StaticDefaults {
 	
 	public static final double MAX_PLAYER_HEALTH = 10;
 	
-	public static final long KEYBIND_DELAY = 4;
+	public static final long DEFAULT_KEYBIND_DELAY = 4;
 
 }

@@ -113,6 +113,10 @@ public class LoadProcess extends Thread {
 		
 		KeybindRegistry.instance().register(' ', new Keybind("boss.use"));
 		KeybindRegistry.instance().register('`', new Keybind("boss.debug"));
+		KeybindRegistry.instance().register('w', new Keybind("boss.up", 0));
+		KeybindRegistry.instance().register('s', new Keybind("boss.down", 0));
+		KeybindRegistry.instance().register('a', new Keybind("boss.left", 0));
+		KeybindRegistry.instance().register('d', new Keybind("boss.right", 0));
 		
 		doneYet = true;
 	}

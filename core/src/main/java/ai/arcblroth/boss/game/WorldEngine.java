@@ -16,8 +16,6 @@ import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;
 import ai.arcblroth.boss.register.LevelRegistry;
 import ai.arcblroth.boss.render.Color;
-import ai.arcblroth.boss.engine.IRenderer;
-import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 
@@ -66,14 +64,19 @@ public class WorldEngine implements IEngine {
 	
 	@Override
 	public void step(StepEvent e) {
-		
+		Player player = level.getRoom(currentRoom).getPlayer();
+
 		level.getRoom(currentRoom).runStepCallbacks();
 		
-		firedKeys.replaceAll((key, stepsFiredAgo) -> Math.min(stepsFiredAgo + 1, StaticDefaults.KEYBIND_DELAY));
+		firedKeys.replaceAll((key, stepsFiredAgo) -> Math.min(stepsFiredAgo + 1, key.getFiringDelay()));
 		ArrayList<Keybind> firingKeys = new ArrayList<>();
-		firedKeys.forEach((key, stepsFiredAgo) -> {
-			if(stepsFiredAgo == 0) {
-				firingKeys.add(key);
+		Iterator<Map.Entry<Keybind, Long>> firedKeysIterator = firedKeys.entrySet().iterator();
+		firedKeysIterator.forEachRemaining(entry -> {
+			if(entry.getValue() == 0) {
+				firingKeys.add(entry.getKey());
+				if(entry.getKey().getFiringDelay() == 0) {
+					firedKeysIterator.remove();
+				}
 			}
 		});
 		
@@ -82,10 +85,25 @@ public class WorldEngine implements IEngine {
 		if(firingKeys.contains(new Keybind("boss.debug"))) {
 			BosstrovesRevenge.instance().setRendererShowingFPS(!BosstrovesRevenge.instance().isRendererShowingFPS());
 		}
+		if(firingKeys.contains(new Keybind("boss.up"))) {
+			player.setDirection(Direction.NORTH);
+			player.accelerate(Direction.NORTH, 0.25);
+		}
+		if(firingKeys.contains(new Keybind("boss.down"))) {
+			player.setDirection(Direction.SOUTH);
+			player.accelerate(Direction.SOUTH, 0.25);
+		}
+		if(firingKeys.contains(new Keybind("boss.left"))) {
+			player.setDirection(Direction.WEST);
+			player.accelerate(Direction.WEST, 0.25);
+		}
+		if(firingKeys.contains(new Keybind("boss.right"))) {
+			player.setDirection(Direction.EAST);
+			player.accelerate(Direction.EAST, 0.25);
+		}
 		
 		firingKeys.clear();
-		
-		Player player = level.getRoom(currentRoom).getPlayer();
+
 		Pair<Integer, Integer> outputSize = BosstrovesRevenge.instance().getOutputSize();
 		renderer.setRenderOffset(
 				player.getPosition().getX() * StaticDefaults.TILE_WIDTH - outputSize.getFirst() / 2D,
@@ -95,27 +113,12 @@ public class WorldEngine implements IEngine {
 
 	@Override
 	public void handleKeyInput(CharacterInputEvent e) {
-		Player player = level.getRoom(currentRoom).getPlayer();
-		if(e.getKey() == 'w') {
-			player.setDirection(Direction.NORTH);
-			player.accelerate(Direction.NORTH, 0.25);
-		} else if(e.getKey() == 'd') {
-			player.setDirection(Direction.EAST);
-			player.accelerate(Direction.EAST, 0.25);
-		} else if(e.getKey() == 'a') {
-			player.setDirection(Direction.WEST);
-			player.accelerate(Direction.WEST, 0.25);
-		} else if(e.getKey() == 's') {
-			player.setDirection(Direction.SOUTH);
-			player.accelerate(Direction.SOUTH, 0.25);
-		}
-		
 		if(KeybindRegistry.instance().containsKey(e.getKey())) {
 			Keybind keybind = KeybindRegistry.instance().getRegistered(e.getKey());
 			if(!firedKeys.containsKey(keybind)) {
 				firedKeys.put(keybind, -1L);
 			} else {
-				if(firedKeys.get(keybind) >= StaticDefaults.KEYBIND_DELAY) {
+				if(firedKeys.get(keybind) >= keybind.getFiringDelay()) {
 					firedKeys.put(keybind, -1L);
 				}
 			}
