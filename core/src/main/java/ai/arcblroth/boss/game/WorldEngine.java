@@ -8,7 +8,7 @@ import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.engine.gui.*;
 import ai.arcblroth.boss.engine.gui.dialog.DialogFactory;
-import ai.arcblroth.boss.engine.gui.dialog.GUIListDialog;
+import ai.arcblroth.boss.engine.gui.dialog.SingleChoiceGUIListDialog;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;
@@ -59,7 +59,11 @@ public class WorldEngine implements IEngine {
 		panel2.add(new GUIText("one fish two fish red fish blue fish reallylongwordthingybob", Color.TRANSPARENT, Color.WHITE), new GUIConstraints("2", "2", "100%", "100%", 1));
 		//panel.add(new GUIImage(BosstrovesRevenge.instance().getTextureCache().get(new InternalResource("yeet.png"))), new GUIConstraints("2", "2", "100%", "100%", 1));
 
-		GUIListDialog dialog = DialogFactory.newSimpleListDialog(lookAndFeel, "Yes", "No", "Maybe", "What?", "...", "Sure");
+		SingleChoiceGUIListDialog dialog = DialogFactory.newSingleChoiceListDialog(lookAndFeel, "Yes", "No", "Maybe", "What?", "...", "Sure");
+		dialog.onChoice(choice -> {
+			panel.remove(dialog);
+			setGuiHasFocus(false);
+		});
 		panel.add(dialog, new GUIConstraints("5", "5", "12", "29", 3));
 
 		gui.setFocusedComponentRecursively(dialog);

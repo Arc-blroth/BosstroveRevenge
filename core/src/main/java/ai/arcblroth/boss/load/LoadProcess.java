@@ -108,6 +108,7 @@ public class LoadProcess extends Thread {
 		phase = Phase.DONE;
 		
 		KeybindRegistry.instance().register(new Keybind("boss.use"), ' ');
+		KeybindRegistry.instance().register(new Keybind("boss.enter"), '\n');
 		KeybindRegistry.instance().register(new Keybind("boss.debug"), '`');
 		KeybindRegistry.instance().register(new Keybind("boss.north", 0), 'w');
 		KeybindRegistry.instance().register(new Keybind("boss.south", 0), 's');

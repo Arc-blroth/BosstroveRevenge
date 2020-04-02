@@ -7,8 +7,19 @@ import java.util.stream.Collectors;
 
 public class DialogFactory {
 
-	public static GUIListDialog newSimpleListDialog(GUILookAndFeel lookAndFeel, String... options) {
-		return new GUIListDialog(
+	public static SingleChoiceGUIListDialog newSingleChoiceListDialog(GUILookAndFeel lookAndFeel, String... options) {
+		return new SingleChoiceGUIListDialog(
+				Arrays.stream(options)
+						.map(text -> new SimpleDialogOption(text, lookAndFeel.textSelectedBgColor, lookAndFeel.textSelectedFgColor, lookAndFeel.textDeselectedBgColor, lookAndFeel.textDeselectedFgColor))
+						.collect(Collectors.toList()),
+				lookAndFeel.panelBgColor,
+				lookAndFeel.panelBorderColor,
+				lookAndFeel.panelBorderWidth
+		);
+	}
+
+	public static MultipleChoiceGUIListDialog newMultipleChoiceListDialog(GUILookAndFeel lookAndFeel, String... options) {
+		return new MultipleChoiceGUIListDialog(
 				Arrays.stream(options)
 						.map(text -> new SimpleDialogOption(text, lookAndFeel.textSelectedBgColor, lookAndFeel.textSelectedFgColor, lookAndFeel.textDeselectedBgColor, lookAndFeel.textDeselectedFgColor))
 						.collect(Collectors.toList()),

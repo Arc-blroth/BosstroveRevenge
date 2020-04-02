@@ -23,6 +23,7 @@ public abstract class GUIParent extends GUIComponent {
 	}
 
 	public void remove(GUIComponent comp) {
+		if(currentFocus == comp) currentFocus = null;
 		children.remove(comp);
 	}
 	
