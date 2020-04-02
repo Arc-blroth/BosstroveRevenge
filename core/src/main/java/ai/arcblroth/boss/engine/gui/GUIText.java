@@ -75,14 +75,14 @@ public class GUIText extends GUIComponent {
 				}
 			}
 		} else {
-			int lastX = 0;
+			int lastX = -1;
 			int lastY = 0;
-			for(char jabug : target.toString().toCharArray()) {
+			for(char jabug : textBuf.toString().toCharArray()) {
 				lastX++;
-				if(lastX == target.getWidth() - 1 && lastY == target.getHeight() - 1) return;
+				if(lastX == target.getWidth() - 1 && lastY == target.getHeight() - 2) return;
 				if(lastX == target.getWidth() - 1) {
 					lastX = 0;
-					lastY++;
+					lastY += 2;
 				}
 
 				target.setCharacterAt(lastX, lastY, jabug, backgroundColor, foregroundColor);

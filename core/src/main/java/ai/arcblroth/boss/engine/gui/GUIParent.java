@@ -1,7 +1,6 @@
 package ai.arcblroth.boss.engine.gui;
 
 import ai.arcblroth.boss.key.Keybind;
-import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.util.TextureUtils;
 
@@ -31,7 +30,7 @@ public abstract class GUIParent extends GUIComponent {
 	public void render(PixelAndTextGrid target) {
 		int targetWidth = target.getWidth();
 		int targetHeight = target.getHeight();
-		PixelAndTextGrid guiTarget = buildTransparentGrid(targetWidth, targetHeight);
+		PixelAndTextGrid guiTarget = TextureUtils.buildTransparentTextGrid(targetWidth, targetHeight);
 
 		TreeMap<Integer, GUIComponent> sortedChildren = new TreeMap<>();
 		children.forEach((comp, constraints) -> {
@@ -50,23 +49,13 @@ public abstract class GUIParent extends GUIComponent {
 				int resolvedWidth = Math.min(constraints.resolveWidth(targetWidth, targetHeight), targetWidth - resolvedX);
 				int resolvedHeight = Math.min(constraints.resolveHeight(targetWidth, targetHeight), targetHeight - resolvedY);
 				if (resolvedX < targetWidth && resolvedY < targetHeight && resolvedWidth > 0 && resolvedHeight > 0) {
-					PixelAndTextGrid childTarget = buildTransparentGrid(resolvedWidth, resolvedHeight);
+					PixelAndTextGrid childTarget = TextureUtils.buildTransparentTextGrid(resolvedWidth, resolvedHeight);
 					child.render(childTarget);
 					TextureUtils.overlay(childTarget, guiTarget, resolvedX, resolvedY);
 				}
 			}
 		}
 		TextureUtils.overlay(guiTarget, target);
-	}
-
-	protected static final PixelAndTextGrid buildTransparentGrid(int width, int height) {
-		PixelAndTextGrid grid = new PixelAndTextGrid(width, height);
-		for(int y = 0; y < height; y++) {
-			for(int x = 0; x < width; x++) {
-				grid.set(x, y, Color.TRANSPARENT);
-			}
-		}
-		return grid;
 	}
 
 	public final boolean contains(GUIComponent c) {

@@ -43,7 +43,7 @@ public class GUIPanel extends GUIParent {
 			}
 		}
 		if(target.getWidth() - 2 * borderWidth > 0 && target.getHeight() - 2 * borderWidth > 0) {
-			PixelAndTextGrid nonborderedTarget = buildTransparentGrid(target.getWidth() - 2 * borderWidth, target.getHeight() - 2 * borderWidth);
+			PixelAndTextGrid nonborderedTarget = TextureUtils.buildTransparentTextGrid(target.getWidth() - 2 * borderWidth, target.getHeight() - 2 * borderWidth);
 			super.render(nonborderedTarget);
 			TextureUtils.overlay(nonborderedTarget, target, borderWidth, (int)Math.ceil(borderWidth / 2D) * 2);
 		}

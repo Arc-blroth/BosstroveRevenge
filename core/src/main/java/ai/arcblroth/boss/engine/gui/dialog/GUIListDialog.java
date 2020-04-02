@@ -6,6 +6,7 @@ import ai.arcblroth.boss.engine.gui.GUIText;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
+import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.TextureUtils;
 
 import java.util.LinkedList;
@@ -13,7 +14,7 @@ import java.util.List;
 
 public class GUIListDialog extends GUIPanel {
 
-	private static final GUIConstraints DEFAULT_OPTION_PADDING = new GUIConstraints(0, 0, 1, 0, 1, 2, -2, 4, 0);
+	private static final GUIConstraints DEFAULT_OPTION_PADDING = new GUIConstraints(0, 0, 1, 0, 1, 2, -1, 4, 0);
 
 	private LinkedList<DialogOption> options;
 	private GUIConstraints optionPadding;
@@ -49,36 +50,46 @@ public class GUIListDialog extends GUIPanel {
 		super.render(target);
 		if(!options.isEmpty()) {
 			if(target.getWidth() - 2 * super.getBorderWidth() > 0 && target.getHeight() - 2 * super.getBorderWidth() > 0) {
-				PixelAndTextGrid nonborderedTarget = buildTransparentGrid(target.getWidth() - 2 * super.getBorderWidth(), target.getHeight() - 2 * super.getBorderWidth());
+				PixelAndTextGrid nonborderedTarget = TextureUtils.buildTransparentTextGrid(target.getWidth() - 2 * super.getBorderWidth(), target.getHeight() - 2 * super.getBorderWidth());
 
-				int viewOffset = viewOffsetPosition;
 				int yCoord = 0;
 				int targetWidth = nonborderedTarget.getWidth();
 				int targetHeight = nonborderedTarget.getHeight();
 				int resolvedX = optionPadding.resolveX(targetWidth, targetHeight);
 				int resolvedY = optionPadding.resolveY(targetWidth, targetHeight);
-				int resolvedWidth = Math.min(optionPadding.resolveWidth(targetWidth, targetHeight), targetWidth - resolvedX);
+				int resolvedWidth = Math.min(optionPadding.resolveWidth(targetWidth, targetHeight), targetWidth - resolvedX) - 2;
 				int resolvedHeight = optionPadding.resolveHeight(nonborderedTarget.getWidth(), nonborderedTarget.getHeight());
 
+				// Fix selected position rendering
+				lastSize = nonborderedTarget.getHeight() / resolvedHeight;
+				if(selectedPosition < viewOffsetPosition) viewOffsetPosition--;
+				if(selectedPosition > viewOffsetPosition + lastSize - 1) viewOffsetPosition++;
+
+				int viewOffsetCounter = viewOffsetPosition;
+
 				if(resolvedWidth > 0 && resolvedHeight > 0) {
-					lastSize = 0;
-					while (yCoord < nonborderedTarget.getHeight() && viewOffset < options.size()) {
-						if(viewOffset >= 0) {
-							DialogOption option = options.get(viewOffset);
+					int counter = 0;
+					while (yCoord < nonborderedTarget.getHeight() && viewOffsetCounter < options.size()) {
+						if(viewOffsetCounter >= 0) {
+							DialogOption option = options.get(viewOffsetCounter);
+							Color optionbg = option.isSelected() ? option.getSelectedBackgroundColor() : option.getDeselectedBackgroundColor();
+							Color optionfg = option.isSelected() ? option.getSelectedForegroundColor() : option.getDeselectedForegroundColor();
 
 							if (resolvedX < targetWidth && yCoord + resolvedY < targetHeight) {
-								PixelAndTextGrid childTarget = buildTransparentGrid(resolvedWidth, resolvedHeight);
+								PixelAndTextGrid childTarget = TextureUtils.buildTransparentTextGrid(resolvedWidth, resolvedHeight);
 								GUIText optionText = new GUIText(
-										(lastSize == selectedPosition ? "> " : "  ") + option.getOptionText(),
-										option.isSelected() ? option.getSelectedBackgroundColor() : option.getDeselectedBackgroundColor(),
-										option.isSelected() ? option.getSelectedForegroundColor() : option.getDeselectedForegroundColor());
+										option.getOptionText() + PadUtils.stringTimes(" ", resolvedWidth - option.getOptionText().length() % resolvedWidth - 1),
+										optionbg, optionfg, false);
 								optionText.render(childTarget);
-								TextureUtils.overlay(childTarget, nonborderedTarget, resolvedX, yCoord + resolvedY);
+
+								TextureUtils.overlay(childTarget, nonborderedTarget, 2 + resolvedX, yCoord + resolvedY);
+								nonborderedTarget.setCharacterAt(1,yCoord + resolvedY, counter == selectedPosition - viewOffsetPosition ? '>' : ' ', optionbg, optionfg);
+								nonborderedTarget.setCharacterAt(2,yCoord + resolvedY, ' ', optionbg, optionfg);
 							}
 						}
 
-						lastSize++;
-						viewOffset++;
+						counter++;
+						viewOffsetCounter++;
 						yCoord += resolvedHeight;
 					}
 
@@ -92,11 +103,9 @@ public class GUIListDialog extends GUIPanel {
 	public void onInput(Keybind k) {
 		if (k.equals(new Keybind("boss.up"))) {
 			selectedPosition = Math.max(selectedPosition - 1, 0);
-			if(selectedPosition < viewOffsetPosition) viewOffsetPosition--;
 		}
 		if (k.equals(new Keybind("boss.down"))) {
 			selectedPosition = Math.min(selectedPosition + 1, options.size() - 1);
-			if(selectedPosition > viewOffsetPosition + lastSize) viewOffsetPosition++;
 		}
 		if (k.equals(new Keybind("boss.use"))) {
 			options.get(selectedPosition).setSelected(!options.get(selectedPosition).isSelected());

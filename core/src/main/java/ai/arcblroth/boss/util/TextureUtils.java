@@ -15,7 +15,7 @@ public class TextureUtils {
 				(int)Math.round(color1.getRed() * k1 + (color2.getRed() * k2)),
 				(int)Math.round(color1.getGreen() * k1 + (color2.getGreen() * k2)),
 				(int)Math.round(color1.getBlue() * k1 + (color2.getBlue() * k2)),
-				(int)Math.max(color1.getAlpha(), color2.getAlpha())
+				Math.max(color1.getAlpha(), color2.getAlpha())
 		);
 	}
 
@@ -135,7 +135,7 @@ public class TextureUtils {
 	}
 
 	private static PixelGrid overlay0(PixelAndTextGrid src, PixelAndTextGrid dest, int xOffset, int yOffset, TriFunction<Color, Color, Double, Color> interFunction) {
-		overlay0((PixelGrid)src, (PixelGrid)dest, xOffset, yOffset, interFunction);
+		overlay0(src, dest, xOffset, yOffset, interFunction);
 		yOffset = yOffset / 2 * 2;
 		for(int y = yOffset; y < dest.getHeight() / 2 * 2 && y - yOffset < src.getHeight() / 2 * 2; y += 2) {
 			for(int x = xOffset; x < dest.getWidth() && x - xOffset < src.getWidth(); x++) {
@@ -185,5 +185,19 @@ public class TextureUtils {
 		}
 		return dest;
 	}
-	
+
+	public static PixelAndTextGrid buildFilledTextGrid(int width, int height, Color background) {
+		PixelAndTextGrid grid = new PixelAndTextGrid(width, height);
+		for(int y = 0; y < height; y++) {
+			for(int x = 0; x < width; x++) {
+				grid.set(x, y, background);
+			}
+		}
+		return grid;
+	}
+
+	public static PixelAndTextGrid buildTransparentTextGrid(int width, int height) {
+		return buildFilledTextGrid(width, height, Color.TRANSPARENT);
+	}
+
 }
