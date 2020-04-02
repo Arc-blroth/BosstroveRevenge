@@ -69,8 +69,7 @@ public class WorldEngine implements IEngine {
 		);
 		panel.add(dialog, new GUIConstraints("5", "5", "12", "29", 3));
 
-		gui.setFocusedComponent(panel);
-		panel.setFocusedComponent(dialog);
+		gui.setFocusedComponentRecursively(dialog);
 	}
 	
 	@Override

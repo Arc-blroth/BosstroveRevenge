@@ -6,6 +6,8 @@ import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.util.TextureUtils;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.TreeMap;
 
 public abstract class GUIParent extends GUIComponent {
@@ -66,20 +68,88 @@ public abstract class GUIParent extends GUIComponent {
 		}
 		return grid;
 	}
+
+	public final boolean contains(GUIComponent c) {
+		if(c == null) return false;
+		if(c == this) return false;
+		for(GUIComponent child : children.keySet()) {
+			if(c == child) return true;
+		}
+		for(GUIComponent child : children.keySet()) {
+			if(child instanceof GUIParent) {
+				boolean found = ((GUIParent) child).contains(c);
+				if(found) return true;
+			}
+		}
+		return false;
+	}
+
+	protected final List<GUIParent> findPathTo(GUIComponent c) {
+		if(c == null) return null;
+		if(!contains(c)) return null;
+		LinkedList<GUIParent> path = new LinkedList<>();
+		findPathTo(c, path);
+		return path;
+	}
+
+	// Really bad algorithm, should improve later
+	protected final void findPathTo(GUIComponent c, LinkedList<GUIParent> path) {
+		for(GUIComponent child : children.keySet()) {
+			if(c == child) {
+				path.add(this);
+				return;
+			}
+		}
+		for(GUIComponent child : children.keySet()) {
+			if(child instanceof GUIParent) {
+				if(((GUIParent) child).contains(c)) {
+					path.add(this);
+					((GUIParent) child).findPathTo(c, path);
+					return;
+				}
+			}
+		}
+	}
 	
 	public GUIComponent getFocusedComponent() {
 		return currentFocus;
 	}
-	
+
 	public void setFocusedComponent(GUIComponent newFocus) {
 		if(newFocus == null) {
 			currentFocus = null;
 		} else if(newFocus == this) {
 			throw new IllegalArgumentException("cannot set this component's focus to itself");
 		} else {
-			if(!children.containsKey(newFocus)) throw new IllegalArgumentException("focused component must be a child of this component");
-			currentFocus = newFocus;
+			if(children.containsKey(newFocus)) {
+				currentFocus = newFocus;
+			} else {
+				throw new IllegalArgumentException("focused component must be a direct child of this component");
+			}
 		}
+	}
+	
+	public void setFocusedComponentRecursively(GUIComponent newFocus) {
+		if(newFocus == null) {
+			currentFocus = null;
+		} else if(newFocus == this) {
+			throw new IllegalArgumentException("cannot set this component's focus to itself");
+		} else {
+			if(children.containsKey(newFocus)) {
+				currentFocus = newFocus;
+			} else {
+				List<GUIParent> path = findPathTo(newFocus);
+				if(path != null) {
+					path.forEach(pathComponent -> pathComponent.setFocusedComponentUnsafe(newFocus));
+				} else {
+					throw new IllegalArgumentException("focused component must be a child of this component or its subcomponents");
+				}
+			}
+		}
+	}
+
+	private void setFocusedComponentUnsafe(GUIComponent newFocus) {
+		currentFocus = newFocus;
 	}
 	
 	@Override
