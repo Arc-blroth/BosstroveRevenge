@@ -70,8 +70,8 @@ public class GUIListDialog extends GUIPanel {
 								PixelAndTextGrid childTarget = buildTransparentGrid(resolvedWidth, resolvedHeight);
 								GUIText optionText = new GUIText(
 										(lastSize == selectedPosition ? "> " : "  ") + option.getOptionText(),
-										option.isSelected() || lastSize == selectedPosition ? option.getSelectedBackgroundColor() : option.getDeselectedBackgroundColor(),
-										option.isSelected() || lastSize == selectedPosition ? option.getSelectedForegroundColor() : option.getDeselectedForegroundColor());
+										option.isSelected() ? option.getSelectedBackgroundColor() : option.getDeselectedBackgroundColor(),
+										option.isSelected() ? option.getSelectedForegroundColor() : option.getDeselectedForegroundColor());
 								optionText.render(childTarget);
 								TextureUtils.overlay(childTarget, nonborderedTarget, resolvedX, yCoord + resolvedY);
 							}
