@@ -6,12 +6,9 @@ import ai.arcblroth.boss.engine.IInteractable.Direction;
 import ai.arcblroth.boss.engine.Level;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.engine.entity.player.Player;
-import ai.arcblroth.boss.engine.gui.GUI;
-import ai.arcblroth.boss.engine.gui.GUIConstraints;
-import ai.arcblroth.boss.engine.gui.GUIPanel;
-import ai.arcblroth.boss.engine.gui.GUIText;
+import ai.arcblroth.boss.engine.gui.*;
+import ai.arcblroth.boss.engine.gui.dialog.DialogFactory;
 import ai.arcblroth.boss.engine.gui.dialog.GUIListDialog;
-import ai.arcblroth.boss.engine.gui.dialog.SimpleDialogOption;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;
@@ -20,13 +17,17 @@ import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class WorldEngine implements IEngine {
 
 	private WorldRenderer renderer;
 	private Level level;
 	private GUI gui;
+	private GUILookAndFeel lookAndFeel;
 	private boolean guiHasFocus;
 	private String currentRoom;
 	private HashMap<Keybind, Long> firedKeys;
@@ -42,6 +43,15 @@ public class WorldEngine implements IEngine {
 
 		setGuiHasFocus(true);
 
+		lookAndFeel = new GUILookAndFeel();
+		lookAndFeel.panelBgColor = new Color(35, 103, 219, 255 * 2 / 3);
+		lookAndFeel.panelBorderColor = Color.BLUE;
+		lookAndFeel.panelBorderWidth = 1;
+		lookAndFeel.textSelectedFgColor = Color.BLACK;
+		lookAndFeel.textSelectedBgColor = Color.LIGHT_GRAY;
+		lookAndFeel.textDeselectedFgColor = Color.WHITE;
+		lookAndFeel.textDeselectedBgColor = Color.TRANSPARENT;
+
 		GUIPanel panel = new GUIPanel(new Color(150, 0, 0, 255 * 2 / 3), Color.BLACK, 1);
 		GUIPanel panel2 = new GUIPanel(new Color(0, 150, 250, 255 / 2), Color.BLACK, 1);
 		gui.add(panel, new GUIConstraints(0, 0, 0.8, 0.8, 6, 6, -12, -12, 0));
@@ -49,24 +59,7 @@ public class WorldEngine implements IEngine {
 		panel2.add(new GUIText("one fish two fish red fish blue fish reallylongwordthingybob", Color.TRANSPARENT, Color.WHITE), new GUIConstraints("2", "2", "100%", "100%", 1));
 		//panel.add(new GUIImage(BosstrovesRevenge.instance().getTextureCache().get(new InternalResource("yeet.png"))), new GUIConstraints("2", "2", "100%", "100%", 1));
 
-		Color selectedFgColor = Color.BLACK;
-		Color selectedBgColor = Color.LIGHT_GRAY;
-		Color deselectedFgColor = Color.WHITE;
-		Color deselectedBgColor = Color.TRANSPARENT;
-
-		GUIListDialog dialog = new GUIListDialog(
-				Arrays.asList(
-						new SimpleDialogOption("Yes", selectedBgColor, selectedFgColor, deselectedBgColor, deselectedFgColor),
-						new SimpleDialogOption("No", selectedBgColor, selectedFgColor, deselectedBgColor, deselectedFgColor),
-						new SimpleDialogOption("Maybe", selectedBgColor, selectedFgColor, deselectedBgColor, deselectedFgColor),
-						new SimpleDialogOption("What?", selectedBgColor, selectedFgColor, deselectedBgColor, deselectedFgColor),
-						new SimpleDialogOption("...", selectedBgColor, selectedFgColor, deselectedBgColor, deselectedFgColor),
-						new SimpleDialogOption("Sure", selectedBgColor, selectedFgColor, deselectedBgColor, deselectedFgColor)
-				),
-				new Color(35, 103, 219, 255 * 2 / 3),
-				Color.BLUE,
-				1
-		);
+		GUIListDialog dialog = DialogFactory.newSimpleListDialog(lookAndFeel, "Yes", "No", "Maybe", "What?", "...", "Sure");
 		panel.add(dialog, new GUIConstraints("5", "5", "12", "29", 3));
 
 		gui.setFocusedComponentRecursively(dialog);
