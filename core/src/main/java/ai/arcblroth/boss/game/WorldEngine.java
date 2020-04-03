@@ -59,16 +59,17 @@ public class WorldEngine implements IEngine {
 		lookAndFeel.textAnimationSpeed = 1.4F;
 
 		SingleChoiceGUIListDialog dialog = DialogFactory.newSingleChoiceListDialog(lookAndFeel, "Yes", "No", "Maybe", "What?", "...", "Sure");
-		funsies = DialogFactory.newAnimatedTextPanel(lookAndFeel, "one fish two fish red fish blue fish reallylongwordthingybob");
+		funsies = DialogFactory.newAnimatedTextPanel(lookAndFeel, "Would you like to play a game?");
 		dialog.onChoice(choice -> {
 			gui.remove(dialog);
+			funsies.setText("Well, you're gonna have a bad time ;)");
 			funsies.onAdvance(() -> {
 				gui.remove(funsies);
 				setGuiHasFocus(false);
 			});
-			gui.add(funsies, new GUIConstraints(0, 0.75, 1, 0.25, 2, 0, -4, -2, 3));
 			gui.setFocusedComponent(funsies);
 		});
+		gui.add(funsies, new GUIConstraints(0, 0.75, 1, 0.25, 2, 0, -4, -2, 3));
 		gui.add(dialog, new GUIConstraints("5", "5", "12", "29", 3));
 		gui.setFocusedComponent(dialog);
 	}
@@ -126,7 +127,7 @@ public class WorldEngine implements IEngine {
 				player.getPosition().getY() * StaticDefaults.TILE_HEIGHT - outputSize.getSecond() / 2D
 		);
 
-		if(gui.contains(funsies)) {
+		if(!funsies.isHidden()) {
 			if(funsies.canAdvanceFrame()) funsies.advanceFrame();
 		}
 

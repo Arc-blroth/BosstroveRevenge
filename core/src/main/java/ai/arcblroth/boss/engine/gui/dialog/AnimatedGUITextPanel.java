@@ -118,4 +118,17 @@ public class AnimatedGUITextPanel extends GUIPanel implements IAdvanceableDialog
 	public void onAdvance(Runnable callback) {
 		callbacks.add(Objects.requireNonNull(callback));
 	}
+
+	/**
+	 * Sets this panel's text and then resets animation frame to 0.
+	 */
+	public synchronized void setText(String text) {
+		frame = 0;
+		this.text = text;
+	}
+
+	public synchronized String getText() {
+		return text;
+	}
+
 }
