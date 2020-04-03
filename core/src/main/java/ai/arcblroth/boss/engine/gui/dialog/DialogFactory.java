@@ -29,4 +29,17 @@ public class DialogFactory {
 		);
 	}
 
+	public static AnimatedGUITextPanel newAnimatedTextPanel(GUILookAndFeel lookAndFeel, String text) {
+		return new AnimatedGUITextPanel(
+				lookAndFeel.panelBgColor,
+				lookAndFeel.panelBorderColor,
+				lookAndFeel.textDeselectedBgColor,
+				lookAndFeel.textDeselectedFgColor,
+				lookAndFeel.panelBorderWidth,
+				text,
+				true,
+				lookAndFeel.textAnimationSpeed
+		);
+	}
+
 }

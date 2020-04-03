@@ -6,7 +6,10 @@ import ai.arcblroth.boss.engine.IInteractable.Direction;
 import ai.arcblroth.boss.engine.Level;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.engine.entity.player.Player;
-import ai.arcblroth.boss.engine.gui.*;
+import ai.arcblroth.boss.engine.gui.GUI;
+import ai.arcblroth.boss.engine.gui.GUIConstraints;
+import ai.arcblroth.boss.engine.gui.GUILookAndFeel;
+import ai.arcblroth.boss.engine.gui.dialog.AnimatedGUITextPanel;
 import ai.arcblroth.boss.engine.gui.dialog.DialogFactory;
 import ai.arcblroth.boss.engine.gui.dialog.SingleChoiceGUIListDialog;
 import ai.arcblroth.boss.key.CharacterInputEvent;
@@ -32,6 +35,8 @@ public class WorldEngine implements IEngine {
 	private String currentRoom;
 	private HashMap<Keybind, Long> firedKeys;
 
+	private final AnimatedGUITextPanel funsies;
+
 	public WorldEngine() {
 		this.level = LevelRegistry.instance().getLevel("w0l1", this);
 		currentRoom = level.getInitialRoom();
@@ -51,22 +56,21 @@ public class WorldEngine implements IEngine {
 		lookAndFeel.textSelectedBgColor = Color.LIGHT_GRAY;
 		lookAndFeel.textDeselectedFgColor = Color.WHITE;
 		lookAndFeel.textDeselectedBgColor = Color.TRANSPARENT;
-
-		GUIPanel panel = new GUIPanel(new Color(150, 0, 0, 255 * 2 / 3), Color.BLACK, 1);
-		GUIPanel panel2 = new GUIPanel(new Color(0, 150, 250, 255 / 2), Color.BLACK, 1);
-		gui.add(panel, new GUIConstraints(0, 0, 0.8, 0.8, 6, 6, -12, -12, 0));
-		gui.add(panel2, new GUIConstraints(0.2, 0.2, 0.8, 0.8, 6, 6, -12, -12, 1));
-		panel2.add(new GUIText("one fish two fish red fish blue fish reallylongwordthingybob", Color.TRANSPARENT, Color.WHITE), new GUIConstraints("2", "2", "100%", "100%", 1));
-		//panel.add(new GUIImage(BosstrovesRevenge.instance().getTextureCache().get(new InternalResource("yeet.png"))), new GUIConstraints("2", "2", "100%", "100%", 1));
+		lookAndFeel.textAnimationSpeed = 1.4F;
 
 		SingleChoiceGUIListDialog dialog = DialogFactory.newSingleChoiceListDialog(lookAndFeel, "Yes", "No", "Maybe", "What?", "...", "Sure");
+		funsies = DialogFactory.newAnimatedTextPanel(lookAndFeel, "one fish two fish red fish blue fish reallylongwordthingybob");
 		dialog.onChoice(choice -> {
-			panel.remove(dialog);
-			setGuiHasFocus(false);
+			gui.remove(dialog);
+			funsies.onAdvance(() -> {
+				gui.remove(funsies);
+				setGuiHasFocus(false);
+			});
+			gui.add(funsies, new GUIConstraints(0, 0.75, 1, 0.25, 2, 0, -4, -2, 3));
+			gui.setFocusedComponent(funsies);
 		});
-		panel.add(dialog, new GUIConstraints("5", "5", "12", "29", 3));
-
-		gui.setFocusedComponentRecursively(dialog);
+		gui.add(dialog, new GUIConstraints("5", "5", "12", "29", 3));
+		gui.setFocusedComponent(dialog);
 	}
 	
 	@Override
@@ -121,6 +125,11 @@ public class WorldEngine implements IEngine {
 				player.getPosition().getX() * StaticDefaults.TILE_WIDTH - outputSize.getFirst() / 2D,
 				player.getPosition().getY() * StaticDefaults.TILE_HEIGHT - outputSize.getSecond() / 2D
 		);
+
+		if(gui.contains(funsies)) {
+			if(funsies.canAdvanceFrame()) funsies.advanceFrame();
+		}
+
 	}
 
 	@Override

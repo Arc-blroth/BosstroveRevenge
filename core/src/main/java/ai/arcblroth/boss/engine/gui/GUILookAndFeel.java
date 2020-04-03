@@ -13,5 +13,6 @@ public class GUILookAndFeel {
 	public Color textSelectedFgColor = Color.BLACK;
 	public Color textDeselectedBgColor = Color.TRANSPARENT;
 	public Color textDeselectedFgColor = Color.WHITE;
+	public float textAnimationSpeed = 1;
 
 }
