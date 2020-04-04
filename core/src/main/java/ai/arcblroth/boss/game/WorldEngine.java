@@ -9,8 +9,8 @@ import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.engine.gui.GUI;
 import ai.arcblroth.boss.engine.gui.GUIConstraints;
 import ai.arcblroth.boss.engine.gui.GUILookAndFeel;
-import ai.arcblroth.boss.engine.gui.dialog.AnimatedGUITextPanel;
-import ai.arcblroth.boss.engine.gui.dialog.DialogFactory;
+import ai.arcblroth.boss.engine.gui.WorldDialoguePanel;
+import ai.arcblroth.boss.engine.gui.dialog.GUIFactory;
 import ai.arcblroth.boss.engine.gui.dialog.SingleChoiceGUIListDialog;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.key.Keybind;
@@ -35,7 +35,7 @@ public class WorldEngine implements IEngine {
 	private String currentRoom;
 	private HashMap<Keybind, Long> firedKeys;
 
-	private final AnimatedGUITextPanel funsies;
+	private final WorldDialoguePanel funsies;
 
 	public WorldEngine() {
 		this.level = LevelRegistry.instance().getLevel("w0l1", this);
@@ -58,18 +58,18 @@ public class WorldEngine implements IEngine {
 		lookAndFeel.textDeselectedBgColor = Color.TRANSPARENT;
 		lookAndFeel.textAnimationSpeed = 1.4F;
 
-		SingleChoiceGUIListDialog dialog = DialogFactory.newSingleChoiceListDialog(lookAndFeel, "Yes", "No", "Maybe", "What?", "...", "Sure");
-		funsies = DialogFactory.newAnimatedTextPanel(lookAndFeel, "Would you like to play a game?");
+		SingleChoiceGUIListDialog dialog = GUIFactory.newSingleChoiceListDialog(lookAndFeel, "Yes", "No", "Maybe", "What?", "...", "Sure");
+		funsies = new WorldDialoguePanel(lookAndFeel, "Bosstrove", "Would you like to play a game?");
 		dialog.onChoice(choice -> {
 			gui.remove(dialog);
-			funsies.setText("Well, you're gonna have a bad time ;)");
+			funsies.setTextString("Well, you're gonna have a bad time ;)");
 			funsies.onAdvance(() -> {
 				gui.remove(funsies);
 				setGuiHasFocus(false);
 			});
 			gui.setFocusedComponent(funsies);
 		});
-		gui.add(funsies, new GUIConstraints(0, 0.75, 1, 0.25, 2, 0, -4, -2, 3));
+		gui.add(funsies, new GUIConstraints("0", "0", "100%", "100%", 1));
 		gui.add(dialog, new GUIConstraints("5", "5", "12", "29", 3));
 		gui.setFocusedComponent(dialog);
 	}
@@ -128,7 +128,7 @@ public class WorldEngine implements IEngine {
 		);
 
 		if(!funsies.isHidden()) {
-			if(funsies.canAdvanceFrame()) funsies.advanceFrame();
+			funsies.advanceFrame();
 		}
 
 	}

@@ -5,7 +5,7 @@ import ai.arcblroth.boss.engine.gui.GUILookAndFeel;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
-public class DialogFactory {
+public class GUIFactory {
 
 	public static SingleChoiceGUIListDialog newSingleChoiceListDialog(GUILookAndFeel lookAndFeel, String... options) {
 		return new SingleChoiceGUIListDialog(
@@ -39,6 +39,19 @@ public class DialogFactory {
 				text,
 				true,
 				lookAndFeel.textAnimationSpeed
+		);
+	}
+
+	public static AnimatedGUITextPanel newTextPanel(GUILookAndFeel lookAndFeel, String text) {
+		return new AnimatedGUITextPanel(
+				lookAndFeel.panelBgColor,
+				lookAndFeel.panelBorderColor,
+				lookAndFeel.textDeselectedBgColor,
+				lookAndFeel.textDeselectedFgColor,
+				lookAndFeel.panelBorderWidth,
+				text,
+				true,
+				0
 		);
 	}
 
