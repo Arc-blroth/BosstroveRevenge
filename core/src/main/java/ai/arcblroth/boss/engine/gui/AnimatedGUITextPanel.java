@@ -1,7 +1,6 @@
-package ai.arcblroth.boss.engine.gui.dialog;
+package ai.arcblroth.boss.engine.gui;
 
-import ai.arcblroth.boss.engine.gui.GUIPanel;
-import ai.arcblroth.boss.engine.gui.GUIText;
+import ai.arcblroth.boss.engine.gui.dialog.IAdvanceableDialog;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.PixelAndTextGrid;

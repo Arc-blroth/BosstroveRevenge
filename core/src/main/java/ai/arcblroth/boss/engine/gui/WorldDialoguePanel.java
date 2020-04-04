@@ -1,11 +1,12 @@
 package ai.arcblroth.boss.engine.gui;
 
-import ai.arcblroth.boss.engine.gui.dialog.AnimatedGUITextPanel;
-import ai.arcblroth.boss.engine.gui.dialog.GUIFactory;
 import ai.arcblroth.boss.engine.gui.dialog.IAdvanceableDialog;
+
+import java.util.ArrayList;
 
 public class WorldDialoguePanel extends GUIParent implements IAdvanceableDialog {
 
+	private ArrayList<Runnable> callbacks = new ArrayList<>();
 	private GUILookAndFeel lookAndFeel;
 	private AnimatedGUITextPanel namePanel;
 	private AnimatedGUITextPanel textPanel;
@@ -20,6 +21,12 @@ public class WorldDialoguePanel extends GUIParent implements IAdvanceableDialog 
 		this.lookAndFeel = lookAndFeel;
 		this.nameString = nameString;
 		this.textString = textString;
+		this.namePanel = GUIFactory.newTextPanel(lookAndFeel, nameString);
+		this.textPanel = GUIFactory.newAnimatedTextPanel(lookAndFeel, textString);
+		this.textPanel.onAdvance(() -> {
+			callbacks.forEach(Runnable::run);
+			callbacks.clear();
+		});
 		update();
 	}
 
@@ -27,9 +34,13 @@ public class WorldDialoguePanel extends GUIParent implements IAdvanceableDialog 
 		if(textPanel.canAdvanceFrame()) textPanel.advanceFrame();
 	}
 
+	/**
+	 * Registers a <b>one time</b> advance callback for the dialogue panel.
+	 * @param callback called when the user presses the boss.use or boss.enter keybind after this panel has finished animating.
+	 */
 	@Override
 	public void onAdvance(Runnable callback) {
-		textPanel.onAdvance(callback);
+		callbacks.add(callback);
 	}
 
 	public GUILookAndFeel getLookAndFeel() {
@@ -64,10 +75,10 @@ public class WorldDialoguePanel extends GUIParent implements IAdvanceableDialog 
 	}
 
 	private synchronized void update() {
-		if(namePanel != null) this.remove(namePanel);
-		if(textPanel != null) this.remove(textPanel);
-		this.namePanel = GUIFactory.newTextPanel(lookAndFeel, nameString);
-		this.textPanel = GUIFactory.newAnimatedTextPanel(lookAndFeel, textString);
+		this.remove(namePanel);
+		this.remove(textPanel);
+		this.namePanel.setText(nameString);
+		this.textPanel.setText(textString);
 		this.add(namePanel, new NamePanelGUIConstrants(nameString.length()));
 		this.add(textPanel, new TextPanelGUIConstraints());
 		setFocusedComponent(textPanel);

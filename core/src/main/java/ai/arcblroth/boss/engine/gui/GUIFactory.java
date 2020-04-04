@@ -1,6 +1,8 @@
-package ai.arcblroth.boss.engine.gui.dialog;
+package ai.arcblroth.boss.engine.gui;
 
-import ai.arcblroth.boss.engine.gui.GUILookAndFeel;
+import ai.arcblroth.boss.engine.gui.dialog.MultipleChoiceGUIListDialog;
+import ai.arcblroth.boss.engine.gui.dialog.SimpleDialogOption;
+import ai.arcblroth.boss.engine.gui.dialog.SingleChoiceGUIListDialog;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
