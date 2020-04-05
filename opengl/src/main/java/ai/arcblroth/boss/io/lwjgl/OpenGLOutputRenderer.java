@@ -132,7 +132,18 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 							2 * (int)Math.round((double)height / ((double)StaticDefaults.CHARACTER_HEIGHT / 2D))
 					);
 
-					shader.setMatrix4f("projection", new Matrix4f().ortho(-width, width, -height, height, 0, 1));
+					float roundedWidth = (lastSize.getFirst() * StaticDefaults.CHARACTER_WIDTH) / 2F;
+					float roundedHeight = (lastSize.getSecond() * StaticDefaults.CHARACTER_WIDTH) / 2F;
+					float halfCharWidth = StaticDefaults.CHARACTER_WIDTH / 2F;
+
+					System.out.println(width + " " + roundedWidth);
+
+					shader.setMatrix4f("projection", new Matrix4f().ortho(
+							-roundedWidth - halfCharWidth,
+							roundedWidth - halfCharWidth,
+							-roundedHeight + halfCharWidth,
+							roundedHeight + halfCharWidth,
+							0, 1));
 					Matrix4f scaledModelMatrix = new Matrix4f().scale(StaticDefaults.CHARACTER_WIDTH, StaticDefaults.CHARACTER_WIDTH, 1F);
 					
 					// Render each row like a printer would
@@ -175,7 +186,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 								drawCharacter(
 										new Matrix4f(scaledModelMatrix).translate(
 												(-pg.getWidth()/2F + colNum - 0.5F),
-												( pg.getHeight()/2F - rowNum - 1.5F),
+												( pg.getHeight()/2F - rowNum - 1.25F),
 												0
 										).scale(1F, -1F, 1F),
 										new Matrix4f(scaledModelMatrix).translate(
@@ -201,13 +212,13 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 						for(int fpsCharIndex = 0; fpsCharIndex < fpsString.length(); fpsCharIndex++) {
 							drawCharacter(
 								new Matrix4f(scaledModelMatrix).translate(
-										(-pg.getWidth()/2F + fpsCharIndex + 0.25F),
-										( pg.getHeight()/2F - 1.75F),
+										(-pg.getWidth()/2F + fpsCharIndex - 0.25F),
+										( pg.getHeight()/2F - 1.25F),
 										0
 								).scale(1F, -1F, 1F),
 								new Matrix4f(scaledModelMatrix).translate(
-										(-pg.getWidth()/2F + fpsCharIndex + 0.75F),
-										( pg.getHeight()/2F - 0.75F),
+										(-pg.getWidth()/2F + fpsCharIndex),
+										( pg.getHeight()/2F - 0.5F),
 										0
 								).scale(0.5F, 1F, 1F),
 								new Pair<Color, Color>(invertedClearColor, null),
@@ -222,13 +233,13 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 						for(int memCharIndex = 0; memCharIndex < memString.length(); memCharIndex++) {
 							drawCharacter(
 								new Matrix4f(scaledModelMatrix).translate(
-										(pg.getWidth()/2F - memCharIndex - 1.25F),
-										(pg.getHeight()/2F - 1.75F),
+										(pg.getWidth()/2F - memCharIndex - 1.75F),
+										(pg.getHeight()/2F - 1.25F),
 										0
 								).scale(1F, -1F, 1F),
 								new Matrix4f(scaledModelMatrix).translate(
-										(pg.getWidth()/2F - memCharIndex - 0.75F),
-										(pg.getHeight()/2F - 0.75F),
+										(pg.getWidth()/2F - memCharIndex),
+										(pg.getHeight()/2F - 0.5F),
 										0
 								).scale(0.5F, 1F, 1F),
 								new Pair<Color, Color>(invertedClearColor, null),
