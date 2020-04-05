@@ -1,24 +1,27 @@
 package ai.arcblroth.boss.resource.load;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.TilePosition;
+import ai.arcblroth.boss.game.RoomEngine;
+import ai.arcblroth.boss.game.WorldEngine;
 import ai.arcblroth.boss.register.EntityRegistry;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.resource.load.exception.MalformedSpecificationException;
 import ai.arcblroth.boss.util.Pair;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RoomLoader {
 
@@ -58,7 +61,29 @@ public class RoomLoader {
 			if(roomObj.has("resetColor")) {
 				resetColor = new Color(Integer.parseUnsignedInt("ff" + roomObj.get("resetColor").getAsString().replace("#", ""), 16));
 			}
-			Room outRoom = new Room(width, height, initialPos, resetColor);
+			Function<WorldEngine, RoomEngine> roomEngineBuilder;
+			if(roomObj.has("roomEngine")) {
+				String roomEngineName = roomObj.get("roomEngine").getAsString();
+				try {
+					Class<? extends RoomEngine> roomEngine = (Class<? extends RoomEngine>) Class.forName(roomEngineName);
+					Constructor<? extends RoomEngine> roomEngineConstructor = roomEngine.getConstructor(WorldEngine.class);
+					roomEngineBuilder = worldEngine -> {
+						try {
+							return roomEngineConstructor.newInstance(worldEngine);
+						} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+							logger.log(Level.SEVERE, String.format("Could not construct roomEngine \"%s\" in room \"%s\": %s", roomEngineName, roomId, e.toString()));
+							return null;
+						}
+					};
+				} catch (ClassNotFoundException | NoSuchMethodException e) {
+					logger.log(Level.WARNING, String.format("Could not load roomEngine \"%s\" in room \"%s\": %s", roomEngineName, roomId, e.toString()));
+					roomEngineBuilder = worldEngine -> null;
+				}
+			} else {
+				roomEngineBuilder = worldEngine -> null;
+			}
+
+			Room outRoom = new Room(width, height, initialPos, resetColor, roomEngineBuilder);
 			
 			{
 				JsonArray floorTiles = roomObj.get("floorTiles").getAsJsonArray();

@@ -1,13 +1,14 @@
 package ai.arcblroth.boss.engine;
 
+import ai.arcblroth.boss.engine.ast.Variable;
+import ai.arcblroth.boss.engine.entity.player.Player;
+import ai.arcblroth.boss.game.WorldEngine;
+import ai.arcblroth.boss.register.IRegistrable;
+import ai.arcblroth.boss.util.StaticDefaults;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
-
-import ai.arcblroth.boss.engine.ast.Variable;
-import ai.arcblroth.boss.engine.gui.GUI;
-import ai.arcblroth.boss.game.WorldEngine;
-import ai.arcblroth.boss.register.IRegistrable;
 
 public class Level implements IRegistrable<Level> {
 
@@ -26,6 +27,8 @@ public class Level implements IRegistrable<Level> {
 	private Map<String, Room> rooms;
 
 	private String initalRoom;
+
+	private Player player;
 	
 	public Level(String world, String level, String title, WorldEngine engine) {
 		this.world = world;
@@ -35,6 +38,7 @@ public class Level implements IRegistrable<Level> {
 		this.persistentData = new TreeMap<>();
 		this.triggerData = new TreeMap<>();
 		this.rooms = new HashMap<>();
+		this.player = new Player(new Position(0, 0), StaticDefaults.MAX_PLAYER_HEALTH);
 	}
 	
 	public void addRoom(String id, Room room) {
@@ -58,6 +62,10 @@ public class Level implements IRegistrable<Level> {
 		return rooms.get(key);
 	}
 
+	public boolean hasRoom(String key) {
+		return rooms.containsKey(key);
+	}
+
 	public void setInitialRoom(String id) {
 		if(!rooms.containsKey(id)) throw new IllegalArgumentException("initalRoom id is not a valid room id");
 		this.initalRoom = id;
@@ -67,4 +75,7 @@ public class Level implements IRegistrable<Level> {
 		return initalRoom;
 	}
 
+	public Player getPlayer() {
+		return player;
+	}
 }

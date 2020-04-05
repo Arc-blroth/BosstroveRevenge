@@ -130,6 +130,11 @@ list of floorTiles and wallTiles.
 - Specify background and foreground textures that are overlaid onto the level's tiles.
 - Each is optional
 
+### `roomEngine`
+- Fully qualified class name of a RoomEngine class.
+- This RoomEngine's callbacks will be called while this room is loaded.
+- Optional
+
 ### `floorTiles`
 - floorTiles is a two-dimensional array that specifies the level's floor tiles.
 - Each sub-array stores a _row_ of tiles.

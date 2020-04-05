@@ -1,14 +1,5 @@
 package ai.arcblroth.boss.engine;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Logger;
-
-import com.google.gson.JsonObject;
-
-import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.entity.IAccelerable;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.entity.player.Player;
@@ -17,27 +8,40 @@ import ai.arcblroth.boss.engine.hitbox.HitboxManager;
 import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.ITile;
 import ai.arcblroth.boss.engine.tile.WallTile;
+import ai.arcblroth.boss.game.RoomEngine;
+import ai.arcblroth.boss.game.WorldEngine;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.util.Grid2D;
-import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.Vector2D;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
+import java.util.logging.Logger;
+
 public class Room {
-	
+
 	private Logger logger;
 	private Level level;
 	private Grid2D<FloorTile> floorTiles;
 	private Grid2D<WallTile> wallTiles;
 	private ArrayList<IEntity> entities;
 	private HitboxManager hitboxManager;
+	private Position initialPlayerPosition;
 	private Player player;
 	private int width, height;
 	private Color resetColor;
+	private Function<WorldEngine, ? extends RoomEngine> roomEngineFunction;
 
 	public Room(int width, int height, Position initPlayerPosition, Color resetColor) {
+		this(width, height, initPlayerPosition, resetColor, worldEngine -> null);
+	}
+
+	public Room(int width, int height, Position initPlayerPosition, Color resetColor, Function<WorldEngine, ? extends RoomEngine> roomEngineFunction) {
 		if(width < 1 || height < 1) throw new IllegalArgumentException("Room width and height must be >1");
 		
 		this.logger = Logger.getLogger("Room");
@@ -45,6 +49,7 @@ public class Room {
 		this.width = width;
 		this.height = height;
 		this.resetColor = resetColor;
+		this.roomEngineFunction = roomEngineFunction;
 		
 		this.floorTiles = new Grid2D<FloorTile>(width, height, null);
 		this.wallTiles = new Grid2D<WallTile>(width, height, null);
@@ -56,7 +61,7 @@ public class Room {
 		}
 		
 		this.entities = new ArrayList<>();
-		this.player = new Player(initPlayerPosition, StaticDefaults.MAX_PLAYER_HEALTH);
+		this.initialPlayerPosition = initPlayerPosition;
 		this.hitboxManager = new HitboxManager(width, height);
 	}
 	
@@ -68,6 +73,8 @@ public class Room {
 		if(this.level != null) throw new IllegalStateException("Can only set the level once!");
 		if(level == null) throw new NullPointerException("Set level cannot be null");
 		this.level = level;
+		this.player = level.getPlayer();
+		this.player.setPosition(initialPlayerPosition);
 	}
 
 	public void runStepCallbacks() {
@@ -285,6 +292,10 @@ public class Room {
 		return player;
 	}
 
+	public Position getInitialPlayerPosition() {
+		return initialPlayerPosition;
+	}
+
 	public int getWidth() {
 		return width;
 	}
@@ -296,8 +307,11 @@ public class Room {
 	public Color getResetColor() {
 		return resetColor;
 	}
-	
-	
+
+	public RoomEngine buildRoomEngine(WorldEngine worldEngine) {
+		return roomEngineFunction.apply(worldEngine);
+	}
+
 }
 
 class TileHitboxWrapper implements IHitboxed {

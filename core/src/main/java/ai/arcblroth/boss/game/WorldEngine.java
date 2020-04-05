@@ -4,10 +4,11 @@ import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.IInteractable.Direction;
 import ai.arcblroth.boss.engine.Level;
+import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.engine.entity.player.Player;
-import ai.arcblroth.boss.engine.gui.*;
-import ai.arcblroth.boss.engine.gui.dialog.SingleChoiceGUIListDialog;
+import ai.arcblroth.boss.engine.gui.GUI;
+import ai.arcblroth.boss.engine.gui.GUILookAndFeel;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;
@@ -16,33 +17,28 @@ import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 public class WorldEngine implements IEngine {
 
 	private WorldRenderer renderer;
 	private Level level;
+	private RoomEngine roomEngine;
 	private GUI gui;
 	private GUILookAndFeel lookAndFeel;
 	private boolean guiHasFocus;
-	private String currentRoom;
+	private String currentRoomId;
 	private HashMap<Keybind, Long> firedKeys;
-
-	private final WorldDialoguePanel funsies;
 
 	public WorldEngine() {
 		this.level = LevelRegistry.instance().getLevel("w0l1", this);
-		currentRoom = level.getInitialRoom();
+		this.currentRoomId = level.getInitialRoom();
+		this.roomEngine = getCurrentRoom().buildRoomEngine(this);
 		this.gui = new GUI();
 		this.guiHasFocus = false;
-		this.renderer = new WorldRenderer(level.getRoom(currentRoom), gui);
+		this.renderer = new WorldRenderer(level.getRoom(currentRoomId), gui);
 		this.firedKeys = new HashMap<>();
-		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoom).getResetColor());
-
-		setGuiHasFocus(true);
+		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoomId).getResetColor());
 
 		lookAndFeel = new GUILookAndFeel();
 		lookAndFeel.panelBgColor = new Color(35, 103, 219, 255 * 2 / 3);
@@ -54,27 +50,14 @@ public class WorldEngine implements IEngine {
 		lookAndFeel.textDeselectedBgColor = Color.TRANSPARENT;
 		lookAndFeel.textAnimationSpeed = 1.4F;
 
-		SingleChoiceGUIListDialog dialog = GUIFactory.newSingleChoiceListDialog(lookAndFeel, "Yes", "No", "Maybe", "What?", "...", "Sure");
-		funsies = new WorldDialoguePanel(lookAndFeel, "Bosstrove", "Would you like to play a game?");
-		dialog.onChoice(choice -> {
-			gui.remove(dialog);
-			funsies.setTextString("Well, you're gonna have a bad time ;)");
-			funsies.onAdvance(() -> {
-				gui.remove(funsies);
-				setGuiHasFocus(false);
-			});
-			gui.setFocusedComponent(funsies);
-		});
-		gui.add(funsies, new GUIConstraints("0", "0", "100%", "100%", 1));
-		gui.add(dialog, new GUIConstraints("5", "5", "12", "29", 3));
-		gui.setFocusedComponent(dialog);
+		if(this.roomEngine != null) this.roomEngine.onRoomEnter();
 	}
 	
 	@Override
 	public void step(StepEvent e) {
-		Player player = level.getRoom(currentRoom).getPlayer();
+		Player player = level.getRoom(currentRoomId).getPlayer();
 
-		level.getRoom(currentRoom).runStepCallbacks();
+		level.getRoom(currentRoomId).runStepCallbacks();
 		
 		firedKeys.replaceAll((key, stepsFiredAgo) -> Math.min(stepsFiredAgo + 1, key.getFiringDelay()));
 		ArrayList<Keybind> firingKeys = new ArrayList<>();
@@ -88,7 +71,7 @@ public class WorldEngine implements IEngine {
 			}
 		});
 		
-		level.getRoom(currentRoom).runCollisionCallbacks(firingKeys);
+		level.getRoom(currentRoomId).runCollisionCallbacks(firingKeys);
 		
 		if(firingKeys.contains(new Keybind("boss.debug"))) {
 			BosstrovesRevenge.instance().setRendererShowingFPS(!BosstrovesRevenge.instance().isRendererShowingFPS());
@@ -114,6 +97,10 @@ public class WorldEngine implements IEngine {
 				player.accelerate(Direction.EAST, 0.25);
 			}
 		}
+		if(roomEngine != null) {
+			roomEngine.handleKeybinds(firingKeys);
+			roomEngine.step(e);
+		}
 		
 		firingKeys.clear();
 
@@ -122,10 +109,6 @@ public class WorldEngine implements IEngine {
 				player.getPosition().getX() * StaticDefaults.TILE_WIDTH - outputSize.getFirst() / 2D,
 				player.getPosition().getY() * StaticDefaults.TILE_HEIGHT - outputSize.getSecond() / 2D
 		);
-
-		if(!funsies.isHidden()) {
-			funsies.advanceFrame();
-		}
 
 	}
 
@@ -159,6 +142,35 @@ public class WorldEngine implements IEngine {
 	@Override
 	public WorldRenderer getRenderer() {
 		return renderer;
+	}
+
+	public Level getLevel() {
+		return level;
+	}
+
+	public Room getCurrentRoom() {
+		return level.getRoom(currentRoomId);
+	}
+
+	public String getCurrentRoomId() {
+		return currentRoomId;
+	}
+
+	public void setCurrentRoomId(String roomId) {
+		if(!level.hasRoom(roomId)) throw new IllegalArgumentException("Tried to set current room to a room not in the level!");
+		currentRoomId = roomId;
+		if(roomEngine != null) roomEngine.onRoomExit();
+		roomEngine = getCurrentRoom().buildRoomEngine(this);
+		renderer.setRoom(getCurrentRoom());
+		if(roomEngine != null) roomEngine.onRoomEnter();
+	}
+
+	public GUILookAndFeel getLookAndFeel() {
+		return lookAndFeel;
+	}
+
+	public void setLookAndFeel(GUILookAndFeel lookAndFeel) {
+		this.lookAndFeel = Objects.requireNonNull(lookAndFeel);
 	}
 
 }

@@ -1,8 +1,7 @@
 package ai.arcblroth.boss.game;
 
-import java.util.*;
-
 import ai.arcblroth.boss.BosstrovesRevenge;
+import ai.arcblroth.boss.engine.IRenderer;
 import ai.arcblroth.boss.engine.IShader;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.entity.IEntity;
@@ -11,12 +10,16 @@ import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.engine.tile.FloorTile;
 import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.render.Color;
-import ai.arcblroth.boss.engine.IRenderer;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.TextureUtils;
+
+import java.util.LinkedList;
+import java.util.Objects;
+import java.util.Random;
+import java.util.TreeMap;
 
 public class WorldRenderer implements IRenderer {
 
@@ -218,6 +221,10 @@ public class WorldRenderer implements IRenderer {
 
 	public void removeGlobalShader(IShader shader) {
 		globalShaders.entrySet().removeIf(entry -> shader.equals(entry.getValue()));
+	}
+
+	public void setRoom(Room room) {
+		this.room = Objects.requireNonNull(room);
 	}
 
 	public void setRenderOffset(double d, double e) {

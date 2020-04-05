@@ -15,6 +15,7 @@
       "initial": true,
       "initialX": 0,
       "initialY": 0,
+      "roomEngine": "ai.arcblroth.boss.game.room.W0L1R0Engine",
       
       "floorTiles": [
         [
