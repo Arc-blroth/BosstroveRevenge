@@ -1,11 +1,11 @@
 package ai.arcblroth.boss.render;
 
-import java.util.ArrayList;
-
-import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.util.Grid2D;
 import ai.arcblroth.boss.util.Pair;
+import ai.arcblroth.boss.util.StaticDefaults;
+
+import java.util.ArrayList;
 
 public class PixelAndTextGrid extends PixelGrid {
 	
@@ -50,10 +50,8 @@ public class PixelAndTextGrid extends PixelGrid {
 		if(characterRow.size() != getWidth()) throw new IllegalArgumentException("Character row must be of the same width as the PixelGrid");
 		textGrid.setRow(rowNum / 2, characterRow);
 		for(int col = 0; col < getWidth(); col++) {
-			if(characterRow.get(col) != StaticDefaults.RESET_CHAR) {
-				textColorGrid.getRow(rowNum / 2 * 2).set(col, fore);
-				textColorGrid.getRow(rowNum / 2 * 2 + 1).set(col, back);
-			}
+			textColorGrid.getRow(rowNum / 2 * 2).set(col, fore);
+			textColorGrid.getRow(rowNum / 2 * 2 + 1).set(col, back);
 		}
 	}
 

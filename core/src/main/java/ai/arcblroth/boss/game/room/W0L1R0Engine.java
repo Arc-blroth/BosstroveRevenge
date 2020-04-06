@@ -7,7 +7,9 @@ import ai.arcblroth.boss.engine.gui.WorldDialoguePanel;
 import ai.arcblroth.boss.engine.gui.dialog.SingleChoiceGUIListDialog;
 import ai.arcblroth.boss.game.RoomEngine;
 import ai.arcblroth.boss.game.WorldEngine;
+import ai.arcblroth.boss.game.cutscene.TopAndBottomBarShader;
 import ai.arcblroth.boss.key.Keybind;
+import ai.arcblroth.boss.render.Color;
 
 import java.util.List;
 
@@ -37,6 +39,9 @@ public class W0L1R0Engine extends RoomEngine {
 		engine.getGUI().add(funsies, new GUIConstraints("0", "0", "100%", "100%", 1));
 		engine.getGUI().add(dialog, new GUIConstraints("5", "5", "12", "29", 3));
 		engine.getGUI().setFocusedComponent(dialog);
+
+		engine.setState(WorldEngine.State.IN_CUTSCENE);
+		engine.getRenderer().putGlobalShader(0, new TopAndBottomBarShader(Color.BLACK, 0.05, 0.05));
 	}
 
 	@Override
