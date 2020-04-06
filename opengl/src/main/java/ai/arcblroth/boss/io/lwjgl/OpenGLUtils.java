@@ -1,19 +1,19 @@
 package ai.arcblroth.boss.io.lwjgl;
 
+import ai.arcblroth.boss.render.Color;
+import ai.arcblroth.boss.resource.Resource;
+import org.joml.Vector4f;
+import org.lwjgl.BufferUtils;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.joml.Vector4f;
-import org.lwjgl.BufferUtils;
-import org.lwjgl.system.MemoryStack;
-
-import ai.arcblroth.boss.render.Color;
-import ai.arcblroth.boss.resource.Resource;
-
 public class OpenGLUtils {
-	
+
+	public static final boolean DEFAULT_FULLSCREEN = false;
+
 	public static Vector4f rgbToVector(Color in) {
 		return new Vector4f(in.getRed()/255F, in.getGreen()/255F, in.getBlue()/255F, in.getAlpha()/255F);
 	}

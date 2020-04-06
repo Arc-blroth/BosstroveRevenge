@@ -47,12 +47,13 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	private boolean showFPS = true;
 	private double fps = 1;
 	private long lastRenderTime;
+	private long fullscreenKeyTimeout = 0;
 	private volatile Pair<Integer, Integer> lastSize;
 	
 	public OpenGLOutputRenderer() {
 		try {
 			logger = Logger.getLogger("OpenGLOutputRenderer");
-			window = new Window("Bosstrove's Revenge", 0, 0);
+			window = new Window("Bosstrove's Revenge", 0, 0, OpenGLUtils.DEFAULT_FULLSCREEN);
 			inputHandler = new GlfwInputHandler();
 			
 			lastRenderTime = System.currentTimeMillis();
@@ -91,6 +92,12 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 		model = new PixelModel();
 		
 		glfwSetKeyCallback(window.getHandle(), (long windowHandle, int key, int scancode, int action, int mods) -> {
+			//Fullscreen handling
+			if(key == GLFW_KEY_F11 && fullscreenKeyTimeout == 0) {
+				fullscreenKeyTimeout = StaticDefaults.DEFAULT_KEYBIND_DELAY * 3;
+				window.setFullscreen(!window.isFullscreen());
+			}
+
 			try {inputHandler.handleInput(key, action);} catch (Throwable e) {}
 		});
 	}
@@ -101,6 +108,8 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 			dispose();
 			return;
 		}
+
+		fullscreenKeyTimeout = Math.max(fullscreenKeyTimeout - 1, 0);
 		
 		//if(pg != null) {
 			if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
