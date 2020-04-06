@@ -6,8 +6,10 @@ layout (location = 1) in vec2 inTexCoord;
 out vec4 vertexColor;
 out vec2 outTexCoord;
 flat out int outUseTexture;
+flat out int outInvertTexture;
 
 uniform bool useTexture;
+uniform bool invertTexture;
 uniform mat4 model;
 uniform mat4 projection;
 uniform vec4 color;
@@ -17,9 +19,11 @@ void main() {
 	vertexColor = color;
 	if(useTexture) {
 		outUseTexture = 1;
+		outInvertTexture = invertTexture ? 1 : 0;
 		outTexCoord = inTexCoord;
 	} else {
-		outUseTexture = 0;	
+		outUseTexture = 0;
+		outInvertTexture = 0;
 		outTexCoord = vec2(0.0, 0.0);
 	}
 }

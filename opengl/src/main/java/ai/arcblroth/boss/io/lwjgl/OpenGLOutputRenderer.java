@@ -11,10 +11,8 @@ import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.resource.Resource;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
-import ai.arcblroth.boss.util.TextureUtils;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
-import org.lwjgl.system.MemoryStack;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -112,8 +110,6 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 				glClearColor(clearColorVec.x, clearColorVec.y, clearColorVec.z, 1.0F);
 				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		        glEnable(GL_BLEND);
-		        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		        glBlendEquation(GL_FUNC_ADD);
 				
 				if (window.isResized()) {
 					glViewport(0, 0, window.getWidth(), window.getHeight());
@@ -122,131 +118,131 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 				
 				glUseProgram(shader.getHandle());
 				glUniform1i(glGetUniformLocation(shader.getHandle(), "texture1"), 0);
-				
-				try (MemoryStack stack = MemoryStack.stackPush()) {
-					int width = window.getWidth();
-					int height = window.getHeight();
-					
-					lastSize = new Pair<Integer, Integer>(
-							2 * (int)Math.round((double)width / (double)StaticDefaults.CHARACTER_WIDTH),
-							2 * (int)Math.round((double)height / ((double)StaticDefaults.CHARACTER_HEIGHT / 2D))
-					);
 
-					float roundedWidth = (lastSize.getFirst() * StaticDefaults.CHARACTER_WIDTH) / 2F;
-					float roundedHeight = (lastSize.getSecond() * StaticDefaults.CHARACTER_WIDTH) / 2F;
-					float halfCharWidth = StaticDefaults.CHARACTER_WIDTH / 2F;
+				int width = window.getWidth();
+				int height = window.getHeight();
 
-					System.out.println(width + " " + roundedWidth);
+				lastSize = new Pair<Integer, Integer>(
+						2 * (int)Math.round((double)width / (double)StaticDefaults.CHARACTER_WIDTH),
+						2 * (int)Math.round((double)height / ((double)StaticDefaults.CHARACTER_HEIGHT / 2D))
+				);
 
-					shader.setMatrix4f("projection", new Matrix4f().ortho(
-							-roundedWidth - halfCharWidth,
-							roundedWidth - halfCharWidth,
-							-roundedHeight + halfCharWidth,
-							roundedHeight + halfCharWidth,
-							0, 1));
-					Matrix4f scaledModelMatrix = new Matrix4f().scale(StaticDefaults.CHARACTER_WIDTH, StaticDefaults.CHARACTER_WIDTH, 1F);
-					
-					// Render each row like a printer would
-					// Text is always printed on top of background stuff.
-					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
-						ArrayList<Color> row1 = pg.getRow(rowNum);
-						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
-						
-						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
-							// Draw ordinary pixels
-							// If pixel color == background color, don't draw it!
-							if(!row1.get(colNum).equals(clearColor)) {
-								drawPixel(
-									new Matrix4f(scaledModelMatrix).translate(
+				float roundedWidth = (lastSize.getFirst() * StaticDefaults.CHARACTER_WIDTH) / 2F;
+				float roundedHeight = (lastSize.getSecond() * StaticDefaults.CHARACTER_WIDTH) / 2F;
+				float halfCharWidth = StaticDefaults.CHARACTER_WIDTH / 2F;
+
+				shader.setMatrix4f("projection", new Matrix4f().ortho(
+						-roundedWidth - halfCharWidth,
+						roundedWidth - halfCharWidth,
+						-roundedHeight + halfCharWidth,
+						roundedHeight + halfCharWidth,
+						0, 1));
+				Matrix4f scaledModelMatrix = new Matrix4f().scale(StaticDefaults.CHARACTER_WIDTH, StaticDefaults.CHARACTER_WIDTH, 1F);
+
+				// Render each row like a printer would
+				// Text is always printed on top of background stuff.
+				for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
+					ArrayList<Color> row1 = pg.getRow(rowNum);
+					ArrayList<Color> row2 = pg.getRow(rowNum + 1);
+
+					for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
+						// Draw ordinary pixels
+						// If pixel color == background color, don't draw it!
+						if(!row1.get(colNum).equals(clearColor)) {
+							drawPixel(
+								new Matrix4f(scaledModelMatrix).translate(
+									(-pg.getWidth()/2F + colNum),
+									( pg.getHeight()/2F - rowNum),
+									0
+								).scale(0.5F),
+								row1.get(colNum)
+							);
+						}
+						if(!row2.get(colNum).equals(clearColor)) {
+							drawPixel(
+								new Matrix4f(scaledModelMatrix).translate(
 										(-pg.getWidth()/2F + colNum),
-										( pg.getHeight()/2F - rowNum),
+										( pg.getHeight()/2F - rowNum - 1),
 										0
-									).scale(0.5F),
-									row1.get(colNum)
-								);
-							}
-							if(!row2.get(colNum).equals(clearColor)) {
-								drawPixel(
+								).scale(0.5F),
+								row2.get(colNum)
+							);
+						}
+					}
+				}
+				for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
+					ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
+
+					for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
+						if(rowTxt.get(colNum) != StaticDefaults.RESET_CHAR) {
+							// Draw characters on a background color
+							drawCharacter(
+									new Matrix4f(scaledModelMatrix).translate(
+											(-pg.getWidth()/2F + colNum - 0.5F),
+											( pg.getHeight()/2F - rowNum - 1.25F),
+											0
+									).scale(1F, -1F, 1F),
 									new Matrix4f(scaledModelMatrix).translate(
 											(-pg.getWidth()/2F + colNum),
-											( pg.getHeight()/2F - rowNum - 1),
+											( pg.getHeight()/2F - rowNum - 0.5F),
 											0
-									).scale(0.5F),
-									row2.get(colNum)
-								);
-							}
-						}
-					}
-					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
-						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
-
-						for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
-							if(rowTxt.get(colNum) != StaticDefaults.RESET_CHAR) {
-								// Draw characters on a background color
-								drawCharacter(
-										new Matrix4f(scaledModelMatrix).translate(
-												(-pg.getWidth()/2F + colNum - 0.5F),
-												( pg.getHeight()/2F - rowNum - 1.25F),
-												0
-										).scale(1F, -1F, 1F),
-										new Matrix4f(scaledModelMatrix).translate(
-												(-pg.getWidth()/2F + colNum),
-												( pg.getHeight()/2F - rowNum - 0.5F),
-												0
-										).scale(0.5F, 1F, 1F),
-										pg.getColorsAt(colNum, rowNum),
-										rowTxt.get(colNum)
-								);
-							}
-						}
-					}
-					
-					//FPS + memory
-					if(showFPS) {
-						
-						//For inverted-ness
-						//glBlendFuncSeparate(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA, GL_ZERO, GL_ZERO);
-						Color invertedClearColor = TextureUtils.invert(clearColor);
-
-						String fpsString = String.format("%.0f FPS", fps);
-						for(int fpsCharIndex = 0; fpsCharIndex < fpsString.length(); fpsCharIndex++) {
-							drawCharacter(
-								new Matrix4f(scaledModelMatrix).translate(
-										(-pg.getWidth()/2F + fpsCharIndex - 0.25F),
-										( pg.getHeight()/2F - 1.25F),
-										0
-								).scale(1F, -1F, 1F),
-								new Matrix4f(scaledModelMatrix).translate(
-										(-pg.getWidth()/2F + fpsCharIndex),
-										( pg.getHeight()/2F - 0.5F),
-										0
-								).scale(0.5F, 1F, 1F),
-								new Pair<Color, Color>(invertedClearColor, null),
-								fpsString.charAt(fpsCharIndex)
+									).scale(0.5F, 1F, 1F),
+									pg.getColorsAt(colNum, rowNum),
+									rowTxt.get(colNum)
 							);
 						}
-						
-						String memString = String.format("%s MB / %s MB", 
-								Runtime.getRuntime().freeMemory() / BYTES_IN_MEGABYTE,
-								Runtime.getRuntime().totalMemory() / BYTES_IN_MEGABYTE
+					}
+				}
+
+				//FPS + memory
+				if(showFPS) {
+
+					//For inverted-ness
+					glBlendFuncSeparate(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+					shader.setBool("invertTexture", true);
+
+					String fpsString = String.format("%.0f FPS", fps);
+					for(int fpsCharIndex = 0; fpsCharIndex < fpsString.length(); fpsCharIndex++) {
+						drawCharacter(
+							new Matrix4f(scaledModelMatrix).translate(
+									(-pg.getWidth()/2F + fpsCharIndex - 0.25F),
+									( pg.getHeight()/2F - 1.25F),
+									0
+							).scale(1F, -1F, 1F),
+							new Matrix4f(scaledModelMatrix).translate(
+									(-pg.getWidth()/2F + fpsCharIndex),
+									( pg.getHeight()/2F - 0.5F),
+									0
+							).scale(0.5F, 1F, 1F),
+							new Pair<Color, Color>(Color.WHITE, null),
+							fpsString.charAt(fpsCharIndex)
 						);
-						for(int memCharIndex = 0; memCharIndex < memString.length(); memCharIndex++) {
-							drawCharacter(
-								new Matrix4f(scaledModelMatrix).translate(
-										(pg.getWidth()/2F - memCharIndex - 1.75F),
-										(pg.getHeight()/2F - 1.25F),
-										0
-								).scale(1F, -1F, 1F),
-								new Matrix4f(scaledModelMatrix).translate(
-										(pg.getWidth()/2F - memCharIndex),
-										(pg.getHeight()/2F - 0.5F),
-										0
-								).scale(0.5F, 1F, 1F),
-								new Pair<Color, Color>(invertedClearColor, null),
-								memString.charAt(memString.length() - 1 - memCharIndex)
-							);
-						}
 					}
+
+					String memString = String.format("%s MB / %s MB",
+							Runtime.getRuntime().freeMemory() / BYTES_IN_MEGABYTE,
+							Runtime.getRuntime().totalMemory() / BYTES_IN_MEGABYTE
+					);
+					for(int memCharIndex = 0; memCharIndex < memString.length(); memCharIndex++) {
+						drawCharacter(
+							new Matrix4f(scaledModelMatrix).translate(
+									(pg.getWidth()/2F - memCharIndex - 1.75F),
+									(pg.getHeight()/2F - 1.25F),
+									0
+							).scale(1F, -1F, 1F),
+							new Matrix4f(scaledModelMatrix).translate(
+									(pg.getWidth()/2F - memCharIndex),
+									(pg.getHeight()/2F - 0.5F),
+									0
+							).scale(0.5F, 1F, 1F),
+							new Pair<Color, Color>(Color.WHITE, null),
+							memString.charAt(memString.length() - 1 - memCharIndex)
+						);
+					}
+
+					shader.setBool("invertTexture", false);
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 				}
 				
 				//RENDER!
