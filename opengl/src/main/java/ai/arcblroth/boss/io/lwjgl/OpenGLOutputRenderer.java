@@ -205,13 +205,13 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 					for(int fpsCharIndex = 0; fpsCharIndex < fpsString.length(); fpsCharIndex++) {
 						drawCharacter(
 							new Matrix4f(scaledModelMatrix).translate(
-									(-pg.getWidth()/2F + fpsCharIndex - 0.25F),
-									( pg.getHeight()/2F - 1.25F),
+									(-(float)width / StaticDefaults.CHARACTER_WIDTH + fpsCharIndex - 0.25F),
+									( (float)height / StaticDefaults.CHARACTER_WIDTH - 1F),
 									0
 							).scale(1F, -1F, 1F),
 							new Matrix4f(scaledModelMatrix).translate(
-									(-pg.getWidth()/2F + fpsCharIndex),
-									( pg.getHeight()/2F - 0.5F),
+									(-(float)width / StaticDefaults.CHARACTER_WIDTH + fpsCharIndex),
+									( (float)height / StaticDefaults.CHARACTER_WIDTH - 0.5F),
 									0
 							).scale(0.5F, 1F, 1F),
 							new Pair<Color, Color>(Color.WHITE, null),
@@ -226,13 +226,13 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 					for(int memCharIndex = 0; memCharIndex < memString.length(); memCharIndex++) {
 						drawCharacter(
 							new Matrix4f(scaledModelMatrix).translate(
-									(pg.getWidth()/2F - memCharIndex - 1.75F),
-									(pg.getHeight()/2F - 1.25F),
+									((float)width / StaticDefaults.CHARACTER_WIDTH - memCharIndex - 1.75F),
+									((float)height / StaticDefaults.CHARACTER_WIDTH - 1F),
 									0
 							).scale(1F, -1F, 1F),
 							new Matrix4f(scaledModelMatrix).translate(
-									(pg.getWidth()/2F - memCharIndex),
-									(pg.getHeight()/2F - 0.5F),
+									((float)width / StaticDefaults.CHARACTER_WIDTH - memCharIndex),
+									((float)height / StaticDefaults.CHARACTER_WIDTH - 0.5F),
 									0
 							).scale(0.5F, 1F, 1F),
 							new Pair<Color, Color>(Color.WHITE, null),
