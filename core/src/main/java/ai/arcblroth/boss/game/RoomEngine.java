@@ -7,7 +7,7 @@ import java.util.List;
 
 public abstract class RoomEngine {
 
-	private WorldEngine worldEngine;
+	protected WorldEngine worldEngine;
 
 	public RoomEngine(WorldEngine worldEngine) {
 		this.worldEngine = worldEngine;

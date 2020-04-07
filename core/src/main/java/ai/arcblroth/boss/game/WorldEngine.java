@@ -7,17 +7,17 @@ import ai.arcblroth.boss.engine.Level;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.engine.entity.player.Player;
-import ai.arcblroth.boss.engine.gui.GUI;
-import ai.arcblroth.boss.engine.gui.GUILookAndFeel;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;
 import ai.arcblroth.boss.register.LevelRegistry;
-import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class WorldEngine implements IEngine {
@@ -31,8 +31,7 @@ public class WorldEngine implements IEngine {
 	private WorldRenderer renderer;
 	private Level level;
 	private RoomEngine roomEngine;
-	private GUI gui;
-	private GUILookAndFeel lookAndFeel;
+	private WorldGUI gui;
 	private boolean guiHasFocus;
 	private String currentRoomId;
 	private HashMap<Keybind, Long> firedKeys;
@@ -44,22 +43,12 @@ public class WorldEngine implements IEngine {
 		this.level = LevelRegistry.instance().getLevel("w0l1", this);
 		this.currentRoomId = level.getInitialRoom();
 		this.roomEngine = getCurrentRoom().buildRoomEngine(this);
-		this.gui = new GUI();
+		this.gui = new WorldGUI(this);
 		this.guiHasFocus = false;
 		this.renderer = new WorldRenderer(level.getRoom(currentRoomId), gui);
 		this.firedKeys = new HashMap<>();
 		this.maybeLater = new HashMap<>();
 		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoomId).getResetColor());
-
-		lookAndFeel = new GUILookAndFeel();
-		lookAndFeel.panelBgColor = new Color(35, 103, 219, 255 * 2 / 3);
-		lookAndFeel.panelBorderColor = Color.BLUE;
-		lookAndFeel.panelBorderWidth = 1;
-		lookAndFeel.textSelectedFgColor = Color.BLACK;
-		lookAndFeel.textSelectedBgColor = Color.LIGHT_GRAY;
-		lookAndFeel.textDeselectedFgColor = Color.WHITE;
-		lookAndFeel.textDeselectedBgColor = Color.TRANSPARENT;
-		lookAndFeel.textAnimationSpeed = 1.4F;
 
 		if(this.roomEngine != null) runLater(roomEngine::onRoomEnter, 1);
 	}
@@ -184,7 +173,7 @@ public class WorldEngine implements IEngine {
 		maybeLater.put(task, steps);
 	}
 
-	public GUI getGUI() {
+	public WorldGUI getGUI() {
 		return gui;
 	}
 
@@ -220,14 +209,6 @@ public class WorldEngine implements IEngine {
 		roomEngine = getCurrentRoom().buildRoomEngine(this);
 		renderer.setRoom(getCurrentRoom());
 		if(roomEngine != null) runLater(roomEngine::onRoomEnter, 1);
-	}
-
-	public GUILookAndFeel getLookAndFeel() {
-		return lookAndFeel;
-	}
-
-	public void setLookAndFeel(GUILookAndFeel lookAndFeel) {
-		this.lookAndFeel = Objects.requireNonNull(lookAndFeel);
 	}
 
 	public State getState() {
