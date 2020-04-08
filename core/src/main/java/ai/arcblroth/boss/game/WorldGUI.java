@@ -33,6 +33,17 @@ public class WorldGUI extends GUI {
 		setFocusedComponent(dialoguePanel);
 	}
 
+	public void showQuickDialogue(String name, String text) {
+		worldEngine.setGuiHasFocus(true);
+		dialoguePanel.setNameString(name);
+		dialoguePanel.setTextString(text);
+		dialoguePanel.setVisible(true);
+		dialoguePanel.onAdvance(() -> {
+			dialoguePanel.setVisible(false);
+			worldEngine.setGuiHasFocus(false);
+		});
+	}
+
 	public WorldEngine getWorldEngine() {
 		return worldEngine;
 	}

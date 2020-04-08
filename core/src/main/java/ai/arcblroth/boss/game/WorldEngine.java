@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 public class WorldEngine implements IEngine {
 
 	public enum State {
-		IN_WORLD, IN_CUTSCENE, IN_BATTLE
+		LOADING, IN_WORLD, IN_CUTSCENE, IN_BATTLE
 	}
 
 	private Logger logger;

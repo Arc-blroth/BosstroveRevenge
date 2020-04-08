@@ -22,16 +22,11 @@ public class W0L1R0Engine extends RoomEngine {
 		SingleChoiceGUIListDialog dialog = GUIFactory.newSingleChoiceListDialog(worldEngine.getGUI().getLookAndFeel(), "Yes", "No", "Maybe", "What?", "...", "Sure");
 		dialog.onChoice(choice -> {
 			worldEngine.getGUI().remove(dialog);
-			worldEngine.getGUI().getDialoguePanel().setTextString("Well, you're gonna have a bad time ;)");
-			worldEngine.getGUI().getDialoguePanel().onAdvance(() -> {
-				worldEngine.getGUI().getDialoguePanel().setVisible(false);
-				worldEngine.setGuiHasFocus(false);
-			});
+			worldEngine.getGUI().showQuickDialogue("Bosstrove", "Well, you're gonna have a bad time ;)");
 			worldEngine.getGUI().setFocusedComponent(worldEngine.getGUI().getDialoguePanel());
 		});
 		dialog.setVisible(true);
-		worldEngine.getGUI().getDialoguePanel().setNameString("Bosstrove");
-		worldEngine.getGUI().getDialoguePanel().setTextString("Would you like to play a game?");
+		worldEngine.getGUI().showQuickDialogue("Bosstrove", "Would you like to play a game?");
 		worldEngine.getGUI().add(dialog, new GUIConstraints("5", "5", "12", "29", 1));
 		worldEngine.getGUI().setFocusedComponent(dialog);
 
