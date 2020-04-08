@@ -31,6 +31,7 @@ public class WorldEngine implements IEngine {
 	private WorldRenderer renderer;
 	private Level level;
 	private RoomEngine roomEngine;
+	private LevelIntroShader levelIntroShader;
 	private WorldGUI gui;
 	private boolean guiHasFocus;
 	private String currentRoomId;
@@ -39,16 +40,23 @@ public class WorldEngine implements IEngine {
 
 	public WorldEngine() {
 		this.logger = Logger.getLogger("WorldEngine");
-		this.state = State.IN_WORLD;
+		this.state = State.LOADING;
 		this.level = LevelRegistry.instance().getLevel("w0l1", this);
 		this.currentRoomId = level.getInitialRoom();
 		this.roomEngine = getCurrentRoom().buildRoomEngine(this);
+		this.levelIntroShader = new LevelIntroShader(level, true);
 		this.gui = new WorldGUI(this);
 		this.guiHasFocus = false;
 		this.renderer = new WorldRenderer(level.getRoom(currentRoomId), gui);
 		this.firedKeys = new HashMap<>();
 		this.maybeLater = new HashMap<>();
 		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoomId).getResetColor());
+
+		renderer.putGlobalShader(0, levelIntroShader);
+		runLater(() -> {
+			renderer.removeGlobalShader(levelIntroShader);
+			setState(State.IN_WORLD);
+		}, StaticDefaults.LEVEL_INTRO_ANIMATION_LENGTH + 1);
 
 		if(this.roomEngine != null) runLater(roomEngine::onRoomEnter, 1);
 	}
@@ -59,7 +67,7 @@ public class WorldEngine implements IEngine {
 		
 		firedKeys.replaceAll((key, stepsFiredAgo) -> Math.min(stepsFiredAgo + 1, key.getFiringDelay()));
 		maybeLater.replaceAll((action, stepsToGo) -> stepsToGo - 1);
-		Iterator<Map.Entry<Runnable, Long>> actuallyNow = maybeLater.entrySet().iterator();
+		Iterator<Map.Entry<Runnable, Long>> actuallyNow = ((HashMap<Runnable, Long>)maybeLater.clone()).entrySet().iterator();
 		actuallyNow.forEachRemaining(entry -> {
 			if(entry.getValue() == 0) {
 				try {
@@ -81,24 +89,27 @@ public class WorldEngine implements IEngine {
 			}
 		});
 
-		if(state != State.IN_BATTLE) {
+		if(state == State.LOADING) {
+			levelIntroShader.advanceFrame();
+		}
+		if (state != State.IN_BATTLE) {
 			try {
 				level.getRoom(currentRoomId).runStepCallbacks();
 				level.getRoom(currentRoomId).runCollisionCallbacks(firingKeys);
-			} catch(Exception ahh) {
+			} catch (Exception ahh) {
 				logger.log(java.util.logging.Level.SEVERE, "Error while running room callbacks", ahh);
 			}
 
-			if(guiHasFocus) {
+			if (guiHasFocus) {
 				firingKeys.forEach(keybind -> {
 					try {
 						gui.onInput(keybind);
-					} catch(Exception ahh) {
+					} catch (Exception ahh) {
 						logger.log(java.util.logging.Level.SEVERE, "Error while running GUI onInput callback", ahh);
 					}
 				});
 			} else {
-				if(state == State.IN_WORLD) {
+				if (state == State.IN_WORLD) {
 					if (firingKeys.contains(new Keybind("boss.north"))) {
 						player.setDirection(Direction.NORTH);
 						player.accelerate(Direction.NORTH, 0.25);
@@ -117,27 +128,31 @@ public class WorldEngine implements IEngine {
 					}
 				}
 			}
-			if(roomEngine != null) {
-				try {
-					roomEngine.handleKeybinds(firingKeys);
-				} catch(Exception ahh) {
-					logger.log(java.util.logging.Level.SEVERE, "Error while running RoomEngine handleKeybinds function", ahh);
+			if (roomEngine != null) {
+				if(state == State.IN_WORLD) {
+					try {
+						roomEngine.handleKeybinds(firingKeys);
+					} catch (Exception ahh) {
+						logger.log(java.util.logging.Level.SEVERE, "Error while running RoomEngine handleKeybinds function", ahh);
+					}
 				}
-				try {
-					roomEngine.step(e);
-				} catch(Exception ahh) {
-					logger.log(java.util.logging.Level.SEVERE, "Error while running room step function", ahh);
+				if(state == State.LOADING || state == State.IN_WORLD) {
+					try {
+						roomEngine.step(e);
+					} catch (Exception ahh) {
+						logger.log(java.util.logging.Level.SEVERE, "Error while running room step function", ahh);
+					}
 				}
 			}
 		}
 
-		if(firingKeys.contains(new Keybind("boss.debug"))) {
+		if (firingKeys.contains(new Keybind("boss.debug"))) {
 			BosstrovesRevenge.instance().setRendererShowingFPS(!BosstrovesRevenge.instance().isRendererShowingFPS());
 		}
-		
+
 		firingKeys.clear();
 
-		if(state == State.IN_WORLD) {
+		if (state == State.IN_WORLD || state == State.LOADING) {
 			Pair<Integer, Integer> outputSize = BosstrovesRevenge.instance().getOutputSize();
 			renderer.setRenderOffset(
 					player.getPosition().getX() * StaticDefaults.TILE_WIDTH - outputSize.getFirst() / 2D,

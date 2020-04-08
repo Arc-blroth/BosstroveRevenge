@@ -4,6 +4,8 @@
   "world": "Test",
   "level": "1",
   "title": "Debugging Seas",
+  "introBackgroundColor": "#000000",
+  "introForegroundColor": "#ffffff",
   "initialRoom": "0",
   
   "rooms": [

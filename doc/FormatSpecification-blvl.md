@@ -87,6 +87,10 @@ Example File:
 - Level display title
 - Required
 
+### `introBackgroundColor` and `introForegroundColor`
+- Defines the colors for the level intro animation
+- Optional. Defaults to black for the background and white for the foreground.
+
 ### `initialRoom`
 - ID of the first room in this level.
 - Optional. Defaults to the first room in the `rooms` array.

@@ -1,10 +1,10 @@
 package ai.arcblroth.boss.util;
 
-import java.util.Random;
-
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.PixelGrid;
 import ai.arcblroth.boss.render.Texture;
+
+import java.util.Random;
 
 public final class StaticDefaults {
 
@@ -36,5 +36,7 @@ public final class StaticDefaults {
 	public static final double MAX_PLAYER_HEALTH = 10;
 	
 	public static final long DEFAULT_KEYBIND_DELAY = 4;
+
+	public static final int LEVEL_INTRO_ANIMATION_LENGTH = 30;
 
 }
