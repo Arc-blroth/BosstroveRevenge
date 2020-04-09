@@ -3,8 +3,10 @@ package ai.arcblroth.boss.game;
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.IRenderer;
 import ai.arcblroth.boss.engine.IShader;
+import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.entity.IEntity;
+import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.engine.gui.GUI;
 import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.engine.tile.FloorTile;
@@ -16,10 +18,7 @@ import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.TextureUtils;
 
-import java.util.LinkedList;
-import java.util.Objects;
-import java.util.Random;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class WorldRenderer implements IRenderer {
@@ -30,12 +29,16 @@ public class WorldRenderer implements IRenderer {
 	private GUI gui;
 	private ConcurrentSkipListMap<Integer, IShader> worldShaders;
 	private ConcurrentSkipListMap<Integer, IShader> globalShaders;
+	private boolean lockToPlayer;
 	private double xOffset;
 	private double yOffset;
 
 	public WorldRenderer(Room r, GUI gui) {
 		this.room = r;
 		this.gui = gui;
+		this.lockToPlayer = true;
+		this.xOffset = 0;
+		this.yOffset = 0;
 
 		this.worldShaders = new ConcurrentSkipListMap<>();
 		this.globalShaders = new ConcurrentSkipListMap<>();
@@ -47,15 +50,25 @@ public class WorldRenderer implements IRenderer {
 		BosstrovesRevenge.instance().getTextureCache().stepAnimatedTextures();
 		
 		Pair<Integer, Integer> outputSize = BosstrovesRevenge.instance().getOutputSize();
+
+		Position playerPos = room.getPlayer().getPosition();
+		Hitbox playerHitbox = room.getPlayer().getHitbox();
+		if(lockToPlayer) {
+			setRenderOffset(
+					playerPos.getX() * StaticDefaults.TILE_WIDTH - outputSize.getFirst() / 2D,
+					playerPos.getY() * StaticDefaults.TILE_HEIGHT - outputSize.getSecond() / 2D
+			);
+		}
+
 		PixelAndTextGrid ptg = new PixelAndTextGrid(outputSize.getFirst(), outputSize.getSecond());
-		renderMap(ptg);
+		renderMap(ptg, playerPos, playerHitbox);
 		worldShaders.forEach((key, value) -> value.render(ptg));
 		gui.render(ptg);
 		globalShaders.forEach((key, value) -> value.render(ptg));
 		return ptg;
 	}
 	
-	private void renderMap(PixelAndTextGrid ptg) {
+	private void renderMap(PixelAndTextGrid ptg, Position playerPos, Hitbox playerHitbox) {
 		
 		TreeMap<Integer, LinkedList<IEntity>> renderLayerEntity = new TreeMap<>();
 		
@@ -65,8 +78,9 @@ public class WorldRenderer implements IRenderer {
 				Math.ceil(ptg.getWidth() / (double)StaticDefaults.TILE_WIDTH) + 1,
 				Math.ceil(ptg.getHeight() / (double)StaticDefaults.TILE_HEIGHT) + 1
 		);
-		
-		for(IEntity ent : room.getEntities()) {
+
+		ArrayList<IEntity> entities = (ArrayList<IEntity>) room.getEntities().clone();
+		for(IEntity ent : entities) {
 			Hitbox entBox = ent.getHitbox();
 			if(entBox.intersects(screenBounds)) {
 				int layer = (int)Math.ceil(entBox.getY() - yOffset / StaticDefaults.TILE_HEIGHT);
@@ -77,7 +91,7 @@ public class WorldRenderer implements IRenderer {
 			}
 		}
 		{
-			int layer = (int)Math.ceil(room.getPlayer().getHitbox().getY() - yOffset / StaticDefaults.TILE_HEIGHT);
+			int layer = (int)Math.ceil(playerHitbox.getY() - yOffset / StaticDefaults.TILE_HEIGHT);
 			if(!renderLayerEntity.containsKey(layer)) {
 				renderLayerEntity.put(layer, new LinkedList<IEntity>());
 			}
@@ -104,7 +118,7 @@ public class WorldRenderer implements IRenderer {
 						xSubtileOff, ySubtileOff, x, y, ptg);
 			}
 			if(renderLayerEntity.containsKey(y)) {
-				renderLayerEntity.get(y).forEach(ent -> renderEntity(ptg, ent));
+				renderLayerEntity.get(y).forEach(ent -> renderEntity(ptg, ent, playerHitbox));
 			}
 		}
 		
@@ -148,18 +162,30 @@ public class WorldRenderer implements IRenderer {
 		}
 	}
 	
-	private void renderEntity(PixelAndTextGrid ptg, IEntity ent) {
+	private void renderEntity(PixelAndTextGrid ptg, IEntity ent, Hitbox playerHitbox) {
 		Texture entTexture = ent.getTexture();
 		
 		// Calculate upper-left corner pos
-		int xEntityOff = (int)Math.round(
-				((double)ent.getHitbox().getX() + (double)ent.getHitbox().getWidth() / 2D) * StaticDefaults.TILE_WIDTH
-				- xOffset - entTexture.getWidth() / 2D
-		);
-		int yEntityOff = (int)Math.round(
-				((double)ent.getHitbox().getY() + (double)ent.getHitbox().getHeight() / 2D) * StaticDefaults.TILE_HEIGHT
-				- yOffset -  entTexture.getHeight() / 2D
-		);
+		int xEntityOff, yEntityOff;
+		if(ent instanceof Player) {
+			xEntityOff = (int) Math.round(
+					((double) playerHitbox.getX() + (double) playerHitbox.getWidth() / 2D) * StaticDefaults.TILE_WIDTH
+							- xOffset - entTexture.getWidth() / 2D
+			);
+			yEntityOff = (int) Math.round(
+					((double) playerHitbox.getY() + (double) playerHitbox.getHeight() / 2D) * StaticDefaults.TILE_HEIGHT
+							- yOffset - entTexture.getHeight() / 2D
+			);
+		} else {
+			xEntityOff = (int) Math.round(
+					((double) ent.getHitbox().getX() + (double) ent.getHitbox().getWidth() / 2D) * StaticDefaults.TILE_WIDTH
+					- xOffset - entTexture.getWidth() / 2D
+			);
+			yEntityOff = (int) Math.round(
+					((double) ent.getHitbox().getY() + (double) ent.getHitbox().getHeight() / 2D) * StaticDefaults.TILE_HEIGHT
+					- yOffset - entTexture.getHeight() / 2D
+			);
+		}
 		
 		// Draw entity texture pixels onto pixelgrid
 		for (int pixelY = 0; pixelY < entTexture.getHeight(); pixelY++) {
@@ -239,6 +265,14 @@ public class WorldRenderer implements IRenderer {
 
 	public double getRenderOffsetY() {
 		return yOffset;
+	}
+
+	public void setLockedToPlayer(boolean lockToPlayer) {
+		this.lockToPlayer = lockToPlayer;
+	}
+
+	public boolean isLockedToPlayer() {
+		return lockToPlayer;
 	}
 
 }

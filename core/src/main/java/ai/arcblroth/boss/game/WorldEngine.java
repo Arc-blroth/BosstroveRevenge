@@ -11,7 +11,6 @@ import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;
 import ai.arcblroth.boss.register.LevelRegistry;
-import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 
 import java.util.ArrayList;
@@ -154,11 +153,9 @@ public class WorldEngine implements IEngine {
 		firingKeys.clear();
 
 		if (state == State.IN_WORLD || state == State.LOADING) {
-			Pair<Integer, Integer> outputSize = BosstrovesRevenge.instance().getOutputSize();
-			renderer.setRenderOffset(
-					player.getPosition().getX() * StaticDefaults.TILE_WIDTH - outputSize.getFirst() / 2D,
-					player.getPosition().getY() * StaticDefaults.TILE_HEIGHT - outputSize.getSecond() / 2D
-			);
+			renderer.setLockedToPlayer(true);
+		} else {
+			renderer.setLockedToPlayer(false);
 		}
 
 	}
