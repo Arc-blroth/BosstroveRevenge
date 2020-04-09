@@ -2,11 +2,11 @@ package ai.arcblroth.boss.load;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.IEngine;
+import ai.arcblroth.boss.engine.IRenderer;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.game.WorldEngine;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.render.Color;
-import ai.arcblroth.boss.engine.IRenderer;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.render.PixelGrid;
 import ai.arcblroth.boss.resource.InternalResource;
@@ -48,8 +48,7 @@ public class LoadEngine implements IEngine {
 	
 	@Override
 	public void step(StepEvent e) {
-		if(!loadProcess.isDone()) {
-			
+		if(!loadProcess.isDone() || !BosstrovesRevenge.instance().isRendererInitialized()) {
 			blueInterpolation += 0.01;
 			if(blueInterpolation >= 1) blueInterpolation = -1;
 			logo = TextureUtils.tintColor(origLogo,
@@ -57,7 +56,7 @@ public class LoadEngine implements IEngine {
 			);
 		} else {
 			if(doneFadeoutAnimation <= 1) {
-				doneFadeoutAnimation += 0.05;
+				doneFadeoutAnimation += 0.04;
 				logo = TextureUtils.tintColor(origLogo, new Color(
 						BosstrovesRevenge.instance().getResetColor().getRed(),
 						BosstrovesRevenge.instance().getResetColor().getGreen(),

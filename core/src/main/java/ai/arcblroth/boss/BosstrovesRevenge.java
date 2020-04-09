@@ -10,6 +10,7 @@ import ai.arcblroth.boss.resource.load.TextureCache;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,6 +30,7 @@ public final class BosstrovesRevenge extends Thread {
 	}
 
 	public static final String TITLE = "Bosstrove's Revenge";
+	private AtomicBoolean isRenderInitialized = new AtomicBoolean(false);
 	private boolean isRunning = true;
 	private boolean hasAlreadyShutdown = false;
 	private final Logger globalLogger, mainLogger;
@@ -69,6 +71,7 @@ public final class BosstrovesRevenge extends Thread {
 		renderThread = new Thread(() -> {
 			Thread.currentThread().setName(TITLE + " Render Thread");
 			outputRenderer.init();
+			isRenderInitialized.set(true);
 			while(isRunning) {
 				try {
 					outputRenderer.render(engine.getRenderer().render());
@@ -132,6 +135,10 @@ public final class BosstrovesRevenge extends Thread {
 
 	public void setResetColor(Color c) {
 		if(c != null) resetColor = c;
+	}
+
+	public boolean isRendererInitialized() {
+		return isRenderInitialized.get();
 	}
 	
 	public Pair<Integer, Integer> getOutputSize() {
