@@ -16,8 +16,8 @@ import java.util.Arrays;
 
 public class LevelIntroShader implements IShader {
 
-	private static final CubicBezier easeIn = new CubicBezier(0.7, 0.95);
-	private static final CubicBezier easeOut = new CubicBezier(0.05, 0.3);
+	private static final CubicBezier easeIn = new CubicBezier(0.8, 1);
+	private static final CubicBezier easeOut = new CubicBezier(0, 0.2);
 
 	private Level level;
 	private boolean inOrOut;
@@ -49,7 +49,7 @@ public class LevelIntroShader implements IShader {
 		double progress = !inOrOut
 				? easeIn.calculate((double)timer / StaticDefaults.LEVEL_INTRO_ANIMATION_LENGTH)
 				: easeOut.calculate((double)timer / StaticDefaults.LEVEL_INTRO_ANIMATION_LENGTH);
-		int textMiddleX = (int)Math.round(target.getWidth() * (!inOrOut ? -(1 - progress) + 0.5 : progress + 0.5));
+		int textMiddleX = (int)Math.round(target.getWidth() * (!inOrOut ? progress - 0.5 : progress + 0.5));
 		PixelAndTextGrid subTarget = TextureUtils.buildFilledTextGrid(target.getWidth(), target.getHeight(), level.getIntroBackgroundColor());
 		Character[] rowOfNothing = new Character[target.getWidth()];
 		Arrays.fill(rowOfNothing, ' ');

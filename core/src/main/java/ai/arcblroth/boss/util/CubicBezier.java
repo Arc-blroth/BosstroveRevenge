@@ -1,16 +1,20 @@
 package ai.arcblroth.boss.util;
 
+/**
+ * Represents a parametric function based on a cubic beizer with control points
+ * (0, 0) (1/3, y1) (2/3, y2) and (1, 1).
+ */
 public class CubicBezier {
 
-	private double u1, u2;
+	private double y1, y2;
 
-	public CubicBezier(double u1, double u2) {
-		this.u1 = u1;
-		this.u2 = u2;
+	public CubicBezier(double y1, double y2) {
+		this.y1 = y1;
+		this.y2 = y2;
 	}
 
 	public double calculate(double t) {
-		return 3 * Math.pow((1 - t), 2) * t * u1 + 3 * (1 - t) * Math.pow(t, 2) * u2 + Math.pow(t, 3);
+		return 3 * Math.pow((1 - t), 2) * t * y1 + 3 * (1 - t) * Math.pow(t, 2) * y2 + Math.pow(t, 3);
 	}
 
 }

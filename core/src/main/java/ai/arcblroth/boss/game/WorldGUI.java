@@ -29,6 +29,7 @@ public class WorldGUI extends GUI {
 		lookAndFeel.textAnimationSpeed = 1.4F;
 
 		this.dialoguePanel = new WorldDialoguePanel(lookAndFeel, "[Name]", "[Text]");
+		dialoguePanel.setVisible(false);
 		add(dialoguePanel, new GUIConstraints("0", "0", "100%", "100%", 0));
 		setFocusedComponent(dialoguePanel);
 	}

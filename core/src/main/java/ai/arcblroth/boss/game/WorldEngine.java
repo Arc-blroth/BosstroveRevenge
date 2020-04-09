@@ -56,9 +56,9 @@ public class WorldEngine implements IEngine {
 		runLater(() -> {
 			renderer.removeGlobalShader(levelIntroShader);
 			setState(State.IN_WORLD);
+			if(this.roomEngine != null) runLater(roomEngine::onRoomEnter, 1);
 		}, StaticDefaults.LEVEL_INTRO_ANIMATION_LENGTH + 1);
 
-		if(this.roomEngine != null) runLater(roomEngine::onRoomEnter, 1);
 	}
 	
 	@Override
