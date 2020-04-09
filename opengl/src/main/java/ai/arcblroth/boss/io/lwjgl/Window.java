@@ -75,6 +75,10 @@ public class Window {
         if (windowHandle == NULL) {
             throw new RuntimeException("Failed to create window");
         }
+
+        if(fullscreen) {
+            glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        }
         
         glfwSetFramebufferSizeCallback(windowHandle, (window, width, height) -> {
             this.width = width;
@@ -155,11 +159,13 @@ public class Window {
             height = vidMode.height();
             resized = true;
             glfwSetWindowMonitor(windowHandle, glfwGetPrimaryMonitor(), 0, 0, width, height, GLFW_DONT_CARE);
+            glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
         } else {
             width = vidMode.width() / 2;
             height = vidMode.height() / 2;
             resized = true;
             glfwSetWindowMonitor(windowHandle, NULL, width / 2, height / 2, width, height, GLFW_DONT_CARE);
+            glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
     }
 

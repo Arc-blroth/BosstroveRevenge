@@ -67,6 +67,7 @@ public class WorldEngine implements IEngine {
 		
 		firedKeys.replaceAll((key, stepsFiredAgo) -> Math.min(stepsFiredAgo + 1, key.getFiringDelay()));
 		maybeLater.replaceAll((action, stepsToGo) -> stepsToGo - 1);
+		// we clone the list to allow adding runLaters in a runLater
 		Iterator<Map.Entry<Runnable, Long>> actuallyNow = ((HashMap<Runnable, Long>)maybeLater.clone()).entrySet().iterator();
 		actuallyNow.forEachRemaining(entry -> {
 			if(entry.getValue() == 0) {

@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class WorldRenderer implements IRenderer {
 
@@ -27,8 +28,8 @@ public class WorldRenderer implements IRenderer {
 	
 	private Room room;
 	private GUI gui;
-	private TreeMap<Integer, IShader> worldShaders;
-	private TreeMap<Integer, IShader> globalShaders;
+	private ConcurrentSkipListMap<Integer, IShader> worldShaders;
+	private ConcurrentSkipListMap<Integer, IShader> globalShaders;
 	private double xOffset;
 	private double yOffset;
 
@@ -36,8 +37,8 @@ public class WorldRenderer implements IRenderer {
 		this.room = r;
 		this.gui = gui;
 
-		this.worldShaders = new TreeMap<>();
-		this.globalShaders = new TreeMap<>();
+		this.worldShaders = new ConcurrentSkipListMap<>();
+		this.globalShaders = new ConcurrentSkipListMap<>();
 	}
 	
 	@Override

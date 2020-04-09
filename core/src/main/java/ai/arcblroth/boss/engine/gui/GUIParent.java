@@ -4,18 +4,18 @@ import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.util.TextureUtils;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class GUIParent extends GUIComponent {
 	
-	private HashMap<GUIComponent, GUIConstraints> children;
+	private ConcurrentHashMap<GUIComponent, GUIConstraints> children;
 	private GUIComponent currentFocus;
 	
 	public GUIParent() {
-		children = new HashMap<>();
+		children = new ConcurrentHashMap<>();
 	}
 	
 	public void add(GUIComponent comp, GUIConstraints constraints) {
@@ -45,14 +45,16 @@ public abstract class GUIParent extends GUIComponent {
 			GUIComponent child = sortedChildren.pollFirstEntry().getValue();
 			if(!child.isHidden()) {
 				GUIConstraints constraints = children.get(child);
-				int resolvedX = constraints.resolveX(targetWidth, targetHeight);
-				int resolvedY = constraints.resolveY(targetWidth, targetHeight);
-				int resolvedWidth = Math.min(constraints.resolveWidth(targetWidth, targetHeight), targetWidth - resolvedX);
-				int resolvedHeight = Math.min(constraints.resolveHeight(targetWidth, targetHeight), targetHeight - resolvedY);
-				if (resolvedX < targetWidth && resolvedY < targetHeight && resolvedWidth > 0 && resolvedHeight > 0) {
-					PixelAndTextGrid childTarget = TextureUtils.buildTransparentTextGrid(resolvedWidth, resolvedHeight);
-					child.render(childTarget);
-					TextureUtils.overlay(childTarget, guiTarget, resolvedX, resolvedY);
+				if(constraints != null) { // Asynchronous removal of a child can cause this to be null.
+					int resolvedX = constraints.resolveX(targetWidth, targetHeight);
+					int resolvedY = constraints.resolveY(targetWidth, targetHeight);
+					int resolvedWidth = Math.min(constraints.resolveWidth(targetWidth, targetHeight), targetWidth - resolvedX);
+					int resolvedHeight = Math.min(constraints.resolveHeight(targetWidth, targetHeight), targetHeight - resolvedY);
+					if (resolvedX < targetWidth && resolvedY < targetHeight && resolvedWidth > 0 && resolvedHeight > 0) {
+						PixelAndTextGrid childTarget = TextureUtils.buildTransparentTextGrid(resolvedWidth, resolvedHeight);
+						child.render(childTarget);
+						TextureUtils.overlay(childTarget, guiTarget, resolvedX, resolvedY);
+					}
 				}
 			}
 		}

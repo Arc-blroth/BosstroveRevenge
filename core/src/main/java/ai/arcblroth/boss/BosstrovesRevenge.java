@@ -1,19 +1,17 @@
 package ai.arcblroth.boss;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import ai.arcblroth.boss.engine.IEngine;
 import ai.arcblroth.boss.engine.StepEvent;
 import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.load.LoadEngine;
 import ai.arcblroth.boss.render.Color;
-import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.resource.load.TextureCache;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public final class BosstrovesRevenge extends Thread {
 
@@ -36,8 +34,6 @@ public final class BosstrovesRevenge extends Thread {
 	private final Logger globalLogger, mainLogger;
 	private IOutputRenderer outputRenderer;
 	private Thread renderThread;
-	private AtomicBoolean newToRenderAvailable = new AtomicBoolean(false);
-	private volatile PixelAndTextGrid toRender = null;
 	private TextureCache globalTextureCache;
 	private Color resetColor = Color.BLACK;
 	private IEngine engine;
@@ -66,7 +62,6 @@ public final class BosstrovesRevenge extends Thread {
 
 	void init(IOutputRenderer renderer) {
 		//Render setup
-		toRender = new PixelAndTextGrid(2, 2);
 		if (outputRenderer != null)
 			throw new IllegalStateException("OutputRenderer has already been initilized!");
 		outputRenderer = renderer;
@@ -74,13 +69,9 @@ public final class BosstrovesRevenge extends Thread {
 		renderThread = new Thread(() -> {
 			Thread.currentThread().setName(TITLE + " Render Thread");
 			outputRenderer.init();
-			PixelAndTextGrid currentlyRenderingGrid = new PixelAndTextGrid(toRender);
 			while(isRunning) {
 				try {
-					if(newToRenderAvailable.compareAndSet(true, false)) {
-						currentlyRenderingGrid = new PixelAndTextGrid(toRender);
-					}
-					outputRenderer.render(currentlyRenderingGrid);
+					outputRenderer.render(engine.getRenderer().render());
 				} catch (Exception e) {
 					BosstrovesRevenge.instance().handleRendererCrash(e);
 				}
@@ -107,12 +98,6 @@ public final class BosstrovesRevenge extends Thread {
 				long currentStepTime = System.currentTimeMillis();
 				engine.step(new StepEvent(currentStepTime - lastStepTime));
 				lastStepTime = currentStepTime;
-				
-				synchronized(newToRenderAvailable) {
-					if(newToRenderAvailable.compareAndSet(false, true)) {
-						toRender = engine.getRenderer().render();
-					}
-				}
 				
 				if(System.currentTimeMillis() - lastLoopTime < StaticDefaults.MILLISECONDS_PER_STEP) {
 					while(System.currentTimeMillis() - lastLoopTime < StaticDefaults.MILLISECONDS_PER_STEP) {
