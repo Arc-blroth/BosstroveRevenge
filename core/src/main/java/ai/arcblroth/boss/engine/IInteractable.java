@@ -4,8 +4,8 @@ import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.key.Keybind;
 
 public interface IInteractable {
-	
-	public enum Direction {NORTH, EAST, SOUTH, WEST};
+
+	;
 	
 	/**
 	 * Called on every game step.

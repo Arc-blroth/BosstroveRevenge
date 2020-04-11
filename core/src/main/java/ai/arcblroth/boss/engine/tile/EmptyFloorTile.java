@@ -1,12 +1,10 @@
 package ai.arcblroth.boss.engine.tile;
 
-import java.util.Random;
-
+import ai.arcblroth.boss.engine.Direction;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.key.Keybind;
-import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.util.StaticDefaults;
 
@@ -26,6 +24,11 @@ public final class EmptyFloorTile extends FloorTile {
 
 	@Override
 	public void onPlayerInteract(Keybind keybind) {}
+
+	@Override
+	public String getId() {
+		return "empty";
+	}
 
 	@Override
 	public double getViscosity() {

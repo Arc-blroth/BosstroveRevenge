@@ -3,7 +3,6 @@ package ai.arcblroth.boss.game.tile;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.engine.entity.IEntity;
-import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.render.MultiFrameTexture;
@@ -42,7 +41,12 @@ public class LeverTile extends WallTile {
 			activated = !activated;
 		}
 	}
-	
+
+	@Override
+	public String getId() {
+		return "boss.lever";
+	}
+
 	@Override
 	public Texture getTexture() {
 		return texture;

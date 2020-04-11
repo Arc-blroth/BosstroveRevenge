@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 
 public class OpenGLUtils {
 
-	public static final boolean DEFAULT_FULLSCREEN = true;
+	public static final boolean DEFAULT_FULLSCREEN = false;
 
 	public static Vector4f rgbToVector(Color in) {
 		return new Vector4f(in.getRed()/255F, in.getGreen()/255F, in.getBlue()/255F, in.getAlpha()/255F);

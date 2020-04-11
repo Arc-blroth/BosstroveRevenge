@@ -34,20 +34,36 @@ Example File:
 
 ### `passable`
 - Whether or not the player can walk through/on the tile.
-- Defaults to true. Ignored if a builder is specified.
+- Defaults to false. Ignored if a builder is specified.
 
 ### `viscosity`
 - The resistance the player recieves while walking through this tile.
 - Defaults to 0.0. Ignored if a builder is specified.
 
+### `smart`
+- If `true`, the texture can have different variants based on the existence of neighboring blocks with the same type.
+- This can help in building "connected" textures across tiles.
+- Defaults to `false`. Cannot be true if `builder` is specified.
+
 ### `texture`
-- Can be either a single string, in which case that texture is used,
-  or can be an array of texture locations. Textures are automatically
-  overlaid, with the first element in the array corresponding to the
-  topmost texture.
-- If a texture cannot be loaded, it will be replaced with the default texture.
-- If not specified, texture will be set to the default.
-- Required, though builders may ignore the built texture.
+- If `smart` is false or unspecified:
+    - Can be either a single string, in which case that texture is used,
+      or can be an array of texture locations. Textures are automatically
+      overlaid, with the first element in the array corresponding to the
+      topmost texture.
+    - If a texture cannot be loaded, it will be replaced with the default texture.
+    - If not specified, texture will be set to the default.
+    - Required, though builders may ignore the built texture.
+- If `smart` is true:
+    - Must be an array of objects with the following format:
+    - `directions`
+      - An array of any combination of "north", "south", "east", and "west". Repeat elements will lead to undefined behavior. The empty array is permitted.
+      - When a tile is bordered with tiles of the same type in these directions, the following texture will be used.
+      - For example, if `directions = ["north", "east"]`, then the following texture would be used when there is a tile of the same type to the north and to the east (and tiles of different types to the south and west).
+    - `texture`
+      - A string or array of strings specifying a texture as in the above specification.
+    - If there is no texture for a combination of directions, the tile will default to an invisible texture.
+    - Duplicate mappings between a certain combination of directions and a texture will result in undefined behavior.
 
 ### `builder`
 - Fully qualified class name of a FloorTileBuilder<? extends FloorTile> or WallTileBuilder<? extends WallTile>.

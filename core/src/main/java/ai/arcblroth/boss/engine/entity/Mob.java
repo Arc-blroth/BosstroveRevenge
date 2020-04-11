@@ -1,14 +1,10 @@
 package ai.arcblroth.boss.engine.entity;
 
-import ai.arcblroth.boss.BosstrovesRevenge;
+import ai.arcblroth.boss.engine.Direction;
 import ai.arcblroth.boss.engine.Position;
-import ai.arcblroth.boss.engine.IInteractable.Direction;
 import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.render.Texture;
-import ai.arcblroth.boss.resource.InternalResource;
-import ai.arcblroth.boss.util.Pair;
-import ai.arcblroth.boss.util.TextureUtils;
 import ai.arcblroth.boss.util.Vector2D;
 
 public abstract class Mob implements IEntity, IMortal, IAccelerable {

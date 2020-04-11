@@ -2,7 +2,68 @@
 	"versionId": 1,
 	"tileId": "boss.stone",
 	"tileType": "wallTile",
-	"passable": false,
+	"smart": "true",
 	"viscosity": 0.0,
-	"texture": "data/texture/tiles/stone.png"
+	"texture": [
+		{
+			"directions": ["north", "east", "south", "west", "this should be ignored"],
+			"texture": "data/texture/tiles/smart/stone/stone-all.png"
+		},
+		{
+			"directions": ["east", "south", "west"],
+			"texture": "data/texture/tiles/smart/stone/stone-esw.png"
+		},
+		{
+			"directions": ["north", "east", "south"],
+			"texture": "data/texture/tiles/smart/stone/stone-nes.png"
+		},
+		{
+			"directions": ["north", "east", "west"],
+			"texture": "data/texture/tiles/smart/stone/stone-new.png"
+		},
+		{
+			"directions": ["north", "south", "west"],
+			"texture": "data/texture/tiles/smart/stone/stone-nsw.png"
+		},
+		{
+			"directions": ["north", "east"],
+			"texture": "data/texture/tiles/smart/stone/stone-ne.png"
+		},
+		{
+			"directions": ["north", "west"],
+			"texture": "data/texture/tiles/smart/stone/stone-nw.png"
+		},
+		{
+			"directions": ["south", "east"],
+			"texture": "data/texture/tiles/smart/stone/stone-se.png"
+		},
+		{
+			"directions": ["south", "west"],
+			"texture": "data/texture/tiles/smart/stone/stone-sw.png"
+		},
+		{
+			"directions": ["north", "south"],
+			"texture": "data/texture/tiles/smart/stone/stone-ns.png"
+		},
+		{
+			"directions": ["east", "west"],
+			"texture": "data/texture/tiles/smart/stone/stone-ew.png"
+		},
+		{
+			"directions": ["north"],
+			"texture": "data/texture/tiles/smart/stone/stone-n.png"
+		},
+		{
+			"directions": ["east"],
+			"texture": "data/texture/tiles/smart/stone/stone-e.png"
+		},
+		{
+			"directions": ["south"],
+			"texture": "data/texture/tiles/smart/stone/stone-s.png"
+		},
+		{
+			"directions": ["west"],
+			"texture": "data/texture/tiles/smart/stone/stone-w.png"
+		}
+	]
 }

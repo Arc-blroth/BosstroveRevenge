@@ -1,14 +1,14 @@
 package ai.arcblroth.boss.engine.tile;
 
+import ai.arcblroth.boss.engine.Direction;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.engine.entity.IEntity;
-import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.register.IRegistrable;
 import ai.arcblroth.boss.render.Texture;
 
-public class FloorTile implements ITile, IRegistrable<FloorTile> {
+public abstract class FloorTile implements ITile, IRegistrable<FloorTile> {
 
 	private Room room;
 	private TilePosition pos;
@@ -29,6 +29,8 @@ public class FloorTile implements ITile, IRegistrable<FloorTile> {
 	public final TilePosition getPosition() {
 		return pos;
 	}
+
+	public abstract String getId();
 
 	@Override
 	public Texture getTexture() {

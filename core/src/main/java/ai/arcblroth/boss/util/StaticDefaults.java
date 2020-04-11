@@ -21,6 +21,7 @@ public final class StaticDefaults {
 	public static final int TILE_HEIGHT = 8;
 	
 	public static final Texture DEFAULT_TEXTURE;
+	public static final Texture EMPTY_TEXTURE;
 	static {
 		int size = 16;
 		Random r = new Random(size);
@@ -31,6 +32,7 @@ public final class StaticDefaults {
 			}
 		}
 		DEFAULT_TEXTURE = new Texture(TextureUtils.sub(pg, 0, 0, 8, 8));
+		EMPTY_TEXTURE = new Texture(0, 0);
 	}
 	
 	public static final double MAX_PLAYER_HEALTH = 10;

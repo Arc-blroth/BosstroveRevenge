@@ -1,7 +1,6 @@
 package ai.arcblroth.boss.engine.entity;
 
-import ai.arcblroth.boss.engine.IInteractable.Direction;
-import ai.arcblroth.boss.util.Pair;
+import ai.arcblroth.boss.engine.Direction;
 import ai.arcblroth.boss.util.Vector2D;
 
 public interface IAccelerable {

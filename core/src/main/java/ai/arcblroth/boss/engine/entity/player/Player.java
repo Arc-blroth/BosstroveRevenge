@@ -1,15 +1,14 @@
 package ai.arcblroth.boss.engine.entity.player;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
-import ai.arcblroth.boss.engine.IHitboxed;
+import ai.arcblroth.boss.engine.Direction;
 import ai.arcblroth.boss.engine.Position;
-import ai.arcblroth.boss.engine.entity.*;
+import ai.arcblroth.boss.engine.entity.IEntity;
+import ai.arcblroth.boss.engine.entity.Mob;
 import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.key.Keybind;
-import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.resource.InternalResource;
-import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.TextureUtils;
 
 public class Player extends Mob {
