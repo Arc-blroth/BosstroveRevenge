@@ -3,6 +3,7 @@ package ai.arcblroth.boss.game;
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.*;
 import ai.arcblroth.boss.engine.entity.player.Player;
+import ai.arcblroth.boss.game.gui.WorldGUI;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;

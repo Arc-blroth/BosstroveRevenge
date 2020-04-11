@@ -1,9 +1,10 @@
-package ai.arcblroth.boss.game;
+package ai.arcblroth.boss.game.gui;
 
 import ai.arcblroth.boss.engine.gui.GUI;
 import ai.arcblroth.boss.engine.gui.GUIConstraints;
 import ai.arcblroth.boss.engine.gui.GUILookAndFeel;
 import ai.arcblroth.boss.engine.gui.WorldDialoguePanel;
+import ai.arcblroth.boss.game.WorldEngine;
 import ai.arcblroth.boss.render.Color;
 
 import java.util.Objects;
@@ -13,6 +14,7 @@ public class WorldGUI extends GUI {
 	private WorldEngine worldEngine;
 	private GUILookAndFeel lookAndFeel;
 	private WorldDialoguePanel dialoguePanel;
+	private HUD hud;
 
 	public WorldGUI(WorldEngine worldEngine) {
 		super();
@@ -32,6 +34,9 @@ public class WorldGUI extends GUI {
 		dialoguePanel.setVisible(false);
 		add(dialoguePanel, new GUIConstraints("0", "0", "100%", "100%", 0));
 		setFocusedComponent(dialoguePanel);
+
+		this.hud = new HUD(worldEngine.getCurrentRoom().getPlayer(), lookAndFeel);
+		add(hud, new GUIConstraints("0", "0", "100%", "100%", 1));
 	}
 
 	public void showQuickDialogue(String name, String text) {
