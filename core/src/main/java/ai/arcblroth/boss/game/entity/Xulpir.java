@@ -28,4 +28,8 @@ public class Xulpir extends Mob {
 		
 	}
 
+	@Override
+	public String getId() {
+		return "boss.xulpir";
+	}
 }

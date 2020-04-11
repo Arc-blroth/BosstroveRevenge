@@ -37,6 +37,11 @@ public class Player extends Mob {
 	}
 
 	@Override
+	public String getId() {
+		return "player";
+	}
+
+	@Override
 	public Texture getTexture() {
 		return flipTexture ? flippedTexture : super.getTexture();
 	}
