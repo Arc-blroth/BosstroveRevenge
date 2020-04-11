@@ -1,10 +1,10 @@
 package ai.arcblroth.boss.render;
 
-import java.util.ArrayList;
-
 import ai.arcblroth.boss.BosstrovesRevenge;
-import ai.arcblroth.boss.register.IRegistrable;
 import ai.arcblroth.boss.util.StaticDefaults;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class MultiFrameTexture extends Texture {
 	
@@ -53,8 +53,8 @@ public class MultiFrameTexture extends Texture {
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public ArrayList<Color> getRow(int y) {
-		return (ArrayList<Color>) getCurrentPixelGridOrDefault().getRow(y).clone();
+	public List<Color> getRow(int y) {
+		return Arrays.asList((Color[])getCurrentPixelGridOrDefault().getRow(y).toArray());
 	}
 	
 	

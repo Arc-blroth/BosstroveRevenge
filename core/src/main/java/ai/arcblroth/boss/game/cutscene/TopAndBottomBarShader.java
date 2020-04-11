@@ -29,11 +29,11 @@ public class TopAndBottomBarShader implements IShader {
 		int bottomRows = Math.min(Math.max((int)Math.round(bottomBarHeight * target.getHeight()), 0), target.getHeight() - topRows);
 		for(int y = 0; y < topRows; y++) {
 			if(y % 2 == 0) target.setCharacterRow(y, new ArrayList<>(Arrays.asList(rowOfSpaces.clone())), barColor, barColor);
-			target.setRow(y, new ArrayList<>(Arrays.asList(rowOfColor.clone())));
+			target.setRow(y, Arrays.asList(rowOfColor.clone()));
 		}
 		for(int y =target.getHeight() - bottomRows; y < target.getHeight(); y++) {
 			if(y % 2 == 0) target.setCharacterRow(y, new ArrayList<>(Arrays.asList(rowOfSpaces.clone())), barColor, barColor);
-			target.setRow(y, new ArrayList<>(Arrays.asList(rowOfColor.clone())));
+			target.setRow(y, Arrays.asList(rowOfColor.clone()));
 		}
 	}
 

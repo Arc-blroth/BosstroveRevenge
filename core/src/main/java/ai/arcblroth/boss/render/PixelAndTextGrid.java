@@ -5,7 +5,7 @@ import ai.arcblroth.boss.util.Grid2D;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class PixelAndTextGrid extends PixelGrid {
 	
@@ -34,19 +34,20 @@ public class PixelAndTextGrid extends PixelGrid {
 		this.textColorGrid = new Grid2D<Color>(width, height, Color.TRANSPARENT);
 	}
 
-	public ArrayList<Character> getCharacterRow(int rowNum) {
+	public List<Character> getCharacterRow(int rowNum) {
 		return textGrid.getRow(rowNum / 2);
 	}
-	public ArrayList<Color> getCharacterColorRow(int rowNum) {
+
+	public List<Color> getCharacterColorRow(int rowNum) {
 		return textColorGrid.getRow(rowNum);
 	}
 
-	public void setCharacterRow(int rowNum, ArrayList<Character> characterRow) {
+	public void setCharacterRow(int rowNum, List<Character> characterRow) {
 		if(characterRow.size() != getWidth()) throw new IllegalArgumentException("Character row must be of the same width as the PixelGrid");
 		textGrid.setRow(rowNum / 2, characterRow);
 	}
 
-	public void setCharacterRow(int rowNum, ArrayList<Character> characterRow, Color back, Color fore) {
+	public void setCharacterRow(int rowNum, List<Character> characterRow, Color back, Color fore) {
 		if(characterRow.size() != getWidth()) throw new IllegalArgumentException("Character row must be of the same width as the PixelGrid");
 		textGrid.setRow(rowNum / 2, characterRow);
 		for(int col = 0; col < getWidth(); col++) {

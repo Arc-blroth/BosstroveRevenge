@@ -1,11 +1,6 @@
 package ai.arcblroth.boss.render;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.*;
-
 import ai.arcblroth.boss.BosstrovesRevenge;
-import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.util.Grid2D;
 
 public class PixelGrid extends Grid2D<Color> {

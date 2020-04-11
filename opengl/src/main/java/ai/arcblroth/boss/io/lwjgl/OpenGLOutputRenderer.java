@@ -14,7 +14,7 @@ import ai.arcblroth.boss.util.StaticDefaults;
 import org.joml.Matrix4f;
 import org.joml.Vector4f;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -151,8 +151,8 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 				// Render each row like a printer would
 				// Text is always printed on top of background stuff.
 				for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
-					ArrayList<Color> row1 = pg.getRow(rowNum);
-					ArrayList<Color> row2 = pg.getRow(rowNum + 1);
+					List<Color> row1 = pg.getRow(rowNum);
+					List<Color> row2 = pg.getRow(rowNum + 1);
 
 					for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
 						// Draw ordinary pixels
@@ -180,7 +180,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 					}
 				}
 				for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
-					ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
+					List<Character> rowTxt = pg.getCharacterRow(rowNum);
 
 					for (int colNum = 0; colNum < pg.getWidth(); colNum++) {
 						if(rowTxt.get(colNum) != StaticDefaults.RESET_CHAR) {

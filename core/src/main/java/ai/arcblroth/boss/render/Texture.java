@@ -1,7 +1,9 @@
 package ai.arcblroth.boss.render;
 
-import java.util.ArrayList;
 import ai.arcblroth.boss.register.IRegistrable;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class Texture extends PixelGrid implements IRegistrable<Texture> {
 	
@@ -27,16 +29,15 @@ public class Texture extends PixelGrid implements IRegistrable<Texture> {
 	 * @return a <b>cloned</b> copy of row {@code y} of this texture.
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
-	public ArrayList<Color> getRow(int y) {
-		return (ArrayList<Color>) super.getRow(y).clone();
+	public List<Color> getRow(int y) {
+		return Arrays.asList((Color[])super.getRow(y).toArray());
 	}
 	
 	/**
 	 * @throws UnsupportedOperationException Textures are immutable.
 	 */
 	@Override
-	public void setRow(int y, ArrayList<Color> row) {
+	public void setRow(int y, List<Color> row) {
 		throw new UnsupportedOperationException("Textures are immutable.");
 	}
 	

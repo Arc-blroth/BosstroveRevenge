@@ -11,7 +11,6 @@ import ai.arcblroth.boss.util.CubicBezier;
 import ai.arcblroth.boss.util.StaticDefaults;
 import ai.arcblroth.boss.util.TextureUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class LevelIntroShader implements IShader {
@@ -54,7 +53,7 @@ public class LevelIntroShader implements IShader {
 		Character[] rowOfNothing = new Character[target.getWidth()];
 		Arrays.fill(rowOfNothing, ' ');
 		for(int y = 0; y < subTarget.getHeight(); y += 2) {
-			subTarget.setCharacterRow(y, new ArrayList<>(Arrays.asList(rowOfNothing.clone())), level.getIntroBackgroundColor(), level.getIntroBackgroundColor());
+			subTarget.setCharacterRow(y, Arrays.asList(rowOfNothing.clone()), level.getIntroBackgroundColor(), level.getIntroBackgroundColor());
 		}
 		panel.render(subTarget);
 		TextureUtils.overlay(subTarget, target, textMiddleX - target.getWidth() / 2, 0);

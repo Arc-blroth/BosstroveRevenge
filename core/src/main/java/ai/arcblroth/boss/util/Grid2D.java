@@ -1,66 +1,69 @@
 package ai.arcblroth.boss.util;
 
-import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Grid2D<T> {
 	
-	private ArrayList<ArrayList<T>> grid;
+	private T[][] grid;
 	private int width, height;
 	private T defaultElement;
-	
+
+	@SuppressWarnings("unchecked")
 	public Grid2D(int width, int height, T defaultElement) {
 		this.width = width;
 		this.height = height;
 		this.defaultElement = defaultElement;
 		
 		if(width < 0 || height < 0) throw new IllegalArgumentException("Grid width and height must be >1");
-		
-		grid = new ArrayList<ArrayList<T>>(height);
+
+		grid = (T[][]) new Object[height][width];
+
 		for(int y = 0; y < height; y++) {
-			ArrayList<T> row = new ArrayList<T>();
 			for(int x = 0; x < width; x++) {
-				row.add(defaultElement);
+				grid[y][x] = defaultElement;
 			}
-			grid.add(row);
 		}
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	public Grid2D(Grid2D<T> copyGrid) {
 		this.width = copyGrid.width;
 		this.height = copyGrid.height;
-		
-		grid = new ArrayList<ArrayList<T>>(height);
+		this.defaultElement = copyGrid.defaultElement;
+
+		grid = (T[][]) new Object[height][width];
+
 		for(int y = 0; y < height; y++) {
-			ArrayList<T> row = new ArrayList<T>();
 			for(int x = 0; x < width; x++) {
-				row.add(copyGrid.get(x, y));
+				grid[y][x] = copyGrid.get(x, y);
 			}
-			grid.add(row);
 		}
 	}
 
 	public T get(int x, int y) {
 		checkBounds(x, y);
-		return grid.get(y).get(x);
+		return grid[y][x];
 	}
 
 	public T getOrNull(int x, int y) {
-		return checkBoundsNicely(x, y) ? grid.get(y).get(x) : null;
+		return checkBoundsNicely(x, y) ? grid[y][x] : null;
 	}
 	
-	public ArrayList<T> getRow(int y) {
+	public List<T> getRow(int y) {
 		checkBounds(0, y);
-		return grid.get(y);
+		return Arrays.asList(grid[y]);
 	}
 
-	public void setRow(int y, ArrayList<T> row) {
+	@SuppressWarnings("unchecked")
+	public void setRow(int y, List<T> row) {
 		checkBounds(0, y);
-		grid.set(y, row);
+		grid[y] = (T[]) row.toArray();
 	}
 	
 	public T set(int x, int y, T element) {
 		checkBounds(x, y);
-		return grid.get(y).set(x, element == null ? defaultElement : element);
+		return grid[y][x] = element == null ? defaultElement : element;
 	}
 
 	public void forEach(TriConsumer<Integer, Integer, T> consumer) {
