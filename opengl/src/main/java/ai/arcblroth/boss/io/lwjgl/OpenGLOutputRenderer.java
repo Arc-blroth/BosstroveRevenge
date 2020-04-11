@@ -1,7 +1,7 @@
 package ai.arcblroth.boss.io.lwjgl;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
-import ai.arcblroth.boss.Relauncher;
+import ai.arcblroth.boss.Environment;
 import ai.arcblroth.boss.crash.CrashReportGenerator;
 import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.render.Color;
@@ -75,7 +75,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 			
 			Resource font = new InternalResource("font/RobotoMono-Medium.ttf");
 			//Use Consolas if on windows, Roboto Mono otherwise
-			if(Relauncher.IS_WINDOWS && !Relauncher.IS_CYGWIN && !Relauncher.IS_MINGW_XTERM) {
+			if(Environment.IS_ACTUALLY_WINDOWS) {
 				Resource consolas = new ExternalResource("C:\\Windows\\Fonts\\consola.ttf");
 				if(consolas.exists()) {
 					logger.log(Level.INFO, "Using Consolas(R) as font.");
@@ -112,7 +112,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 		fullscreenKeyTimeout = Math.max(fullscreenKeyTimeout - 1, 0);
 		
 		//if(pg != null) {
-			if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
+			if(!(System.getProperty(BosstrovesRevenge.FORCE_NORENDER) != null && System.getProperty(BosstrovesRevenge.FORCE_NORENDER).equals("true"))) {
 
 				Color clearColor = BosstrovesRevenge.instance().getResetColor();
 				Vector4f clearColorVec = OpenGLUtils.rgbToVector(clearColor);
@@ -311,7 +311,7 @@ public class OpenGLOutputRenderer implements IOutputRenderer {
 	}
 	
 	public void clear() {
-		if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
+		if(!(System.getProperty(BosstrovesRevenge.FORCE_NORENDER) != null && System.getProperty(BosstrovesRevenge.FORCE_NORENDER).equals("true"))) {
 			
 		}
 	}

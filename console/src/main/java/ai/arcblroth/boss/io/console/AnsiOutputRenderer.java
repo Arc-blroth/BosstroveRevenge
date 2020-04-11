@@ -1,7 +1,6 @@
 package ai.arcblroth.boss.io.console;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
-import ai.arcblroth.boss.Relauncher;
 import ai.arcblroth.boss.crash.CrashReportGenerator;
 import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.render.Color;
@@ -15,12 +14,15 @@ import org.fusesource.jansi.Ansi.Erase;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import org.jline.terminal.impl.jna.win.JnaWinSysTerminal;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.util.List;
 
 public class AnsiOutputRenderer implements IOutputRenderer {
-	
+
+	private static final int ENABLE_EXTENDED_FLAGS = 0x0080;
 	private static final String PIXEL_CHAR = "\u2580";
 	private static final String FULL_CHAR = "\u2588";
 	private static final long BYTES_IN_MEGABYTE = 1000000;
@@ -54,10 +56,26 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 			System.setOut(redirectedOut);
 			System.setErr(redirectedOut);
 			
-			this.terminal = TerminalBuilder.builder().name("Bosstrove's Revenge").jansi(true).jna(true)
+			this.terminal = TerminalBuilder.builder().name("Bosstrove's Revenge").jna(true)
 					.nativeSignals(true)
 					.signalHandler(true ? Terminal.SignalHandler.SIG_DFL : Terminal.SignalHandler.SIG_IGN).build();
 			terminal.enterRawMode();
+
+			// Try to disable quick edit mode because that is weird behavior to an end user
+			try {
+				if(terminal instanceof JnaWinSysTerminal) {
+					JnaWinSysTerminal winTerm = (JnaWinSysTerminal) terminal;
+					Method getConsoleMode = JnaWinSysTerminal.class.getDeclaredMethod("getConsoleMode");
+					getConsoleMode.setAccessible(true);
+					Method setConsoleMode = JnaWinSysTerminal.class.getDeclaredMethod("setConsoleMode", int.class);
+					setConsoleMode.setAccessible(true);
+					int consoleMode = (int) getConsoleMode.invoke(terminal);
+					setConsoleMode.invoke(terminal, consoleMode | ENABLE_EXTENDED_FLAGS);
+				}
+			} catch (Exception e) {
+				System.err.println("[WARN] could not disable quick edit mode: " + e.getMessage());
+			}
+
 			lastRenderTime = System.currentTimeMillis();
 			lastSize = new Pair<Integer, Integer>(0, 0);
 		} catch (Exception e) {
@@ -85,7 +103,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 		}
 		
 		//if(pg != null) {
-			if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
+			if(!(System.getProperty(BosstrovesRevenge.FORCE_NORENDER) != null && System.getProperty(BosstrovesRevenge.FORCE_NORENDER).equals("true"))) {
 				Size size = terminal.getSize();
 				lastSize = new Pair<Integer, Integer>(size.getColumns(), (size.getRows() - (showFPS ? 2 : 0)) * 2);
 				if (terminal.getType().equals(Terminal.TYPE_DUMB) || (size.getColumns() >= pg.getWidth() && size.getRows() >= pg.getHeight() / 2)) {
@@ -223,7 +241,7 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 	}
 	
 	public void clear() {
-		if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
+		if(!(System.getProperty(BosstrovesRevenge.FORCE_NORENDER) != null && System.getProperty(BosstrovesRevenge.FORCE_NORENDER).equals("true"))) {
 			if (terminal.getType() != Terminal.TYPE_DUMB) {
 				terminal.writer().print(CLEAR);
 			} else {

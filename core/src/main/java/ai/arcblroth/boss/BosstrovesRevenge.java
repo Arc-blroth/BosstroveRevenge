@@ -16,6 +16,8 @@ import java.util.logging.Logger;
 
 public final class BosstrovesRevenge extends Thread {
 
+	public static final String FORCE_NORENDER = "FORCE_NORENDER";
+
 	// Set the INSTANCE to final
 	private static final BosstrovesRevenge INSTANCE;
 	static {
@@ -117,7 +119,7 @@ public final class BosstrovesRevenge extends Thread {
 				
 			}
 		} catch (Throwable e) {
-			if(!(System.getProperty(Relauncher.FORCE_NORENDER) != null && System.getProperty(Relauncher.FORCE_NORENDER).equals("true"))) {
+			if(!(System.getProperty(FORCE_NORENDER) != null && System.getProperty(FORCE_NORENDER).equals("true"))) {
 				outputRenderer.displayFatalError(e);
 			} else {
 				globalLogger.log(Level.SEVERE, "FATAL ERROR", e);
