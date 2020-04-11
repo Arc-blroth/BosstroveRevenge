@@ -1,28 +1,23 @@
 package ai.arcblroth.boss.io.console;
 
-import org.fusesource.jansi.Ansi;
-import org.fusesource.jansi.Ansi.Erase;
-import org.jline.terminal.*;
-
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.Relauncher;
 import ai.arcblroth.boss.crash.CrashReportGenerator;
 import ai.arcblroth.boss.io.IOutputRenderer;
-import ai.arcblroth.boss.render.*;
-import ai.arcblroth.boss.util.StaticDefaults;
-import ai.arcblroth.boss.util.TextureUtils;
+import ai.arcblroth.boss.render.Color;
+import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.util.PadUtils;
 import ai.arcblroth.boss.util.Pair;
+import ai.arcblroth.boss.util.StaticDefaults;
+import ai.arcblroth.boss.util.TextureUtils;
+import org.fusesource.jansi.Ansi;
+import org.fusesource.jansi.Ansi.Erase;
+import org.jline.terminal.Size;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.concurrent.*;
+import java.io.*;
+import java.util.List;
 
 public class AnsiOutputRenderer implements IOutputRenderer {
 	
@@ -122,9 +117,9 @@ public class AnsiOutputRenderer implements IOutputRenderer {
 					for (int rowNum = 0; rowNum < (pg.getHeight() / 2) * 2; rowNum += 2) {
 						ArcAnsi rowBuilder = ArcAnsi.ansi();
 						rowBuilder.bgColor(BosstrovesRevenge.instance().getResetColor()).fgColor(BosstrovesRevenge.instance().getResetColor()).append(leftPad);
-						ArrayList<Color> row1 = pg.getRow(rowNum);
-						ArrayList<Color> row2 = pg.getRow(rowNum + 1);
-						ArrayList<Character> rowTxt = pg.getCharacterRow(rowNum);
+						List<Color> row1 = pg.getRow(rowNum);
+						List<Color> row2 = pg.getRow(rowNum + 1);
+						List<Character> rowTxt = pg.getCharacterRow(rowNum);
 						
 						//Optimization 1: Don't reprint colors for every pixel.
 						Color previousFgColor = BosstrovesRevenge.instance().getResetColor();
