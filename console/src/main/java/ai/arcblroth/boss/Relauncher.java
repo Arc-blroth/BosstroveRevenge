@@ -18,10 +18,11 @@ public class Relauncher {
 		//System.setProperty(FORCE_NORENDER, "true");
 		
 		// [00:00:00][Logger/LEVEL]: Message
-		setLoggingPattern();
+		Environment.setLoggingPattern();
 
 		try {
-			if (System.getProperty(IS_RELAUNCHED) == null && System.getProperty(USE_RELAUNCHER) != null) {
+			boolean useRelauncher = System.getProperty(USE_RELAUNCHER) != null;
+			if (System.getProperty(IS_RELAUNCHED) == null && (Environment.IS_ACTUALLY_WINDOWS ? !(useRelauncher && System.getProperty(USE_RELAUNCHER).equals("true")) : useRelauncher)) {
 				String javaExe = System.getProperty("java.home") + File.separator + "bin" + File.separator + "java";
 				String classPath = System.getProperty("java.class.path") + File.pathSeparator
 						+ Relauncher.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
@@ -47,11 +48,6 @@ public class Relauncher {
 			Logger.getGlobal().log(Level.SEVERE, "FATAL ERROR", e);
 			ThreadUtils.waitForever();
 		}
-	}
-
-	private static void setLoggingPattern() {
-		System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tT][%3$s/%4$s]: %5$s %6$s%n");
-		Logger.getLogger("org.jline").setLevel(Level.OFF);
 	}
 
 }

@@ -1,6 +1,8 @@
 package ai.arcblroth.boss;
 
 import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Environment {
 
@@ -20,5 +22,10 @@ public class Environment {
 	// ------------------
 
 	public static final boolean IS_ACTUALLY_WINDOWS = IS_WINDOWS && !IS_CYGWIN && !IS_MINGW_XTERM && System.getProperty(FORCE_NOWINDOWS) == null;
+
+	public static void setLoggingPattern() {
+		System.setProperty("java.util.logging.SimpleFormatter.format", "[%1$tT][%3$s/%4$s]: %5$s %6$s%n");
+		Logger.getLogger("org.jline").setLevel(Level.OFF);
+	}
 
 }
