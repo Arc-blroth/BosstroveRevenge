@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "https://github.com/Arc-blroth/BosstroveRevenge/tree/master/doc/schema/bent.json",
+  "type": "object",
+  "properties": {
+    "versionId": { "type": "number" },
+    "entityId": { "type":  "string" },
+    "class": { "type":  "string" },
+    "builder": { "type":  "string" }
+  },
+  "required": ["versionId", "entityId", "class", "builder"]
+}

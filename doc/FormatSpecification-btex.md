@@ -23,7 +23,7 @@ Example File:
 - Required
 
 ### `spritesheet`
-- The spritesheet that contains the frames for this animated texture.
+- The spritesheet that contains the frames for this texture.
 - Required
 
 ### `frames`

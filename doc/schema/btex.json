@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "https://github.com/Arc-blroth/BosstroveRevenge/tree/master/doc/schema/btex.json",
+
+  "properties": {
+    "versionId": { "type": "number" },
+    "spritesheet": { "type":  "string" },
+    "frames": { "type":  "number", "minimum": 1 },
+    "width": { "type":  "number", "minimum": 1 },
+    "height": { "type":  "number", "minimum": 1 },
+    "animated": { "type":  "boolean", "default": false },
+    "rate":  { "type":  "number", "default": 1 }
+  },
+  "required": ["versionId", "spritesheet", "frames", "width", "height"],
+  "dependencies": {
+    "animated": ["rate"]
+  }
+}

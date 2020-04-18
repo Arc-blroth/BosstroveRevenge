@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "https://github.com/Arc-blroth/BosstroveRevenge/tree/master/doc/schema/blvl.json",
+  "type": "object",
+
+  "definitions": {
+    "color": {
+      "type": "string",
+      "pattern": "^#[\\da-f]{6}",
+      "examples": ["#29a6ff"]
+    },
+
+    "tile": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "tileId": { "type": "string" }
+          },
+          "required": ["tileId"]
+        }
+      ]
+    },
+
+    "entity": {
+      "type": "object",
+      "properties": {
+        "entityId": { "type": "string" }
+      },
+      "required": ["entityId"]
+    },
+
+    "room": {
+      "type": "object",
+      "properties": {
+        "roomId": { "type":  ["number", "string"] },
+        "width": { "type": "number" },
+        "height": { "type": "number" },
+        "resetColor":  { "$ref": "#/definitions/color" },
+        "initialX": { "type": "number", "default": 0 },
+        "initialY": { "type": "number", "default": 0 },
+        "background": { "type":  "string" },
+        "foreground": { "type":  "string" },
+        "roomEngine": { "type":  "string" },
+        "floorTiles": {
+          "type": "array",
+          "items": {
+            "type": "array", "items": { "$ref": "#/definitions/tile" }, "additionalItems": false
+          },
+          "additionalItems": false
+        },
+        "wallTiles": {
+          "type": "array",
+          "items": {
+            "type": "array", "items": { "$ref": "#/definitions/tile" }, "additionalItems": false
+          },
+          "additionalItems": false
+        },
+        "entities": { "type": "array", "items": { "$ref": "#/definitions/entity" }, "minItems": 0, "additionalItems": false }
+      },
+      "required": ["roomId", "width", "height", "floorTiles", "wallTiles"]
+    }
+  },
+
+  "properties": {
+    "versionId": { "type": "number" },
+    "levelId": { "type":  "string" },
+    "world": { "type":  ["number", "string"] },
+    "level": { "type":  ["number", "string"] },
+    "title": { "type":  "string" },
+    "introBackgroundColor":  { "$ref": "#/definitions/color" },
+    "introForegroundColor":  { "$ref": "#/definitions/color" },
+    "initialRoom":  { "type": ["number", "string"], "default": 0 },
+    "rooms": { "type": "array", "items": { "$ref": "#/definitions/room" }, "minItems": 1, "additionalItems": false }
+  },
+
+  "required": ["versionId", "levelId", "world", "level", "title", "rooms"]
+
+}

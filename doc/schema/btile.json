@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "https://github.com/Arc-blroth/BosstroveRevenge/tree/master/doc/schema/btile.json",
+
+  "definitions": {
+    "texture": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": { "type": "string" },
+          "additionalItems": false
+        }
+      ]
+    }
+  },
+
+  "properties": {
+    "versionId": { "type": "number" },
+    "tileId": { "type":  "string" },
+    "tileType": { "type":  "string", "enum": ["floorTile", "wallTile"] }
+  },
+
+  "required": ["versionId", "tileId", "tileType"],
+
+  "oneOf": [
+    {
+      "properties": {
+        "builder":  { "type":  "string" },
+        "texture": { "$ref": "#/definitions/texture" }
+      },
+      "required": ["builder"]
+    },
+    {
+      "properties": {
+        "passable": { "type": "boolean", "default": false },
+        "viscosity": { "type": "number", "default": 0.0 }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "smart":  { "type":  "boolean", "const": false  },
+            "texture": { "$ref": "#/definitions/texture" }
+          }
+        },
+        {
+          "properties": {
+            "smart":  { "type":  "boolean", "const": true  },
+            "texture": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "directions": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "enum": ["north", "east", "south", "west"]
+                    },
+                    "uniqueItems": true,
+                    "additionalItems": false
+                  },
+                  "texture": { "$ref": "#/definitions/texture" }
+                }
+              },
+              "uniqueItems": true,
+              "additionalItems": false
+            }
+          },
+          "required": ["smart"]
+        }
+      ]
+    }
+  ]
+
+}

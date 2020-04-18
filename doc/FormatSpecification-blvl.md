@@ -99,10 +99,6 @@ Example File:
 - List of the rooms in this level.
 - Required
 
-### `entities`
-- List of the entities in this level. See the Format Specification for bent for more information.
-- Optional.
-
 # Rooms
 Within each level is an array of rooms. Each
 room object stores some metadata and a complete
@@ -148,6 +144,10 @@ list of floorTiles and wallTiles.
 - wallTiles is a two-dimensional array that specifies the level's wall tiles.
 - Each sub-array stores a _row_ of tiles.
 - Required
+
+### `entities`
+- List of the entities in this room. See the Format Specification for bent for more information.
+- Optional.
 
 # Specifying tiles
 ## The Usual Way

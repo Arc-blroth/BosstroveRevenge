@@ -2,11 +2,11 @@
 	"versionId": 1,
 	"tileId": "boss.stone",
 	"tileType": "wallTile",
-	"smart": "true",
+	"smart": true,
 	"viscosity": 0.0,
 	"texture": [
 		{
-			"directions": ["north", "east", "south", "west", "this should be ignored"],
+			"directions": ["north", "east", "south", "west"],
 			"texture": "data/texture/tiles/smart/stone/stone-all.png"
 		},
 		{
