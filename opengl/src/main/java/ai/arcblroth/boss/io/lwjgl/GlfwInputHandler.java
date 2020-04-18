@@ -1,11 +1,10 @@
 package ai.arcblroth.boss.io.lwjgl;
 
-import java.util.Arrays;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
-
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.key.CharacterInputEvent;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -39,7 +38,7 @@ public class GlfwInputHandler {
 			keyStore.put('\n', actualAction);
 		} else if(code == GLFW_KEY_TAB) {
 			keyStore.put('\u0009', actualAction);
-		} else if(code == GLFW_KEY_BACKSPACE || code == GLFW_KEY_DELETE) {
+		} else if(code == GLFW_KEY_BACKSPACE) {
 			keyStore.put('\u0008', actualAction);
 		} else if(code == GLFW_KEY_INSERT) {
 			// :(

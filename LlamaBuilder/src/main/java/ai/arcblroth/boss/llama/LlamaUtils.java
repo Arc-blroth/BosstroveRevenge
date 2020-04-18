@@ -1,12 +1,9 @@
 package ai.arcblroth.boss.llama;
 
-import java.awt.Dimension;
-import java.awt.Rectangle;
-import java.util.ArrayList;
-
-import javafx.collections.ObservableList;
+import ai.arcblroth.boss.render.Color;
 import javafx.scene.Node;
 import javafx.scene.Parent;
+import javafx.scene.paint.Paint;
 
 public class LlamaUtils {
 	
@@ -15,21 +12,11 @@ public class LlamaUtils {
 	}
 	
 	public static Node getElementById(Parent p, String id) {
-		ObservableList<Node> children = p.getChildrenUnmodifiable();
-		for(int i = 0; i < children.size(); i++) {
-			if(children.get(i).idProperty().get() != null) {
-				if(children.get(i).idProperty().get().equals(id)) {
-					return children.get(i);
-				}
-			}
-		}
-		for(int i = 0; i < children.size(); i++) {
-			if(children.get(i) instanceof Parent) {
-				Node n = getElementById((Parent) children.get(i), id);
-				if(n != null) return n;
-			}
-		}
-		return null;
+		return p.lookup("#" + id);
+	}
+
+	public static Paint colorToPaint(Color color) {
+		return new javafx.scene.paint.Color(color.getRed()/255D, color.getGreen()/255D, color.getBlue()/255D, color.getAlpha()/255D);
 	}
 	
 }

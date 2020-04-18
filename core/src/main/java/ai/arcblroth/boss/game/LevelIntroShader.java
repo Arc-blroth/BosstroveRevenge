@@ -52,7 +52,7 @@ public class LevelIntroShader implements IShader {
 		PixelAndTextGrid subTarget = TextureUtils.buildFilledTextGrid(target.getWidth(), target.getHeight(), level.getIntroBackgroundColor());
 		Character[] rowOfNothing = new Character[target.getWidth()];
 		Arrays.fill(rowOfNothing, ' ');
-		for(int y = 0; y < subTarget.getHeight(); y += 2) {
+		for(int y = 0; y < subTarget.getHeight() / 2 * 2; y += 2) {
 			subTarget.setCharacterRow(y, Arrays.asList(rowOfNothing.clone()), level.getIntroBackgroundColor(), level.getIntroBackgroundColor());
 		}
 		panel.render(subTarget);

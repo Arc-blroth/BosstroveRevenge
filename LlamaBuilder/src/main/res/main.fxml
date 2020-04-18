@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.net.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.text.Text?>
 <?import org.tbee.javafx.scene.layout.fxml.*?>
-
-<MigPane fx:controller="ai.arcblroth.boss.llama.ui.LlamaController" xmlns:fx="http://javafx.com/fxml" layout="ins 0 0 0 0">
-	<padding><Insets top="0" right="0" bottom="0" left="0"/></padding>
+<MigPane fx:controller="ai.arcblroth.boss.llama.ui.LlamaController" xmlns:fx="http://javafx.com/fxml" layout="ins 0 0 0 0, fill">
 	
-	<SplitPane orientation="vertical" MigPane.cc="left, height 100%, width 20%" styleClass="selector-pane">
+	<SplitPane orientation="vertical" MigPane.cc="grow, growprio 200, wmin 20%" styleClass="selector-pane">
 		<MigPane>
 		
 		</MigPane>
@@ -24,5 +20,9 @@
 			</MigPane>
 		</MigPane>
 	</SplitPane>
+
+	<MigPane fx:id="levelRenderer" MigPane.cc="shrink" layout="fill, ins 0 0 0 0">
+
+	</MigPane>
 	
 </MigPane>

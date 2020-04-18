@@ -1,4 +1,4 @@
-package ai.arcblroth.boss.llama;
+package ai.arcblroth.boss;
 
 import ai.arcblroth.boss.llama.ui.LlamaUI;
 import javafx.stage.Stage;
@@ -15,6 +15,8 @@ public final class Llama extends Thread {
 	public void run() {
 		if(isRunning) return;
 		isRunning = true;
+		BosstrovesRevenge.instance().init(ui.getLevelRenderer());
+		BosstrovesRevenge.instance().start();
 		ui.display();
 	}
 	
