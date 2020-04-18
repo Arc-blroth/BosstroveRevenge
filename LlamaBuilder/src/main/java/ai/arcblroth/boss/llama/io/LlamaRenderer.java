@@ -4,6 +4,7 @@ import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.llama.LlamaUtils;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
+import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.util.Pair;
 import ai.arcblroth.boss.util.StaticDefaults;
 import javafx.scene.canvas.Canvas;
@@ -14,13 +15,16 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.transform.Affine;
 
+import java.io.InputStream;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LlamaRenderer extends Canvas implements IOutputRenderer {
 
 	private final Object renderingLock = new Object();
-	private final Object inputLock = new Object();
 	private PixelAndTextGrid pg;
+	private Font font;
 	private Paint lastResetColor;
 	private Pair<Integer, Integer> lastSize;
 	private FxInputHandler inputHandler;
@@ -53,7 +57,24 @@ public class LlamaRenderer extends Canvas implements IOutputRenderer {
 
 	@Override
 	public void init() {
-
+		if(Font.getFamilies().contains("Consolas")) {
+			font = Font.font("Consolas", FontWeight.SEMI_BOLD, StaticDefaults.CHARACTER_WIDTH);
+		} else {
+			Font tempFont = null;
+			try {
+				InputStream fontStream = new InternalResource("font/RobotoMono-Regular.ttf").resolve().openStream();
+				tempFont = Font.loadFont(fontStream, StaticDefaults.CHARACTER_WIDTH - 1);
+				fontStream.close();
+			} catch(Exception e) {
+				tempFont = null;
+			}
+			if(tempFont != null) {
+				font = tempFont;
+			} else {
+				Logger.getLogger("LlamaRenderer").log(Level.WARNING, "Could not load built-in font, falling back to system default.");
+				font = Font.font("Monospace", FontWeight.SEMI_BOLD, StaticDefaults.CHARACTER_WIDTH);
+			}
+		}
 	}
 
 	@Override
@@ -73,7 +94,7 @@ public class LlamaRenderer extends Canvas implements IOutputRenderer {
 			try {
 				GraphicsContext context = this.getGraphicsContext2D();
 				context.setFill(lastResetColor);
-				context.setFont(Font.font("Consolas", FontWeight.SEMI_BOLD, StaticDefaults.CHARACTER_WIDTH));
+				context.setFont(font);
 				context.fillRect(0, 0, getWidth(), getHeight());
 
 				// Only transform the height, as the layout engine usually makes the width larger than it should
@@ -109,7 +130,7 @@ public class LlamaRenderer extends Canvas implements IOutputRenderer {
 							context.setFill(LlamaUtils.colorToPaint(pg.getColorsAt(colNum, rowNum).getSecond()));
 							context.fillRect(offsetX + pixelWidth * colNum, offsetY + pixelWidth * rowNum, pixelWidth + 1, 2 * pixelWidth + 1);
 							context.setFill(LlamaUtils.colorToPaint(pg.getColorsAt(colNum, rowNum).getFirst()));
-							context.fillText(rowTxt.get(colNum).toString(), offsetX + pixelWidth * colNum, offsetY + pixelWidth * (rowNum + 1.5));
+							context.fillText(rowTxt.get(colNum).toString(), offsetX + pixelWidth * colNum, offsetY + pixelWidth * (rowNum + 1.75));
 						}
 					}
 				}
@@ -117,8 +138,9 @@ public class LlamaRenderer extends Canvas implements IOutputRenderer {
 				context.setTransform(new Affine());
 			} catch (Exception e) {
 				e.printStackTrace();
+			} finally {
+				renderingLock.notify();
 			}
-			renderingLock.notify();
 		}
 	}
 
