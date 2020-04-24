@@ -37,7 +37,7 @@ public class WorldEngine implements IEngine {
 	public WorldEngine() {
 		this.logger = Logger.getLogger("WorldEngine");
 		this.state = State.LOADING;
-		this.level = LevelRegistry.instance().getLevel("w0l1", this);
+		this.level = LevelRegistry.instance().getLevel("w1l1", this);
 		this.currentRoomId = level.getInitialRoom();
 		this.roomEngine = getCurrentRoom().buildRoomEngine(this);
 		this.levelIntroShader = new LevelIntroShader(level, true);

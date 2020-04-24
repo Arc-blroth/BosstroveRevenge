@@ -3,5 +3,5 @@
 	"tileId": "boss.lever",
 	"tileType": "wallTile",
 	"texture": "data/texture/tiles/lever.btex",
-	"builder": "ai.arcblroth.boss.game.tile.LeverBuilder"
+	"builder": "ai.arcblroth.boss.game.tile.LeverTile$Builder"
 }

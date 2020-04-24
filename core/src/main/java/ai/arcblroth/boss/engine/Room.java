@@ -276,6 +276,10 @@ public class Room {
 		}
 	}
 
+	public Level getLevel() {
+		return level;
+	}
+
 	public ArrayList<IEntity> getEntities() {
 		return entities;
 	}

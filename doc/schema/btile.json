@@ -25,7 +25,7 @@
 
   "required": ["versionId", "tileId", "tileType"],
 
-  "oneOf": [
+  "anyOf": [
     {
       "properties": {
         "builder":  { "type":  "string" },

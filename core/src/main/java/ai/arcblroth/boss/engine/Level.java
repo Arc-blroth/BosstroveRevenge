@@ -22,6 +22,7 @@ public class Level implements IRegistrable<Level> {
 	private String title;
 	private Color introBackgroundColor;
 	private Color introForegroundColor;
+	private WorldEngine engine;
 	
 	private Map<String, Variable> globalData;
 	private Map<String, Variable> persistentData;
@@ -39,6 +40,7 @@ public class Level implements IRegistrable<Level> {
 		this.title = title;
 		this.introBackgroundColor = introBackgroundColor;
 		this.introForegroundColor = introForegroundColor;
+		this.engine = engine;
 		this.globalData = new TreeMap<>();
 		this.persistentData = new TreeMap<>();
 		this.triggerData = new TreeMap<>();
@@ -69,6 +71,10 @@ public class Level implements IRegistrable<Level> {
 
 	public Color getIntroForegroundColor() {
 		return introForegroundColor;
+	}
+
+	public WorldEngine getEngine() {
+		return engine;
 	}
 
 	public Room getRoom(String key) {

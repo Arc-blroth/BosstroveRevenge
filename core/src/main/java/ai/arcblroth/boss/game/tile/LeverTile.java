@@ -5,8 +5,10 @@ import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.key.Keybind;
+import ai.arcblroth.boss.register.WallTileBuilder;
 import ai.arcblroth.boss.render.MultiFrameTexture;
 import ai.arcblroth.boss.render.Texture;
+import com.google.gson.JsonObject;
 
 public class LeverTile extends WallTile {
 
@@ -57,4 +59,17 @@ public class LeverTile extends WallTile {
 		return true;
 	}
 
+	public static final class Builder extends WallTileBuilder<LeverTile> {
+
+		public Builder(Texture texture) {
+			super(texture);
+		}
+
+		@Override
+		public LeverTile build(Room room, TilePosition tilePos, JsonObject context) {
+			boolean activated = context.get("activated").getAsBoolean();
+			return new LeverTile(room, tilePos, (MultiFrameTexture)getTileTexture(), activated);
+		}
+
+	}
 }
