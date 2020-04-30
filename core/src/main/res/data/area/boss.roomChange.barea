@@ -1,0 +1,5 @@
+{
+  "versionId": 1,
+  "areaId": "boss.roomChange",
+  "class": "ai.arcblroth.boss.game.area.RoomChangeArea"
+}

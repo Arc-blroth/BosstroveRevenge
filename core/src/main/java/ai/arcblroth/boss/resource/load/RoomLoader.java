@@ -3,8 +3,10 @@ package ai.arcblroth.boss.resource.load;
 import ai.arcblroth.boss.engine.Position;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.TilePosition;
+import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.game.RoomEngine;
 import ai.arcblroth.boss.game.WorldEngine;
+import ai.arcblroth.boss.register.AreaRegistry;
 import ai.arcblroth.boss.register.EntityRegistry;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
@@ -71,12 +73,12 @@ public class RoomLoader {
 						try {
 							return roomEngineConstructor.newInstance(worldEngine);
 						} catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-							logger.log(Level.SEVERE, String.format("Could not construct roomEngine \"%s\" in room \"%s\": %s", roomEngineName, roomId, e.toString()));
+							logger.log(Level.SEVERE, String.format("Could not construct roomEngine \"%s\" in room \"%s\": ", roomEngineName, roomId), e);
 							return null;
 						}
 					};
 				} catch (ClassNotFoundException | NoSuchMethodException e) {
-					logger.log(Level.WARNING, String.format("Could not load roomEngine \"%s\" in room \"%s\": %s", roomEngineName, roomId, e.toString()));
+					logger.log(Level.WARNING, String.format("Could not load roomEngine \"%s\" in room \"%s\": ", roomEngineName, roomId), e);
 					roomEngineBuilder = worldEngine -> null;
 				}
 			} else {
@@ -110,7 +112,7 @@ public class RoomLoader {
 								
 							} catch(Exception e) {
 								logger.log(Level.WARNING, 
-										String.format("Could not load floorTile object at (%s, %s) in room \"%s\": %s", x, y, roomId, e.toString()));
+										String.format("Could not load floorTile object at (%s, %s) in room \"%s\": ", x, y, roomId), e);
 							}
 						} else if(floorTile.isJsonNull()) {
 							//Ignore null tiles
@@ -154,7 +156,7 @@ public class RoomLoader {
 								
 							} catch(Exception e) {
 								logger.log(Level.WARNING, 
-										String.format("Could not load wallTile object at (%s, %s) in room \"%s\": %s", x, y, roomId, e.toString()));
+										String.format("Could not load wallTile object at (%s, %s) in room \"%s\": ", x, y, roomId), e);
 							}
 						} else if(wallTile.isJsonNull()) {
 							//Ignore null tiles
@@ -167,7 +169,7 @@ public class RoomLoader {
 									);
 								} catch(Exception e) {
 									logger.log(Level.WARNING, 
-											String.format("Could not load wallTile object at (%s, %s) in room \"%s\": %s", x, y, roomId, e.toString()));
+											String.format("Could not load wallTile object at (%s, %s) in room \"%s\": ", x, y, roomId), e);
 								}
 							} else {
 								logger.log(Level.WARNING, 
@@ -195,7 +197,30 @@ public class RoomLoader {
 							}
 						} catch(Exception e) {
 							logger.log(Level.WARNING, 
-									String.format("Could not load entity in room \"%s\": %s", roomId, e.getMessage()));
+									String.format("Could not load entity in room \"%s\": ", roomId), e);
+						}
+					});
+				}
+			}
+
+			{
+				if(roomObj.has("areas")) {
+					JsonArray areas = roomObj.get("areas").getAsJsonArray();
+					areas.forEach((areaEle) -> {
+						try {
+							JsonObject areaObj = areaEle.getAsJsonObject();
+							String areaId = areaObj.get("areaId").getAsString();
+							JsonObject hitboxObj = areaObj.get("hitbox").getAsJsonObject();
+							Hitbox hitbox = new Hitbox(hitboxObj.get("x").getAsDouble(), hitboxObj.get("y").getAsDouble(), hitboxObj.get("w").getAsDouble(), hitboxObj.get("h").getAsDouble());
+							if(AreaRegistry.instance().containsKey(areaId)) {
+								outRoom.getAreas().add(AreaRegistry.instance().buildArea(areaId, outRoom, hitbox, areaObj));
+							} else {
+								logger.log(Level.WARNING,
+										String.format("No area with areaId \"%s\" is registered, in room \"%s\"", areaId, roomId));
+							}
+						} catch(Exception e) {
+							logger.log(Level.WARNING,
+									String.format("Could not load area in room \"%s\": ", roomId), e);
 						}
 					});
 				}

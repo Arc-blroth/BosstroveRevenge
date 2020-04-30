@@ -1,5 +1,6 @@
 package ai.arcblroth.boss.engine;
 
+import ai.arcblroth.boss.engine.area.Area;
 import ai.arcblroth.boss.engine.entity.IAccelerable;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.entity.player.Player;
@@ -30,6 +31,7 @@ public class Room {
 	private Grid2D<FloorTile> floorTiles;
 	private Grid2D<WallTile> wallTiles;
 	private ArrayList<IEntity> entities;
+	private ArrayList<Area> areas;
 	private HitboxManager hitboxManager;
 	private Position initialPlayerPosition;
 	private Player player;
@@ -61,6 +63,7 @@ public class Room {
 		}
 		
 		this.entities = new ArrayList<>();
+		this.areas = new ArrayList<>();
 		this.initialPlayerPosition = initPlayerPosition;
 		this.hitboxManager = new HitboxManager(width, height);
 	}
@@ -97,6 +100,13 @@ public class Room {
 				ent.onStep();
 			} catch(Exception e) {
 				logger.log(java.util.logging.Level.SEVERE, "Caught exception from entity onStep handler", e);
+			}
+		});
+		areas.forEach(area -> {
+			try {
+				area.onStep();
+			} catch(Exception e) {
+				logger.log(java.util.logging.Level.SEVERE, "Caught exception from area onStep handler", e);
 			}
 		});
 		try {
@@ -274,6 +284,25 @@ public class Room {
 				}
 			}
 		}
+
+		areas.forEach(area -> {
+			if(entHitbox.intersects(area.getHitbox())) {
+				try {
+					area.onEntityStep(entity);
+				} catch(Exception e) {
+					logger.log(java.util.logging.Level.SEVERE, "Caught exception from area onEntityStep handler", e);
+				}
+
+				if(entity instanceof Player) {
+					try {
+						firedKeys.forEach(area::onPlayerInteract);
+					} catch(Exception e) {
+						logger.log(java.util.logging.Level.SEVERE, "Caught exception from area onPlayerInteract handler", e);
+					}
+				}
+			}
+		});
+
 	}
 
 	public Level getLevel() {
@@ -282,6 +311,10 @@ public class Room {
 
 	public ArrayList<IEntity> getEntities() {
 		return entities;
+	}
+
+	public ArrayList<Area> getAreas() {
+		return areas;
 	}
 
 	public Grid2D<FloorTile> getFloorTiles() {

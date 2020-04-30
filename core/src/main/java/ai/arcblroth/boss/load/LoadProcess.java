@@ -5,15 +5,13 @@ import ai.arcblroth.boss.engine.tile.EmptyFloorTile;
 import ai.arcblroth.boss.engine.tile.EmptyWallTile;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;
+import ai.arcblroth.boss.register.AreaRegistry;
 import ai.arcblroth.boss.register.EntityRegistry;
 import ai.arcblroth.boss.register.FloorTileRegistry;
 import ai.arcblroth.boss.register.WallTileRegistry;
 import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.resource.Resource;
-import ai.arcblroth.boss.resource.load.IEntityLoader;
-import ai.arcblroth.boss.resource.load.ILevelLoader;
-import ai.arcblroth.boss.resource.load.ITileLoader;
-import ai.arcblroth.boss.resource.load.ResourceLoader;
+import ai.arcblroth.boss.resource.load.*;
 import ai.arcblroth.boss.util.Pair;
 import com.google.gson.Gson;
 
@@ -96,6 +94,13 @@ public class LoadProcess extends Thread {
 			.forEach((res) -> entLoader.register(gson, res));
 		
 		EntityRegistry.instance().forEach((key, entClass, entBuilder) -> phase.getLogger().log(Level.INFO, "Entity: " + key));
+
+		AreaLoader areaLoader = new AreaLoader();
+		data.stream()
+				.filter((res) -> res.getPath().endsWith(AreaLoader.BAREA_EXTENSION))
+				.forEach((res) -> areaLoader.register(gson, res));
+
+		AreaRegistry.instance().forEach((key, areaBuildFunction) -> phase.getLogger().log(Level.INFO, "Area: " + key));
 		
 		phase = Phase.LOADING_LEVELS;
 		

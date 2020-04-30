@@ -1,10 +1,8 @@
 package ai.arcblroth.boss.game;
 
 import ai.arcblroth.boss.BosstrovesRevenge;
-import ai.arcblroth.boss.engine.IRenderer;
-import ai.arcblroth.boss.engine.IShader;
-import ai.arcblroth.boss.engine.Position;
-import ai.arcblroth.boss.engine.Room;
+import ai.arcblroth.boss.engine.*;
+import ai.arcblroth.boss.engine.area.Area;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.engine.gui.GUI;
@@ -23,7 +21,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 public class WorldRenderer implements IRenderer {
 
-	private boolean renderEntityHitboxes = false;
+	private boolean renderDebugHitboxes = false;
 	
 	private Room room;
 	private GUI gui;
@@ -121,7 +119,9 @@ public class WorldRenderer implements IRenderer {
 				renderLayerEntity.get(y).forEach(ent -> renderEntity(ptg, ent, playerHitbox));
 			}
 		}
-		
+		for(Area area : room.getAreas()) {
+			renderDebugHitbox(ptg, area);
+		}
 	}
 	
 	private void renderFloorTile(FloorTile floorTile, int xSubtileOff, int ySubtileOff, int x, int y, PixelAndTextGrid ptg) {
@@ -204,20 +204,23 @@ public class WorldRenderer implements IRenderer {
 				);
 			}
 		}
-		
-		if(renderEntityHitboxes) {
+		renderDebugHitbox(ptg, ent);
+	}
+
+	private void renderDebugHitbox(PixelAndTextGrid ptg, IHitboxed hitboxed) {
+		if(renderDebugHitboxes) {
 			int xHitboxOff = (int)Math.round(
-					((double)ent.getHitbox().getX()) * StaticDefaults.TILE_WIDTH
-					- xOffset
+					((double)hitboxed.getHitbox().getX()) * StaticDefaults.TILE_WIDTH
+							- xOffset
 			);
 			int yHitboxOff = (int)Math.round(
-					((double)ent.getHitbox().getY()) * StaticDefaults.TILE_HEIGHT
-					- yOffset
+					((double)hitboxed.getHitbox().getY()) * StaticDefaults.TILE_HEIGHT
+							- yOffset
 			);
-			Random rand = new Random(ent.hashCode());
+			Random rand = new Random(hitboxed.hashCode());
 			Color hitColor = Color.getFromHSBA(rand.nextDouble(), 1, 1);
-			for (int pixelY = 0; pixelY < ent.getHitbox().getHeight() * StaticDefaults.TILE_HEIGHT; pixelY++) {
-				for (int pixelX = 0; pixelX < ent.getHitbox().getWidth() * StaticDefaults.TILE_WIDTH; pixelX++) {
+			for (int pixelY = 0; pixelY < hitboxed.getHitbox().getHeight() * StaticDefaults.TILE_HEIGHT; pixelY++) {
+				for (int pixelX = 0; pixelX < hitboxed.getHitbox().getWidth() * StaticDefaults.TILE_WIDTH; pixelX++) {
 					ptg.setPixel(
 							xHitboxOff + pixelX,
 							yHitboxOff + pixelY,

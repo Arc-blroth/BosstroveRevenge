@@ -82,11 +82,7 @@
       
       "wallTiles": [
         [
-        "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty",
-          {
-            "tileId": "boss.roomChange",
-            "target": "1"
-          }
+        "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
         ],
         [
         "boss.tree", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty", "empty"
@@ -158,6 +154,19 @@
   	  	"x": 3,
   	  	"y": 5
   	    }
+      ],
+
+      "areas": [
+        {
+          "areaId": "boss.roomChange",
+          "hitbox": {
+            "x": 19,
+            "y": 0,
+            "w": 1,
+            "h": 3
+          },
+          "target": "1"
+        }
       ]
     },
     {

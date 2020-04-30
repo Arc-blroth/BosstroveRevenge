@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/schema",
+  "$id": "https://github.com/Arc-blroth/BosstroveRevenge/tree/master/doc/schema/barea.json",
+  "type": "object",
+  "properties": {
+    "versionId": { "type": "number" },
+    "areaId": { "type":  "string" },
+    "class": { "type":  "string" }
+  },
+  "required": ["versionId", "areaId", "class"]
+}

@@ -33,6 +33,24 @@
       "required": ["entityId"]
     },
 
+    "area": {
+      "type": "object",
+      "properties": {
+        "areaId": { "type": "string" },
+        "hitbox": {
+          "type": "object",
+          "properties": {
+            "x": { "type": "number" },
+            "y": { "type": "number" },
+            "w": { "type": "number" },
+            "h": { "type": "number" }
+          },
+          "required": ["x", "y", "w", "h"]
+        }
+      },
+      "required": ["areaId", "hitbox"]
+    },
+
     "room": {
       "type": "object",
       "properties": {
@@ -59,7 +77,8 @@
           },
           "additionalItems": false
         },
-        "entities": { "type": "array", "items": { "$ref": "#/definitions/entity" }, "minItems": 0, "additionalItems": false }
+        "entities": { "type": "array", "items": { "$ref": "#/definitions/entity" }, "minItems": 0, "additionalItems": false },
+        "areas": { "type": "array", "items": { "$ref": "#/definitions/area" }, "minItems": 0, "additionalItems": false }
       },
       "required": ["roomId", "width", "height", "floorTiles", "wallTiles"]
     }
