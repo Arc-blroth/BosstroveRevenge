@@ -1,16 +1,12 @@
 package ai.arcblroth.boss.io.lwjgl;
 
-import org.lwjgl.BufferUtils;
-import org.lwjgl.stb.*;
-import org.lwjgl.system.MemoryStack;
-
 import ai.arcblroth.boss.resource.Resource;
-
-import static org.lwjgl.opengl.GL11.GL_UNPACK_ALIGNMENT;
-import static org.lwjgl.opengl.GL11.glEnable;
-import static org.lwjgl.opengl.GL11.glPixelStorei;
-import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.stb.STBTruetype.*;
+import org.lwjgl.BufferUtils;
+import org.lwjgl.stb.STBTTAlignedQuad;
+import org.lwjgl.stb.STBTTFontinfo;
+import org.lwjgl.stb.STBTTPackContext;
+import org.lwjgl.stb.STBTTPackedchar;
+import org.lwjgl.system.MemoryStack;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -20,14 +16,29 @@ import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL30.GL_LINEAR;
+import static org.lwjgl.opengl.GL30.GL_PACK_ALIGNMENT;
+import static org.lwjgl.opengl.GL30.GL_RGBA;
+import static org.lwjgl.opengl.GL30.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL30.GL_TEXTURE_MAG_FILTER;
+import static org.lwjgl.opengl.GL30.GL_TEXTURE_MIN_FILTER;
+import static org.lwjgl.opengl.GL30.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL30.glBindTexture;
+import static org.lwjgl.opengl.GL30.glGenTextures;
+import static org.lwjgl.opengl.GL30.glTexImage2D;
+import static org.lwjgl.opengl.GL30.glTexParameteri;
+import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.stb.STBTruetype.*;
+
 
 public class StbFontManager {
 	
 	private static final int FIRST_CHAR_TO_BAKE = 32;
 	private static final int LAST_CHAR_TO_BAKE = 767;
 	private static final int FONT_SIZE = 18;
-	private static final int H_OVERSAMPLING = 4;
-	private static final int V_OVERSAMPLING = 4;
+	private static final int H_OVERSAMPLING = 2;
+	private static final int V_OVERSAMPLING = 2;
 	private static final int BITMAP_WIDTH = 512 * H_OVERSAMPLING;
 	private static final int BITMAP_HEIGHT = 512 * V_OVERSAMPLING;
 
