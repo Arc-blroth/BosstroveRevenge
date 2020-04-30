@@ -29,11 +29,11 @@ public class RoomLoader {
 
 	private static final Logger logger = Logger.getLogger("RoomLoader");
 	
-	public static Map<String, Room> loadRooms(JsonArray roomArray) {
+	public static Map<String, Room> loadRooms(JsonArray roomArray, JsonArray paletteArray) {
 		HashMap<String, Room> rooms = new HashMap<>();
 		roomArray.forEach((roomObj) -> {
 			try {
-				Pair<String, Room> idAndRoom = loadRoom(roomObj);
+				Pair<String, Room> idAndRoom = loadRoom(roomObj, paletteArray);
 				if(rooms.containsKey(idAndRoom.getFirst())) {
 					throw new IllegalStateException("More than one room is defined with id \"" + idAndRoom.getFirst() + "\n");
 				}
@@ -45,7 +45,7 @@ public class RoomLoader {
 		return rooms;
 	}
 	
-	public static Pair<String, Room> loadRoom(JsonElement roomEle) throws MalformedSpecificationException {
+	public static Pair<String, Room> loadRoom(JsonElement roomEle, JsonArray paletteArray) throws MalformedSpecificationException {
 		if(!roomEle.isJsonObject()) throw new MalformedSpecificationException("rooms");
 		JsonObject roomObj = roomEle.getAsJsonObject();
 		try {
@@ -95,6 +95,16 @@ public class RoomLoader {
 					if(floorTileRow.size() != width) throw new IllegalArgumentException("floorTileRow.length != width");
 					for(int x = 0; x < floorTileRow.size(); x++) {
 						JsonElement floorTile = floorTileRow.get(x);
+						if(floorTile.isJsonPrimitive() && floorTile.getAsJsonPrimitive().isNumber()) {
+							int paletteIndex = floorTile.getAsJsonPrimitive().getAsInt();
+							if(paletteIndex >= paletteArray.size()) {
+								logger.log(Level.WARNING,
+										String.format("Could not find floorTile at (%s, %s) in room \"%s\": palette index \"%s\" out of bounds", x, y, roomId, paletteIndex));
+								continue;
+							} else {
+								floorTile = paletteArray.get(paletteIndex);
+							}
+						}
 						if(floorTile.isJsonObject()) {
 							try {
 								
@@ -107,8 +117,6 @@ public class RoomLoader {
 									logger.log(Level.WARNING, 
 											String.format("Could not find floorTile \"%s\" at (%s, %s) in room \"%s\"", floorTileName, x, y, roomId));
 								}
-								
-								//TODO: Add events
 								
 							} catch(Exception e) {
 								logger.log(Level.WARNING, 
@@ -139,9 +147,18 @@ public class RoomLoader {
 					if(wallTileRow.size() != width) throw new IllegalArgumentException("wallTileRow.length != width");
 					for(int x = 0; x < wallTileRow.size(); x++) {
 						JsonElement wallTile = wallTileRow.get(x);
+						if(wallTile.isJsonPrimitive() && wallTile.getAsJsonPrimitive().isNumber()) {
+							int paletteIndex = wallTile.getAsJsonPrimitive().getAsInt();
+							if(paletteIndex >= paletteArray.size()) {
+								logger.log(Level.WARNING,
+										String.format("Could not find wallTile at (%s, %s) in room \"%s\": palette index \"%s\" out of bounds", x, y, roomId, paletteIndex));
+								continue;
+							} else {
+								wallTile = paletteArray.get(paletteIndex);
+							}
+						}
 						if(wallTile.isJsonObject()) {
 							try {
-								
 								String wallTileName = wallTile.getAsJsonObject().get("tileId").getAsString();
 								if(WallTileRegistry.instance().containsKey(wallTileName)) {
 									outRoom.getWallTiles().set(x, y, 
@@ -151,8 +168,6 @@ public class RoomLoader {
 									logger.log(Level.WARNING, 
 											String.format("Could not find wallTile \"%s\" at (%s, %s) in room \"%s\"", wallTileName, x, y, roomId));
 								}
-								
-								//TODO: Add events
 								
 							} catch(Exception e) {
 								logger.log(Level.WARNING, 
@@ -236,4 +251,5 @@ public class RoomLoader {
 			throw mse;
 		}
 	}
+
 }

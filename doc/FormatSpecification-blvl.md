@@ -12,6 +12,12 @@ Example File:
   "level": 1,
   "title": "Lockdown",,
   "initialRoom": "one",
+      
+  "palette": [
+    "boss.grass",
+    "boss.sand",
+    "boss.tree"
+  ]
   
   "rooms": [
     {
@@ -26,22 +32,23 @@ Example File:
       "foreground": "data/texture/foregrounds/sunrays.png",
       
       "floorTiles": [
-	    [
-          "boss.grass",
-          "boss.sand",
-          ...
-        ],
-	    ...
-	  ]
+         [
+           0,
+           "boss.gravel",
+           1,
+           ...
+         ],
+         ...
+      ]
       
       "wallTiles": [
         [
-          "boss.tree",
+          2,
           {
-            "tileId": "boss.trigger"
+            "tileId": "boss.lever"
           },
-          "boss.grass",
-          "boss.coin",
+          2,
+          "boss.rock",
           "boss.crow",
           ...
         ],
@@ -94,6 +101,10 @@ Example File:
 ### `initialRoom`
 - ID of the first room in this level.
 - Optional. Defaults to the first room in the `rooms` array.
+
+### `palette`
+- A tileset "palette" that can store commonly-used tile definitions.
+- To refer to these tiles, specify the array index of the definition instead of a tile string or object.
 
 ### `rooms`
 - List of the rooms in this level.
@@ -149,11 +160,11 @@ list of floorTiles and wallTiles.
 - List of the entities in this room. See the Format Specification for bent for more information.
 - Optional.
 
-# Specifying tiles
-## The Usual Way
+# Specifying Tiles
+## Simple Tiles
 Tiles can be specified by their string tileId: `"boss.sand"`.
 
-## The Special Way
+## Tiles with Extra Properties
 For tiles that have special properties, a tile can also be specified as a _json object_:
 
 ### `tileId`
@@ -161,3 +172,10 @@ For tiles that have special properties, a tile can also be specified as a _json 
 - Required
 
 All other properties are deserialized by the tile's FloorTileBuilder or a WallTileBuilder.
+
+## Using Paletted Tiles
+To save space and make levels more readable, you can put tile strings or objects in the level `palette` array.
+Then, you can refer to those tiles by specifying their index in the array.
+Note that both floorTiles and wallTiles go into the same palette!
+
+See the example file above for an example.

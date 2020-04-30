@@ -66,14 +66,28 @@
         "floorTiles": {
           "type": "array",
           "items": {
-            "type": "array", "items": { "$ref": "#/definitions/tile" }, "additionalItems": false
+            "type": "array",
+            "items": {
+              "oneOf": [
+                { "$ref": "#/definitions/tile" },
+                { "type":  "number" }
+              ]
+            },
+            "additionalItems": false
           },
           "additionalItems": false
         },
         "wallTiles": {
           "type": "array",
           "items": {
-            "type": "array", "items": { "$ref": "#/definitions/tile" }, "additionalItems": false
+            "type": "array",
+            "items": {
+              "oneOf": [
+                { "$ref": "#/definitions/tile" },
+                { "type":  "number" }
+              ]
+            },
+            "additionalItems": false
           },
           "additionalItems": false
         },
@@ -93,6 +107,7 @@
     "introBackgroundColor":  { "$ref": "#/definitions/color" },
     "introForegroundColor":  { "$ref": "#/definitions/color" },
     "initialRoom":  { "type": ["number", "string"], "default": 0 },
+    "palette": { "type": "array", "items": {"$ref": "#/definitions/tile" }, "additionalItems": false },
     "rooms": { "type": "array", "items": { "$ref": "#/definitions/room" }, "minItems": 1, "additionalItems": false }
   },
 

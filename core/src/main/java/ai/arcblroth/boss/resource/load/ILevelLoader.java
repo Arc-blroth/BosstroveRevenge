@@ -5,10 +5,7 @@ import ai.arcblroth.boss.register.LevelRegistry;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.resource.Resource;
 import ai.arcblroth.boss.resource.load.exception.UnsupportedSpecificationVersionException;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 
 import java.io.IOException;
 import java.util.Map;
@@ -68,8 +65,9 @@ public final class ILevelLoader extends AbstractIRegisterableLoader {
 
 					String initialRoom0 = blvl.get("initialRoom").getAsString();
 
+					JsonArray palette = blvl.has("palette") ? blvl.get("palette").getAsJsonArray() : new JsonArray();
 
-					Map<String, Room> rooms = RoomLoader.loadRooms(blvl.get("rooms").getAsJsonArray());
+					Map<String, Room> rooms = RoomLoader.loadRooms(blvl.get("rooms").getAsJsonArray(), palette);
 					if(!rooms.containsKey(initialRoom0)) {
 						String[] s = new String[1];
 						rooms.keySet().toArray(s);
