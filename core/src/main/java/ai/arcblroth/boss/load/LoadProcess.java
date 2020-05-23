@@ -63,7 +63,7 @@ public class LoadProcess extends Thread {
 		phase.getLogger().log(Level.INFO, "Scanning jar resources...");
 		try {
 			Stream<Resource> dataStream = ResourceLoader.getAllResourcesFromInternalFolder(new InternalResource("data/"), true);
-			dataStream.forEach((res) -> data.add(res));
+			dataStream.forEach(data::add);
 			dataStream.close();
 		} catch (Exception e) {
 			phase.getLogger().log(Level.SEVERE, "Could not scan jar file for resources!", e);

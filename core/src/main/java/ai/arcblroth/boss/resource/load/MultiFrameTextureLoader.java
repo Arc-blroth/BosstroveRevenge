@@ -1,14 +1,5 @@
 package ai.arcblroth.boss.resource.load;
 
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-
 import ai.arcblroth.boss.render.AnimatedTexture;
 import ai.arcblroth.boss.render.MultiFrameTexture;
 import ai.arcblroth.boss.render.Texture;
@@ -17,16 +8,22 @@ import ai.arcblroth.boss.resource.Resource;
 import ai.arcblroth.boss.resource.load.exception.MalformedSpecificationException;
 import ai.arcblroth.boss.resource.load.exception.UnsupportedSpecificationVersionException;
 import ai.arcblroth.boss.util.TextureUtils;
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MultiFrameTextureLoader {
 
 	public static final String BTEX_EXTENSION = ".btex";
-	private TextureCache cache;
 	private final Gson gson;
 	private final Logger logger;
 	
-	public MultiFrameTextureLoader(TextureCache cache) {
-		this.cache = cache;
+	public MultiFrameTextureLoader() {
 		this.gson = new Gson();
 		this.logger = Logger.getLogger("MultiFrameTextureLoader");
 	}
@@ -35,7 +32,7 @@ public class MultiFrameTextureLoader {
 		return specification.getPath().endsWith(BTEX_EXTENSION);
 	}
 
-	public MultiFrameTexture register(Resource specification) {
+	public MultiFrameTexture load(Resource specification) {
 		if(!accepts(specification)) {
 			logger.log(Level.WARNING, "Refusing to load resource " + specification.toString() + " as it is not a .btex file.");
 			return null;

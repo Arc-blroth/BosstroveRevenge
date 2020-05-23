@@ -15,7 +15,11 @@ public class CenteredTextGUIConstraints extends GUIConstraints {
 
 	@Override
 	public int resolveX(int guiWidth, int guiHeight) {
-		return super.resolveX(guiWidth, guiHeight) - text.getText().length() / 2 + xOffset;
+		if(text instanceof GUILargeText) {
+			return super.resolveX(guiWidth, guiHeight) - text.getText().length() * 4 + xOffset;
+		} else {
+			return super.resolveX(guiWidth, guiHeight) - text.getText().length() / 2 + xOffset;
+		}
 	}
 
 	@Override

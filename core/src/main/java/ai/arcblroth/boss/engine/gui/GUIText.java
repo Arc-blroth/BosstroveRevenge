@@ -123,6 +123,13 @@ public class GUIText extends GUIComponent {
 	public void setForegroundColor(Color foregroundColor) {
 		this.foregroundColor = foregroundColor;
 	}
-	
+
+	public boolean isWordWrapping() {
+		return wordWrap;
+	}
+
+	public void setWordWrapping(boolean wordWrap) {
+		this.wordWrap = wordWrap;
+	}
 
 }
