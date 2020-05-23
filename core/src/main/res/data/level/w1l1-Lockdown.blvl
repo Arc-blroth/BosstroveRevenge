@@ -4,7 +4,7 @@
   "world": "1",
   "level": "1",
   "title": "Lockdown",
-  "introBackgroundColor": "#42f554",
+  "introBackgroundColor": "#45d153",
   "introForegroundColor": "#000000",
   "initialRoom": "0",
 
@@ -19,7 +19,6 @@
       "roomId": "0",
       "width": 20,
       "height": 20,
-      "resetColor": "#c4e8ff",
       "initialX": 0,
       "initialY": 0,
 

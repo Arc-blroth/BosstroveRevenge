@@ -1,7 +1,0 @@
-{
-	"versionId": 1,
-	"tileId": "boss.roomChange",
-	"tileType": "wallTile",
-	"texture": "NULL.png",
-	"builder": "ai.arcblroth.boss.game.tile.RoomChangeTile$Builder"
-}
