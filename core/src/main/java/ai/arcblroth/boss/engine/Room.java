@@ -201,6 +201,10 @@ public class Room {
 						//));
 					}
 				});
+
+				if(ent.getHitbox().getX() < 0 || ent.getHitbox().getX() + ent.getHitbox().getWidth() > getWidth()) {
+					isGoingToCrashX.set(true);
+				}
 				
 				if(isGoingToCrashX.get()) {
 					ent.setPosition(new Position(
@@ -222,6 +226,10 @@ public class Room {
 						isGoingToCrashY.set(true);
 					}
 				});
+
+				if(ent.getHitbox().getY() < 0 || ent.getHitbox().getY() + ent.getHitbox().getHeight() > getHeight()) {
+					isGoingToCrashY.set(true);
+				}
 				
 				if(isGoingToCrashY.get()) {
 					ent.setPosition(new Position(
