@@ -1,6 +1,6 @@
 package ai.arcblroth.boss.llama.ui;
 
-import ai.arcblroth.boss.BosstrovesRevenge;
+import ai.arcblroth.boss.Llama;
 import ai.arcblroth.boss.llama.LlamaStaticDefaults;
 import ai.arcblroth.boss.llama.LlamaUtils;
 import ai.arcblroth.boss.llama.io.LlamaRenderer;
@@ -18,17 +18,23 @@ import org.tbee.javafx.scene.layout.MigPane;
 import java.io.IOException;
 
 public class LlamaUI {
-	
+
+	private Llama llama;
 	private Stage stage;
 	private MigPane rootPane;
 	private Scene mainScene;
 	private LlamaRenderer levelRenderer;
 
-	public LlamaUI(Stage stage) {
-		this.stage = stage;
+	public LlamaUI(Llama llama) {
+		this.llama = llama;
+		this.stage = llama.getStage();
 		
 		try {
-			rootPane = FXMLLoader.load(new InternalResource("main.fxml").resolve());
+			rootPane = FXMLLoader.load(new InternalResource("main.fxml").resolve(), null, null, (type) -> {
+				if(type.equals(LlamaController.class)) {
+					return new LlamaController(llama, this);
+				} else return null;
+			});
 			mainScene = new Scene(rootPane);
 			mainScene.getStylesheets().add("stylesheet.css");
 			stage.setTitle(LlamaStaticDefaults.TITLE);
@@ -39,7 +45,7 @@ public class LlamaUI {
 			System.exit(-1);
 		}
 
-		this.levelRenderer = new LlamaRenderer();
+		this.levelRenderer = new LlamaRenderer(llama);
 	}
 	
 	public void display() {
@@ -52,8 +58,8 @@ public class LlamaUI {
 
 		stage.show();
 		stage.setOnCloseRequest((event) -> {
-			BosstrovesRevenge.instance().shutdown(0);
 			stage.close();
+			System.exit(0);
 		});
 		stage.centerOnScreen();
 

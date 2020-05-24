@@ -1,6 +1,6 @@
 package ai.arcblroth.boss.llama.io;
 
-import ai.arcblroth.boss.BosstrovesRevenge;
+import ai.arcblroth.boss.Llama;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import javafx.scene.input.KeyCode;
 
@@ -93,11 +93,14 @@ public class FxInputHandler {
 		}
 	}
 
-	public void fireEvents() {
+	public void fireEvents(Llama llama) {
 		keyStore.forEach((charmander, growls) -> {
 			if(growls) {
 				try {
-					BosstrovesRevenge.instance().handleInput(new CharacterInputEvent(charmander));
+					llama.getGameInstance().getClass().getMethod("handleInput", CharacterInputEvent.class).invoke(
+							llama.getGameInstance(),
+							new CharacterInputEvent(charmander)
+					);
 				} catch (Throwable e) {
 					e.printStackTrace();
 				}

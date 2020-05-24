@@ -18,5 +18,13 @@ public class LlamaUtils {
 	public static Paint colorToPaint(Color color) {
 		return new javafx.scene.paint.Color(color.getRed()/255D, color.getGreen()/255D, color.getBlue()/255D, color.getAlpha()/255D);
 	}
+
+	public static Color getResetColorFromGameInstance(Object gameInstance) {
+		try {
+			return (Color)gameInstance.getClass().getDeclaredMethod("getResetColor").invoke(gameInstance);
+		} catch (Exception e) {
+			return Color.TRANSPARENT;
+		}
+	}
 	
 }

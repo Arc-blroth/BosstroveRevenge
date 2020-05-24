@@ -1,16 +1,5 @@
 package ai.arcblroth.boss.resource.load;
 
-import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.stream.Stream;
-
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.PixelGrid;
 import ai.arcblroth.boss.render.Texture;
@@ -21,6 +10,16 @@ import ai.arcblroth.boss.resource.ZipResource;
 import ar.com.hjg.pngj.IImageLine;
 import ar.com.hjg.pngj.ImageLineInt;
 import ar.com.hjg.pngj.PngReader;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.*;
+import java.util.Collections;
+import java.util.stream.Stream;
 
 public class ResourceLoader {
 
@@ -74,9 +73,20 @@ public class ResourceLoader {
 			throws IOException, NullPointerException, URISyntaxException {
 		URI internalFolder = folder.resolve().toURI();
 	    if (internalFolder.getScheme().equals("jar")) {
-	        FileSystem fileSystem = FileSystems.newFileSystem(internalFolder, Collections.<String, Object>emptyMap());
+
+	    	// We search for an existing copy of the jar filesystem
+			// to allow LlamaBuilder to reload the game in the same
+			// process.
+	    	FileSystem tempFileSystem;
+	    	try {
+				tempFileSystem = FileSystems.newFileSystem(internalFolder, Collections.<String, Object>emptyMap());
+			} catch (FileSystemAlreadyExistsException e) {
+				tempFileSystem = FileSystems.getFileSystem(internalFolder);
+			}
+			final FileSystem fileSystem = tempFileSystem;
+
 	        Path internalPath = fileSystem.getPath(folder.getPath());
-		    return Files.walk(internalPath, recursive ? Integer.MAX_VALUE : 1)
+			return Files.walk(internalPath, recursive ? Integer.MAX_VALUE : 1)
 		    		.filter((path) -> !path.toString().endsWith("/") && !path.toString().endsWith(File.separator))
 		    		.map((path) -> new ZipResource(fileSystem, path));
 	    } else {

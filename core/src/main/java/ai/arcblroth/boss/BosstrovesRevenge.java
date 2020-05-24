@@ -51,11 +51,6 @@ public final class BosstrovesRevenge extends Thread {
 		
 		this.globalLogger = Logger.getGlobal();
 		this.mainLogger = Logger.getLogger("Main");
-		
-		//Register shutdown hook
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-			this.shutdown(0);
-		}));
 	}
 
 	public static BosstrovesRevenge instance() {
@@ -65,6 +60,11 @@ public final class BosstrovesRevenge extends Thread {
 	}
 
 	void init(IOutputRenderer renderer) {
+		//Register shutdown hook
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			this.shutdown(0);
+		}));
+
 		//Render setup
 		if (outputRenderer != null)
 			throw new IllegalStateException("OutputRenderer has already been initilized!");

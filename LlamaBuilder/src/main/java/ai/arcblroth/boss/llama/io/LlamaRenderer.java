@@ -1,6 +1,6 @@
 package ai.arcblroth.boss.llama.io;
 
-import ai.arcblroth.boss.BosstrovesRevenge;
+import ai.arcblroth.boss.Llama;
 import ai.arcblroth.boss.io.IOutputRenderer;
 import ai.arcblroth.boss.llama.LlamaUtils;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
@@ -23,15 +23,16 @@ import java.util.logging.Logger;
 public class LlamaRenderer extends Canvas implements IOutputRenderer {
 
 	private final Object renderingLock = new Object();
+	private Llama llama;
 	private PixelAndTextGrid pg;
 	private Font font;
 	private Paint lastResetColor;
 	private Pair<Integer, Integer> lastSize;
 	private FxInputHandler inputHandler;
 
-	public LlamaRenderer() {
+	public LlamaRenderer(Llama llama) {
 		super();
-		pg = new PixelAndTextGrid(1, 1);
+		this.llama = llama;
 		lastResetColor = new Color(0, 0, 0, 0);
 		lastSize = new Pair<>(1, 1);
 		inputHandler = new FxInputHandler();
@@ -81,7 +82,7 @@ public class LlamaRenderer extends Canvas implements IOutputRenderer {
 	public void render(PixelAndTextGrid pg) {
 		synchronized (renderingLock) {
 			this.pg = pg;
-			lastResetColor = LlamaUtils.colorToPaint(BosstrovesRevenge.instance().getResetColor());
+			lastResetColor = LlamaUtils.colorToPaint(LlamaUtils.getResetColorFromGameInstance(llama.getGameInstance()));
 			try {
 				renderingLock.wait();
 			} catch (InterruptedException e) {}
@@ -156,7 +157,7 @@ public class LlamaRenderer extends Canvas implements IOutputRenderer {
 
 	@Override
 	public void pollInput() {
-		inputHandler.fireEvents();
+		inputHandler.fireEvents(llama);
 	}
 
 	@Override
