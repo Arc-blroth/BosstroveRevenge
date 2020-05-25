@@ -1,11 +1,12 @@
 package ai.arcblroth.boss.engine.tile;
 
+import ai.arcblroth.boss.engine.IHitboxed;
 import ai.arcblroth.boss.engine.IInteractable;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.render.Texture;
 
-public interface ITile extends IInteractable {
+public interface ITile extends IInteractable, IHitboxed {
 	
 	public Room getRoom();
 	

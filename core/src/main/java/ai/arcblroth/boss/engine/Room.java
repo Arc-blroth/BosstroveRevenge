@@ -374,7 +374,7 @@ class TileHitboxWrapper implements IHitboxed {
 	
 	@Override
 	public Hitbox getHitbox() {
-		return HITBOX.resolveRelativeTo(new Position(x, y));
+		return tile.getHitbox().resolveRelativeTo(new Position(x, y));
 	}
 	
 	public ITile getTile() {

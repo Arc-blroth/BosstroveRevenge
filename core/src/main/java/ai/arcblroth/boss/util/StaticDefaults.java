@@ -1,5 +1,6 @@
 package ai.arcblroth.boss.util;
 
+import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.PixelGrid;
 import ai.arcblroth.boss.render.Texture;
@@ -19,6 +20,7 @@ public final class StaticDefaults {
 	
 	public static final int TILE_WIDTH = 8;
 	public static final int TILE_HEIGHT = 8;
+	public static final Hitbox DEFAULT_TILE_HITBOX = new Hitbox(0, 0, 1, 1);
 	
 	public static final Texture DEFAULT_TEXTURE;
 	public static final Texture EMPTY_TEXTURE;

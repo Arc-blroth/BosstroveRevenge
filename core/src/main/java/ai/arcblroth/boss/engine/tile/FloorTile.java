@@ -4,9 +4,11 @@ import ai.arcblroth.boss.engine.Direction;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.engine.entity.IEntity;
+import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.register.IRegistrable;
 import ai.arcblroth.boss.render.Texture;
+import ai.arcblroth.boss.util.StaticDefaults;
 
 public abstract class FloorTile implements ITile, IRegistrable<FloorTile> {
 
@@ -45,6 +47,11 @@ public abstract class FloorTile implements ITile, IRegistrable<FloorTile> {
 	@Override
 	public double getViscosity() {
 		return 0;
+	}
+
+	@Override
+	public Hitbox getHitbox() {
+		return StaticDefaults.DEFAULT_TILE_HITBOX;
 	}
 
 	@Override
