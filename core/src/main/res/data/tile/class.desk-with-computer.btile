@@ -1,0 +1,14 @@
+{
+	"versionId": 1,
+	"tileId": "class.desk-with-computer",
+	"tileType": "wallTile",
+	"passable": false,
+	"viscosity": 0.0,
+	"texture": "data/texture/tiles/class/desk-with-computer.png",
+	"hitbox": {
+		"x": 0,
+		"y": 0.4,
+		"w": 1,
+		"h": 0.6
+	}
+}

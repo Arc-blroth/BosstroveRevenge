@@ -1,0 +1,28 @@
+{
+	"versionId": 1,
+	"tileId": "class.desk",
+	"tileType": "wallTile",
+	"smart": true,
+	"passable": false,
+	"viscosity": 0.0,
+	"texture": [
+		{
+			"directions": ["west", "east"],
+			"texture": "data/texture/tiles/class/desk.png"
+		},
+		{
+			"directions": ["east"],
+			"texture": "data/texture/tiles/class/desk-w.png"
+		},
+		{
+			"directions": ["west"],
+			"texture": "data/texture/tiles/class/desk-e.png"
+		}
+	],
+	"hitbox": {
+		"x": 0,
+		"y": 0.4,
+		"w": 1,
+		"h": 0.6
+	}
+}
