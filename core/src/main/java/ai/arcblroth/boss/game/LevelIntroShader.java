@@ -47,8 +47,19 @@ public class LevelIntroShader implements IShader {
 				? easeIn.calculate((double)timer / StaticDefaults.LEVEL_INTRO_ANIMATION_LENGTH)
 				: easeOut.calculate((double)timer / StaticDefaults.LEVEL_INTRO_ANIMATION_LENGTH);
 		int textMiddleX = (int)Math.round(target.getWidth() * (!inOrOut ? progress - 0.5 : progress + 0.5));
-		PixelAndTextGrid subTarget = TextureUtils.buildFilledTextGrid(target.getWidth(), target.getHeight(), level.getIntroBackgroundColor());
+		Color bgColor = level.getIntroBackgroundColor();
+		PixelAndTextGrid subTarget = TextureUtils.buildFilledTextGrid(target.getWidth(), target.getHeight(), bgColor);
 		panel.render(subTarget);
+
+		// Hide any GUI below the intro shader
+		for(int y = 0; y < subTarget.getHeight() / 2 * 2; y += 2) {
+			for(int x = 0; x < subTarget.getWidth(); x++) {
+				if(subTarget.get(x, y).equals(bgColor) && subTarget.get(x, y + 1).equals(bgColor) && subTarget.getCharacterAt(x, y) == StaticDefaults.RESET_CHAR) {
+					subTarget.setCharacterAt(x, y, ' ', bgColor, bgColor);
+				}
+			}
+		}
+
 		TextureUtils.overlay(subTarget, target, textMiddleX - target.getWidth() / 2, 0);
 	}
 
