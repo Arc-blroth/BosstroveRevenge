@@ -13,6 +13,13 @@ public class CenteredTextGUIConstraints extends GUIConstraints {
 		this.yOffset = yOffset;
 	}
 
+	public CenteredTextGUIConstraints(GUIText text, int linesOfText, double xFactor, double yFactor, int xOffset, int yOffset, int zOrder) {
+		super(xFactor, yFactor, 1, 1, 0, -2 * linesOfText / 2, 0, 0, zOrder);
+		this.text = text;
+		this.xOffset = xOffset;
+		this.yOffset = yOffset;
+	}
+
 	@Override
 	public int resolveX(int guiWidth, int guiHeight) {
 		if(text instanceof GUILargeText) {

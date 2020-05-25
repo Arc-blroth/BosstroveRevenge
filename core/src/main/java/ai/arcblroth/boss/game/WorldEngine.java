@@ -97,6 +97,7 @@ public class WorldEngine implements IEngine {
 				logger.log(java.util.logging.Level.SEVERE, "Error while running room callbacks", ahh);
 			}
 
+			gui.advanceFrame();
 			if (guiHasFocus) {
 				firingKeys.forEach(keybind -> {
 					try {
@@ -107,19 +108,19 @@ public class WorldEngine implements IEngine {
 				});
 			} else {
 				if (state == State.IN_WORLD) {
-					if (firingKeys.contains(new Keybind("boss.north"))) {
+					if (firingKeys.contains(KeybindRegistry.KEYBIND_MOVE_NORTH)) {
 						player.setDirection(Direction.NORTH);
 						player.accelerate(Direction.NORTH, 0.25);
 					}
-					if (firingKeys.contains(new Keybind("boss.south"))) {
+					if (firingKeys.contains(KeybindRegistry.KEYBIND_MOVE_SOUTH)) {
 						player.setDirection(Direction.SOUTH);
 						player.accelerate(Direction.SOUTH, 0.25);
 					}
-					if (firingKeys.contains(new Keybind("boss.west"))) {
+					if (firingKeys.contains(KeybindRegistry.KEYBIND_MOVE_WEST)) {
 						player.setDirection(Direction.WEST);
 						player.accelerate(Direction.WEST, 0.25);
 					}
-					if (firingKeys.contains(new Keybind("boss.east"))) {
+					if (firingKeys.contains(KeybindRegistry.KEYBIND_MOVE_EAST)) {
 						player.setDirection(Direction.EAST);
 						player.accelerate(Direction.EAST, 0.25);
 					}
@@ -143,7 +144,7 @@ public class WorldEngine implements IEngine {
 			}
 		}
 
-		if (firingKeys.contains(new Keybind("boss.debug"))) {
+		if (firingKeys.contains(KeybindRegistry.KEYBIND_TOGGLE_DEBUG)) {
 			BosstrovesRevenge.instance().setRendererShowingFPS(!BosstrovesRevenge.instance().isRendererShowingFPS());
 		}
 

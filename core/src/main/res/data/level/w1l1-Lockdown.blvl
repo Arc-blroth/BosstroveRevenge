@@ -63,7 +63,18 @@
       ],
 
       "areas": [
-
+        {
+          "areaId": "boss.flavorText",
+          "hitbox": { "x": 0, "y": 0, "w": 7, "h": 1 },
+          "name": "Whiteboard",
+          "text": "It's a whiteboard with \"#fail_foward\" written on it."
+        },
+        {
+          "areaId": "boss.flavorText",
+          "hitbox": { "x": 0, "y": 12, "w": 1, "h": 2 },
+          "name": "Bosstrove's Computer",
+          "text": "You probably don't want to see what's on here."
+        }
       ]
     }
   ]

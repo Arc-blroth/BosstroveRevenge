@@ -1,0 +1,5 @@
+{
+  "versionId": 1,
+  "areaId": "boss.flavorText",
+  "class": "ai.arcblroth.boss.game.area.FlavorTextArea"
+}

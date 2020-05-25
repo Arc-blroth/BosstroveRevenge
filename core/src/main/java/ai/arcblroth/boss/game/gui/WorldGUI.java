@@ -1,9 +1,6 @@
 package ai.arcblroth.boss.game.gui;
 
-import ai.arcblroth.boss.engine.gui.GUI;
-import ai.arcblroth.boss.engine.gui.GUIConstraints;
-import ai.arcblroth.boss.engine.gui.GUILookAndFeel;
-import ai.arcblroth.boss.engine.gui.WorldDialoguePanel;
+import ai.arcblroth.boss.engine.gui.*;
 import ai.arcblroth.boss.game.WorldEngine;
 import ai.arcblroth.boss.render.Color;
 
@@ -15,6 +12,8 @@ public class WorldGUI extends GUI {
 	private GUILookAndFeel lookAndFeel;
 	private WorldDialoguePanel dialoguePanel;
 	private HUD hud;
+	private long toastTimer = 0;
+	private GUIText toast;
 
 	public WorldGUI(WorldEngine worldEngine) {
 		super();
@@ -37,6 +36,9 @@ public class WorldGUI extends GUI {
 
 		this.hud = new HUD(worldEngine.getCurrentRoom().getPlayer(), lookAndFeel);
 		add(hud, new GUIConstraints("0", "0", "100%", "100%", 1));
+
+		this.toast = new GUIText("[Toast]", lookAndFeel.textSelectedBgColor, lookAndFeel.textSelectedFgColor);
+		add(toast, new CenteredTextGUIConstraints(toast, 1, 0.5, 0.8, 0, 0, 2));
 	}
 
 	public void showQuickDialogue(String name, String text) {
@@ -48,6 +50,22 @@ public class WorldGUI extends GUI {
 			dialoguePanel.setVisible(false);
 			worldEngine.setGuiHasFocus(false);
 		});
+	}
+
+	public void toast(long steps, String text) {
+		toast.setText(text);
+		toastTimer = steps;
+	}
+
+	public void advanceFrame() {
+		if(dialoguePanel.isVisible()) dialoguePanel.advanceFrame();
+		if(toastTimer > 0) {
+			toast.setVisible(true);
+		} else {
+			toast.setVisible(false);
+			toastTimer = 0;
+		}
+		toastTimer--;
 	}
 
 	public WorldEngine getWorldEngine() {
@@ -66,4 +84,7 @@ public class WorldGUI extends GUI {
 		return dialoguePanel;
 	}
 
+	public GUIText getToastGUIText() {
+		return toast;
+	}
 }

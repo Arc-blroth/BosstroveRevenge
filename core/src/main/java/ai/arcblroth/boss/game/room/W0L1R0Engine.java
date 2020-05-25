@@ -35,9 +35,7 @@ public class W0L1R0Engine extends RoomEngine {
 
 	@Override
 	public void step(StepEvent e) {
-		if(worldEngine.getGUI().getDialoguePanel().isVisible()) {
-			worldEngine.getGUI().getDialoguePanel().advanceFrame();
-		}
+
 	}
 
 	@Override

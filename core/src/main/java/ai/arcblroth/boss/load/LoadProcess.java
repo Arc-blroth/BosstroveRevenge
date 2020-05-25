@@ -3,8 +3,6 @@ package ai.arcblroth.boss.load;
 import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.tile.EmptyFloorTile;
 import ai.arcblroth.boss.engine.tile.EmptyWallTile;
-import ai.arcblroth.boss.key.Keybind;
-import ai.arcblroth.boss.key.KeybindRegistry;
 import ai.arcblroth.boss.register.AreaRegistry;
 import ai.arcblroth.boss.register.EntityRegistry;
 import ai.arcblroth.boss.register.FloorTileRegistry;
@@ -111,18 +109,6 @@ public class LoadProcess extends Thread {
 			.forEach((res) -> levelLoader.register(gson, res));
 		
 		phase = Phase.DONE;
-		
-		KeybindRegistry.instance().register(new Keybind("boss.use"), ' ');
-		KeybindRegistry.instance().register(new Keybind("boss.enter"), '\n');
-		KeybindRegistry.instance().register(new Keybind("boss.debug"), '`');
-		KeybindRegistry.instance().register(new Keybind("boss.north", 0), 'w');
-		KeybindRegistry.instance().register(new Keybind("boss.south", 0), 's');
-		KeybindRegistry.instance().register(new Keybind("boss.west", 0), 'a');
-		KeybindRegistry.instance().register(new Keybind("boss.east", 0), 'd');
-		KeybindRegistry.instance().register(new Keybind("boss.up"), 'w');
-		KeybindRegistry.instance().register(new Keybind("boss.down"), 's');
-		KeybindRegistry.instance().register(new Keybind("boss.left"), 'a');
-		KeybindRegistry.instance().register(new Keybind("boss.right"), 'd');
 		
 		doneYet = true;
 	}

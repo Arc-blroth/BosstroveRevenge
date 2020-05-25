@@ -2,6 +2,7 @@ package ai.arcblroth.boss.engine.gui.dialog;
 
 import ai.arcblroth.boss.engine.gui.GUIConstraints;
 import ai.arcblroth.boss.key.Keybind;
+import ai.arcblroth.boss.key.KeybindRegistry;
 import ai.arcblroth.boss.render.Color;
 
 import java.util.ArrayList;
@@ -35,17 +36,17 @@ public class SingleChoiceGUIListDialog extends AbstractGUIListDialog implements 
 	@Override
 	public void onInput(Keybind k) {
 		DialogOption selectedOption = getOptions().get(getSelectedPosition());
-		if (k.equals(new Keybind("boss.up"))) {
+		if (k.equals(KeybindRegistry.KEYBIND_UP)) {
 			selectedOption.setSelected(false);
 			setSelectedPosition(getSelectedPosition() - 1);
 			getOptions().get(getSelectedPosition()).setSelected(true);
 		}
-		if (k.equals(new Keybind("boss.down"))) {
+		if (k.equals(KeybindRegistry.KEYBIND_DOWN)) {
 			selectedOption.setSelected(false);
 			setSelectedPosition(getSelectedPosition() + 1);
 			getOptions().get(getSelectedPosition()).setSelected(true);
 		}
-		if (k.equals(new Keybind("boss.use")) || k.equals(new Keybind("boss.enter"))) {
+		if (k.equals(KeybindRegistry.KEYBIND_USE) || k.equals(KeybindRegistry.KEYBIND_ENTER)) {
 			callbacks.forEach(callback -> callback.accept(selectedOption));
 		}
 	}

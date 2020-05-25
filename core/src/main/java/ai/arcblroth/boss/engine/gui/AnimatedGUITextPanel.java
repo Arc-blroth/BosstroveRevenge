@@ -2,6 +2,7 @@ package ai.arcblroth.boss.engine.gui;
 
 import ai.arcblroth.boss.engine.gui.dialog.IAdvanceableDialog;
 import ai.arcblroth.boss.key.Keybind;
+import ai.arcblroth.boss.key.KeybindRegistry;
 import ai.arcblroth.boss.render.Color;
 import ai.arcblroth.boss.render.PixelAndTextGrid;
 import ai.arcblroth.boss.util.TextureUtils;
@@ -107,7 +108,7 @@ public class AnimatedGUITextPanel extends GUIPanel implements IAdvanceableDialog
 	public void onInput(Keybind k) {
 		super.onInput(k);
 		if(!canAdvanceFrame()) {
-			if (k.equals(new Keybind("boss.use")) || k.equals(new Keybind("boss.enter"))) {
+			if (k.equals(KeybindRegistry.KEYBIND_USE) || k.equals(KeybindRegistry.KEYBIND_ENTER)) {
 				callbacks.forEach(Runnable::run);
 			}
 		}
