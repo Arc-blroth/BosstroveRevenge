@@ -1,16 +1,16 @@
 package ai.arcblroth.boss.register;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-
-import com.google.gson.JsonObject;
-
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.TilePosition;
+import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.util.TriFunction;
+import com.google.gson.JsonObject;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 public class WallTileRegistry {
 	
@@ -37,16 +37,16 @@ public class WallTileRegistry {
 		map.put(key, builder);
 	}
 	
-	public void register(String key, Texture tileTexture, TriFunction<Room, TilePosition, JsonObject, WallTile> builder) {
-		map.put(key, new WallTileBuilder(tileTexture) {
+	public void register(String key, Texture tileTexture, Hitbox hitbox, TriFunction<Room, TilePosition, JsonObject, WallTile> builder) {
+		map.put(key, new WallTileBuilder(tileTexture, hitbox) {
 			public WallTile build(Room room, TilePosition tilePos, JsonObject context) {
 				return builder.apply(room, tilePos, context);
 			}
 		});
 	}
 	
-	public void register(String key, Texture tileTexture, BiFunction<Room, TilePosition, WallTile> builder) {
-		map.put(key, new WallTileBuilder(tileTexture) {
+	public void register(String key, Texture tileTexture, Hitbox hitbox, BiFunction<Room, TilePosition, WallTile> builder) {
+		map.put(key, new WallTileBuilder(tileTexture, hitbox) {
 			public WallTile build(Room room, TilePosition tilePos, JsonObject context) {
 				return builder.apply(room, tilePos);
 			}

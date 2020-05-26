@@ -1,0 +1,14 @@
+{
+	"versionId": 1,
+	"tileId": "class.wall-outside",
+	"tileType": "wallTile",
+	"passable": false,
+	"viscosity": 0.0,
+	"texture": "data/texture/tiles/class/wall-outside-top.png",
+	"hitbox": {
+		"x": 0,
+		"y": 0,
+		"w": 1,
+		"h": 0.5
+	}
+}

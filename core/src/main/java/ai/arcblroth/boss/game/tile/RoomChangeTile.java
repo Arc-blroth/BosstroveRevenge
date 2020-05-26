@@ -4,6 +4,7 @@ import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.engine.entity.IEntity;
 import ai.arcblroth.boss.engine.entity.player.Player;
+import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.register.WallTileBuilder;
 import ai.arcblroth.boss.render.Texture;
@@ -38,8 +39,8 @@ public class RoomChangeTile extends WallTile {
 
 	public static final class Builder extends WallTileBuilder<RoomChangeTile> {
 
-		public Builder(Texture texture) {
-			super(texture);
+		public Builder(Texture texture, Hitbox hitbox) {
+			super(texture, hitbox);
 		}
 
 		@Override

@@ -3,6 +3,7 @@ package ai.arcblroth.boss.game.tile;
 import ai.arcblroth.boss.engine.Room;
 import ai.arcblroth.boss.engine.TilePosition;
 import ai.arcblroth.boss.engine.entity.IEntity;
+import ai.arcblroth.boss.engine.hitbox.Hitbox;
 import ai.arcblroth.boss.engine.tile.WallTile;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.register.WallTileBuilder;
@@ -61,8 +62,8 @@ public class LeverTile extends WallTile {
 
 	public static final class Builder extends WallTileBuilder<LeverTile> {
 
-		public Builder(Texture texture) {
-			super(texture);
+		public Builder(Texture texture, Hitbox hitbox) {
+			super(texture, hitbox);
 		}
 
 		@Override

@@ -1,10 +1,10 @@
 {
 	"versionId": 1,
-	"tileId": "class.wall",
+	"tileId": "class.wall-inside",
 	"tileType": "wallTile",
 	"passable": false,
 	"viscosity": 0.0,
-	"texture": "data/texture/tiles/class/wall.png",
+	"texture": "data/texture/tiles/class/wall-inside.png",
 	"hitbox": {
 		"x": 0,
 		"y": 0,

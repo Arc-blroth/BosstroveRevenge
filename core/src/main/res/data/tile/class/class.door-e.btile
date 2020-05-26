@@ -1,0 +1,7 @@
+{
+	"versionId": 1,
+	"tileId": "class.door-e",
+	"tileType": "wallTile",
+	"texture": "data/texture/tiles/class/door-e.png",
+	"builder": "ai.arcblroth.boss.game.tile.DoorTile$Builder"
+}

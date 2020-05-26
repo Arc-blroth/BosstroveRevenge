@@ -94,11 +94,12 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 						}
 
 						if(useCustomBuilder) {
-							FloorTileRegistry.instance().register(tileId, builder.getConstructor(Texture.class).newInstance(texture));
+							Hitbox hitbox = loadHitbox(btile, tileType, tileId);
+							FloorTileRegistry.instance().register(tileId, builder.getConstructor(Texture.class, Hitbox.class).newInstance(texture, hitbox));
 						} else {
 							PartialTileDefinition ptd = loadPartialTileDefinition(btile, tileType, tileId);
 
-							FloorTileRegistry.instance().register(tileId, texture, (room, tilePos) -> new FloorTile(room, tilePos, texture) {
+							FloorTileRegistry.instance().register(tileId, texture, StaticDefaults.DEFAULT_TILE_HITBOX, (room, tilePos) -> new FloorTile(room, tilePos, texture) {
 
 								@Override
 								public String getId() {
@@ -139,11 +140,12 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 						}
 
 						if(useCustomBuilder) {
-							WallTileRegistry.instance().register(tileId, builder.getConstructor(Texture.class).newInstance(texture));
+							Hitbox hitbox = loadHitbox(btile, tileType, tileId);
+							WallTileRegistry.instance().register(tileId, builder.getConstructor(Texture.class, Hitbox.class).newInstance(texture, hitbox));
 						} else {
 							PartialTileDefinition ptd = loadPartialTileDefinition(btile, tileType, tileId);
 
-							WallTileRegistry.instance().register(tileId, texture, (room, tilePos) -> new WallTile(room, tilePos, texture) {
+							WallTileRegistry.instance().register(tileId, texture, StaticDefaults.DEFAULT_TILE_HITBOX, (room, tilePos) -> new WallTile(room, tilePos, texture) {
 
 								@Override
 								public String getId() {
@@ -210,7 +212,7 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 					if(btile.has("builder")) logger.log(Level.WARNING, "Smart " + tileType + " \"" + tileId + "\" cannot have a custom builder.");
 
 					if(tileType.equals("floortile")) {
-						FloorTileRegistry.instance().register(tileId, StaticDefaults.EMPTY_TEXTURE, (room, tilePos) -> new SmartFloorTile(room, tilePos, directionTextureMappings) {
+						FloorTileRegistry.instance().register(tileId, StaticDefaults.EMPTY_TEXTURE, StaticDefaults.DEFAULT_TILE_HITBOX, (room, tilePos) -> new SmartFloorTile(room, tilePos, directionTextureMappings) {
 
 							@Override
 							public String getId() {
@@ -234,7 +236,7 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 
 						});
 					} else {
-						WallTileRegistry.instance().register(tileId, StaticDefaults.EMPTY_TEXTURE, (room, tilePos) -> new SmartWallTile(room, tilePos, directionTextureMappings) {
+						WallTileRegistry.instance().register(tileId, StaticDefaults.EMPTY_TEXTURE, StaticDefaults.DEFAULT_TILE_HITBOX, (room, tilePos) -> new SmartWallTile(room, tilePos, directionTextureMappings) {
 
 							@Override
 							public String getId() {
@@ -313,6 +315,11 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 	private PartialTileDefinition loadPartialTileDefinition(JsonObject btile, String tileType, String tileId) {
 		final boolean isPassable = btile.has("passable") && btile.get("passable").getAsBoolean();
 		final double viscosity = btile.has("viscosity") ? btile.get("viscosity").getAsDouble() : 0.0D;
+		Hitbox hitbox = loadHitbox(btile, tileType, tileId);
+		return new PartialTileDefinition(isPassable, viscosity, hitbox);
+	}
+
+	private Hitbox loadHitbox(JsonObject btile, String tileType, String tileId) {
 		Hitbox tempHitbox = null;
 		if(btile.has("hitbox")) {
 			JsonObject hitboxObj = null;
@@ -324,8 +331,7 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 				logger.log(Level.WARNING, "Could not load hitbox for " + tileType + " tile \"" + tileId + "\". Using default hitbox.", e);
 			}
 		}
-		final Hitbox hitbox = tempHitbox;
-		return new PartialTileDefinition(isPassable, viscosity, hitbox);
+		return tempHitbox;
 	}
 
 }

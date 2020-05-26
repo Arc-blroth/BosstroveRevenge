@@ -65,6 +65,18 @@ Example File:
     - If there is no texture for a combination of directions, the tile will default to an invisible texture.
     - Duplicate mappings between a certain combination of directions and a texture will result in undefined behavior.
 
+### `hitbox`
+- An object specifying the hitbox of this tile in the following format:
+    - `x`
+        - X-offset of the hitbox.
+    - `y`
+        - Y-offset of the hitbox.
+    - `w`
+        - Width of the hitbox.
+    - `h`
+        - Height of the hitbox.
+- Optional. Defaults to `{ "x": 0, "y": 0, "w": 1, "h": 1}`. Builders may choose to ignore this hitbox.
+
 ### `builder`
 - Fully qualified class name of a FloorTileBuilder<? extends FloorTile> or WallTileBuilder<? extends WallTile>.
 - If present, this class becomes responsible for parsing the json of a tile and constructing the corresponding ITile.

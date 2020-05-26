@@ -11,6 +11,7 @@ import ai.arcblroth.boss.resource.InternalResource;
 import ai.arcblroth.boss.resource.Resource;
 import ai.arcblroth.boss.resource.load.*;
 import ai.arcblroth.boss.util.Pair;
+import ai.arcblroth.boss.util.StaticDefaults;
 import com.google.gson.Gson;
 
 import java.util.LinkedList;
@@ -70,8 +71,8 @@ public class LoadProcess extends Thread {
 		
 		phase = Phase.REGISTERING_TILES;
 		
-		FloorTileRegistry.instance().register("empty", null, EmptyFloorTile::new);
-		WallTileRegistry.instance().register("empty", null, EmptyWallTile::new);
+		FloorTileRegistry.instance().register("empty", null, StaticDefaults.DEFAULT_TILE_HITBOX, EmptyFloorTile::new);
+		WallTileRegistry.instance().register("empty", null, StaticDefaults.DEFAULT_TILE_HITBOX, EmptyWallTile::new);
 		
 		Gson gson = new Gson();
 		
