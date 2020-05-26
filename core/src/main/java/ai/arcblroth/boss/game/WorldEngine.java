@@ -4,6 +4,7 @@ import ai.arcblroth.boss.BosstrovesRevenge;
 import ai.arcblroth.boss.engine.*;
 import ai.arcblroth.boss.engine.entity.player.Player;
 import ai.arcblroth.boss.game.gui.WorldGUI;
+import ai.arcblroth.boss.game.shader.LevelIntroShader;
 import ai.arcblroth.boss.key.CharacterInputEvent;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;
@@ -46,7 +47,6 @@ public class WorldEngine implements IEngine {
 		this.renderer = new WorldRenderer(level.getRoom(currentRoomId), gui);
 		this.firedKeys = new HashMap<>();
 		this.maybeLater = new HashMap<>();
-		BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoomId).getResetColor());
 
 		renderer.putGlobalShader(0, levelIntroShader);
 		runLater(() -> {
@@ -220,6 +220,7 @@ public class WorldEngine implements IEngine {
 		roomEngine = getCurrentRoom().buildRoomEngine(this);
 		renderer.setRoom(getCurrentRoom());
 		if(roomEngine != null) runLater(roomEngine::onRoomEnter, 1);
+		runLater(() -> BosstrovesRevenge.instance().setResetColor(level.getRoom(currentRoomId).getResetColor()), 1);
 	}
 
 	public State getState() {

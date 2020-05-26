@@ -51,6 +51,9 @@
         "viscosity": { "type": "number", "default": 0.0 },
         "hitbox": { "$ref": "#/definitions/hitbox" }
       },
+      "not": {
+        "required": ["builder"]
+      },
       "oneOf": [
         {
           "properties": {

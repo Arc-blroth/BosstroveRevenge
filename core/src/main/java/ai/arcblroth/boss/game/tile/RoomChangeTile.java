@@ -12,10 +12,10 @@ import com.google.gson.JsonObject;
 
 public class RoomChangeTile extends WallTile {
 
-	private final String targetRoom;
+	public final String targetRoom;
 
-	public RoomChangeTile(Room room, TilePosition pos, String targetRoom) {
-		super(room, pos, StaticDefaults.EMPTY_TEXTURE);
+	public RoomChangeTile(Room room, TilePosition pos, Texture texture, String targetRoom) {
+		super(room, pos, texture);
 		this.targetRoom = targetRoom;
 	}
 
@@ -46,7 +46,7 @@ public class RoomChangeTile extends WallTile {
 		public RoomChangeTile build(Room room, TilePosition tilePos, JsonObject context) {
 			if(context.has("target")) {
 				String target = context.get("target").getAsString();
-				return new RoomChangeTile(room, tilePos, target);
+				return new RoomChangeTile(room, tilePos, StaticDefaults.EMPTY_TEXTURE, target);
 			} else {
 				throw new IllegalArgumentException("Must specify a target room for roomChange tile!");
 			}

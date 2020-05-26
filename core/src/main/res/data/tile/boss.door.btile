@@ -1,0 +1,6 @@
+{
+	"versionId": 1,
+	"tileId": "boss.door",
+	"tileType": "wallTile",
+	"builder": "ai.arcblroth.boss.game.tile.DoorTile$Builder"
+}

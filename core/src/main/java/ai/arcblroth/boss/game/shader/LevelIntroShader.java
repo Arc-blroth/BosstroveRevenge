@@ -1,4 +1,4 @@
-package ai.arcblroth.boss.game;
+package ai.arcblroth.boss.game.shader;
 
 import ai.arcblroth.boss.engine.IShader;
 import ai.arcblroth.boss.engine.Level;
