@@ -16,11 +16,7 @@
     "class.wall",
     "class.board",
     "class.desk-with-computer",
-    {
-      "tileId": "boss.door",
-      "texture": "data/texture/tiles/class/door.png",
-      "target": "1"
-    },
+    "",
     "",
     "boss.grass"
   ],
@@ -52,7 +48,15 @@
       "wallTiles": [
         [5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 4],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 7],
+        [2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0,
+          {
+            "tileId": "boss.door",
+            "texture": "data/texture/tiles/class/door.png",
+            "target": "1",
+            "targetX": 0.5,
+            "targetY": 2.5
+          }
+        ],
         [3, 0, 3, 0, 3, 0, 3, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
         [2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0],
@@ -61,7 +65,15 @@
         [2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0],
         [3, 0, 3, 0, 3, 0, 3, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        [6, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 7],
+        [6, 2, 2, 0, 0, 0, 0, 0, 0, 0, 0,
+          {
+            "tileId": "boss.door",
+            "texture": "data/texture/tiles/class/door.png",
+            "target": "1",
+            "targetX": 0.5,
+            "targetY": 11.5
+          }
+        ],
         [3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
       ],
       

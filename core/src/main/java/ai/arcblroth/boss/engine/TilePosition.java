@@ -16,4 +16,8 @@ public class TilePosition extends Pair<Integer, Integer> {
 		return getSecond();
 	}
 
+	public Position toPosition() {
+		return new Position(getX(), getY());
+	}
+
 }

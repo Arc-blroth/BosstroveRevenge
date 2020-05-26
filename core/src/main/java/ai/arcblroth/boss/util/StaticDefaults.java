@@ -42,5 +42,6 @@ public final class StaticDefaults {
 	public static final long DEFAULT_KEYBIND_DELAY = 4;
 
 	public static final int LEVEL_INTRO_ANIMATION_LENGTH = 30;
+	public static final int ROOM_TRANSITION_ANIMATION_LENGTH = 36;
 
 }
