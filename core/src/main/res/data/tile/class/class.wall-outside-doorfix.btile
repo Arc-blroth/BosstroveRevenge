@@ -1,0 +1,14 @@
+{
+	"versionId": 1,
+	"tileId": "class.wall-outside-doorfix",
+	"tileType": "wallTile",
+	"passable": false,
+	"viscosity": 0.0,
+	"texture": "data/texture/tiles/class/wall-outside.png",
+	"hitbox": {
+		"x": -1,
+		"y": 0,
+		"w": 2,
+		"h": 0.5
+	}
+}

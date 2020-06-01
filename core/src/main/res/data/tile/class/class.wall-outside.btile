@@ -4,7 +4,25 @@
 	"tileType": "wallTile",
 	"passable": false,
 	"viscosity": 0.0,
-	"texture": "data/texture/tiles/class/wall-outside-top.png",
+	"smart": true,
+	"texture": [
+		{
+			"directions": ["south", "east", "west"],
+			"texture": "data/texture/tiles/class/wall-outside-top.png"
+		},
+		{
+			"directions": ["south", "east"],
+			"texture": "data/texture/tiles/class/wall-outside-top.png"
+		},
+		{
+			"directions": ["south", "west"],
+			"texture": "data/texture/tiles/class/wall-outside-top.png"
+		},
+		{
+			"directions": "default",
+			"texture": "data/texture/tiles/class/wall-outside.png"
+		}
+	],
 	"hitbox": {
 		"x": 0,
 		"y": 0,

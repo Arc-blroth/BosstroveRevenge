@@ -57,12 +57,12 @@ Example File:
 - If `smart` is true:
     - Must be an array of objects with the following format:
     - `directions`
-      - An array of any combination of "north", "south", "east", and "west". Repeat elements will lead to undefined behavior. The empty array is permitted.
+      - Either the string "default", or an array of any combination of "north", "south", "east", and "west". Repeat elements will lead to undefined behavior. The empty array is permitted.
       - When a tile is bordered with tiles of the same type in these directions, the following texture will be used.
       - For example, if `directions = ["north", "east"]`, then the following texture would be used when there is a tile of the same type to the north and to the east (and tiles of different types to the south and west).
     - `texture`
       - A string or array of strings specifying a texture as in the above specification.
-    - If there is no texture for a combination of directions, the tile will default to an invisible texture.
+    - If there is no texture for a combination of directions, the tile will default the default texture, or if that is not specified, to an invisible texture.
     - Duplicate mappings between a certain combination of directions and a texture will result in undefined behavior.
 
 ### `hitbox`

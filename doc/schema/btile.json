@@ -70,13 +70,21 @@
                 "type": "object",
                 "properties": {
                   "directions": {
-                    "type": "array",
-                    "items": {
-                      "type": "string",
-                      "enum": ["north", "east", "south", "west"]
-                    },
-                    "uniqueItems": true,
-                    "additionalItems": false
+                    "oneOf": [
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "enum": ["north", "east", "south", "west"]
+                        },
+                        "uniqueItems": true,
+                        "additionalItems": false
+                      },
+                      {
+                        "type": "string",
+                        "const": "default"
+                      }
+                    ]
                   },
                   "texture": { "$ref": "#/definitions/texture" }
                 }

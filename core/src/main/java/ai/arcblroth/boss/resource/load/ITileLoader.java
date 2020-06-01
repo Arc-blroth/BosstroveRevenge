@@ -179,25 +179,33 @@ public final class ITileLoader extends AbstractIRegisterableLoader {
 						if(btile.get("texture").isJsonArray()) {
 							btile.get("texture").getAsJsonArray().forEach(mapping -> {
 								try {
-									JsonArray directions = mapping.getAsJsonObject().get("directions").getAsJsonArray();
-									byte directionMask = 0;
-									if(directions.contains(new JsonPrimitive("north"))) {
-										directionMask = (byte) (directionMask | Direction.NORTH.getMask());
-									}
-									if(directions.contains(new JsonPrimitive("south"))) {
-										directionMask = (byte) (directionMask | Direction.SOUTH.getMask());
-									}
-									if(directions.contains(new JsonPrimitive("east"))) {
-										directionMask = (byte) (directionMask | Direction.EAST.getMask());
-									}
-									if(directions.contains(new JsonPrimitive("west"))) {
-										directionMask = (byte) (directionMask | Direction.WEST.getMask());
-									}
-									Texture mappedTexture = mapping.getAsJsonObject().has("texture")
-											? resolveTexture(mapping.getAsJsonObject().get("texture"))
-											: StaticDefaults.DEFAULT_TEXTURE;
+									if(mapping.getAsJsonObject().get("directions").isJsonArray()) {
+										JsonArray directions = mapping.getAsJsonObject().get("directions").getAsJsonArray();
+										byte directionMask = 0;
+										if (directions.contains(new JsonPrimitive("north"))) {
+											directionMask = (byte) (directionMask | Direction.NORTH.getMask());
+										}
+										if (directions.contains(new JsonPrimitive("south"))) {
+											directionMask = (byte) (directionMask | Direction.SOUTH.getMask());
+										}
+										if (directions.contains(new JsonPrimitive("east"))) {
+											directionMask = (byte) (directionMask | Direction.EAST.getMask());
+										}
+										if (directions.contains(new JsonPrimitive("west"))) {
+											directionMask = (byte) (directionMask | Direction.WEST.getMask());
+										}
+										Texture mappedTexture = mapping.getAsJsonObject().has("texture")
+												? resolveTexture(mapping.getAsJsonObject().get("texture"))
+												: StaticDefaults.DEFAULT_TEXTURE;
 
-									directionTextureMappings.put(directionMask, mappedTexture);
+										directionTextureMappings.put(directionMask, mappedTexture);
+									} else if(mapping.getAsJsonObject().get("directions").getAsString().equalsIgnoreCase("default")) {
+										Texture mappedTexture = mapping.getAsJsonObject().has("texture")
+												? resolveTexture(mapping.getAsJsonObject().get("texture"))
+												: StaticDefaults.DEFAULT_TEXTURE;
+
+										directionTextureMappings.put(SmartFloorTile.DEFAULT_TEXTURE_MASK, mappedTexture);
+									}
 								} catch(Exception e) {
 									logger.log(Level.WARNING, "Could not load one of the textures for smart " + tileType + " \"" + tileId + "\": ", e);
 								}

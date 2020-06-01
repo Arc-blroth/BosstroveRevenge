@@ -10,6 +10,7 @@ import java.util.Map;
 
 public abstract class SmartWallTile extends WallTile {
 
+	public static final byte DEFAULT_TEXTURE_MASK = SmartFloorTile.DEFAULT_TEXTURE_MASK;
 	private Map<Byte, Texture> textureMappings;
 
 	public SmartWallTile(Room room, TilePosition pos, Map<Byte, Texture> textureMappings) {
@@ -39,6 +40,7 @@ public abstract class SmartWallTile extends WallTile {
 			currentMask = (byte) (currentMask | Direction.WEST.getMask());
 		}
 		Texture texture = textureMappings.get(currentMask);
+		if(texture == null) texture = textureMappings.get(DEFAULT_TEXTURE_MASK);
 		if(texture == null) texture = StaticDefaults.EMPTY_TEXTURE;
 		return texture;
 	}
