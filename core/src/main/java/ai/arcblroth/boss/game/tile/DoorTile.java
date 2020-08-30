@@ -11,23 +11,28 @@ import ai.arcblroth.boss.game.shader.RoomTransitionShader;
 import ai.arcblroth.boss.key.Keybind;
 import ai.arcblroth.boss.key.KeybindRegistry;
 import ai.arcblroth.boss.register.WallTileBuilder;
+import ai.arcblroth.boss.render.MultiFrameTexture;
 import ai.arcblroth.boss.render.Texture;
 import ai.arcblroth.boss.util.StaticDefaults;
 import com.google.gson.JsonObject;
 
 public abstract class DoorTile extends RoomChangeTile {
 
+	private final boolean isLocked;
 	private final Position targetPos;
 
-	public DoorTile(Room room, TilePosition pos, Texture texture, String targetRoom, Position targetPos) {
+	public DoorTile(Room room, TilePosition pos, Texture texture, String targetRoom, Position targetPos, boolean isLocked) {
 		super(room, pos, texture, targetRoom);
+		this.isLocked = isLocked;
 		this.targetPos = targetPos;
 	}
 
 	@Override
 	public void onEntityStep(IEntity entity) {
-		if(entity instanceof Player) {
-			getRoom().getLevel().getEngine().getGUI().toast(1, "Press SPACE or ENTER to enter");
+		if(!isLocked) {
+			if (entity instanceof Player) {
+				getRoom().getLevel().getEngine().getGUI().toast(1, "Press SPACE or ENTER to enter");
+			}
 		}
 	}
 
@@ -36,34 +41,48 @@ public abstract class DoorTile extends RoomChangeTile {
 		if(keybind.equals(KeybindRegistry.KEYBIND_USE) || keybind.equals(KeybindRegistry.KEYBIND_ENTER)) {
 			Player player = getRoom().getPlayer();
 			WorldEngine engine = getRoom().getLevel().getEngine();
-			if (!engine.getState().equals(WorldEngine.State.LOADING)) {
-				engine.setState(WorldEngine.State.LOADING);
-				RoomTransitionShader rts = new RoomTransitionShader(
-						engine,
-						new Position(this.getPosition().getX() + 0.5, this.getPosition().getY() + 0.5),
-						targetPos
-				);
-				engine.getRenderer().putWorldShader(1, rts);
-				Runnable advanceTransitionFrame = new Runnable() {
-					@Override
-					public void run() {
-						rts.advanceFrame();
-						if (rts.canAdvanceFrame()) engine.runLater(this, 1);
-					}
-				};
-				engine.runLater(advanceTransitionFrame, 1);
-				engine.runLater(() -> {
-					engine.setCurrentRoomId(targetRoom);
-					player.setPosition(targetPos);
-				}, StaticDefaults.ROOM_TRANSITION_ANIMATION_LENGTH / 2);
-				engine.runLater(() -> {
-					engine.setState(WorldEngine.State.IN_WORLD);
-					engine.getRenderer().removeWorldShader(rts);
-				}, StaticDefaults.ROOM_TRANSITION_ANIMATION_LENGTH);
+			if(!isLocked) {
+				if (!engine.getState().equals(WorldEngine.State.LOADING)) {
+					engine.setState(WorldEngine.State.LOADING);
+					RoomTransitionShader rts = new RoomTransitionShader(
+							engine,
+							new Position(this.getPosition().getX() + 0.5, this.getPosition().getY() + 0.5),
+							targetPos
+					);
+					engine.getRenderer().putWorldShader(1, rts);
+					Runnable advanceTransitionFrame = new Runnable() {
+						@Override
+						public void run() {
+							rts.advanceFrame();
+							if (rts.canAdvanceFrame()) engine.runLater(this, 1);
+						}
+					};
+					engine.runLater(advanceTransitionFrame, 1);
+					engine.runLater(() -> {
+						engine.setCurrentRoomId(targetRoom);
+						player.setPosition(targetPos);
+					}, StaticDefaults.ROOM_TRANSITION_ANIMATION_LENGTH / 2);
+					engine.runLater(() -> {
+						engine.setState(WorldEngine.State.IN_WORLD);
+						engine.getRenderer().removeWorldShader(rts);
+					}, StaticDefaults.ROOM_TRANSITION_ANIMATION_LENGTH);
+				}
+			} else {
+				engine.getGUI().toast(StaticDefaults.STEPS_PER_SECOND, "This door is locked.");
 			}
 		}
 	}
 
+	@Override
+	public Texture getTexture() {
+		if(super.getTexture() instanceof MultiFrameTexture) {
+			if(isLocked) ((MultiFrameTexture) super.getTexture()).setCurrentFrame(1);
+			else ((MultiFrameTexture) super.getTexture()).setCurrentFrame(0);
+		}
+		return super.getTexture();
+	}
+
+	@Override
 	public String getId() {
 		return "boss.door";
 	}
@@ -78,8 +97,9 @@ public abstract class DoorTile extends RoomChangeTile {
 		public RoomChangeTile build(Room room, TilePosition tilePos, JsonObject context) {
 			if(context.has("target")) {
 				String target = context.get("target").getAsString();
+				boolean isLocked = context.has("locked") && context.get("locked").getAsBoolean();
 				Position targetPos = new Position(context.get("targetX").getAsDouble(), context.get("targetY").getAsDouble());
-				return new DoorTile(room, tilePos, this.getTileTexture(), target, targetPos) {
+				return new DoorTile(room, tilePos, this.getTileTexture(), target, targetPos, isLocked) {
 					@Override
 					public Hitbox getHitbox() {
 						return getTileHitbox();

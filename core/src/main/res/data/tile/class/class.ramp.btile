@@ -1,0 +1,14 @@
+{
+	"versionId": 1,
+	"tileId": "class.ramp",
+	"tileType": "wallTile",
+	"passable": true,
+	"viscosity": 0.0,
+	"texture": "data/texture/tiles/class/ramp.png",
+	"hitbox": {
+		"x": 0,
+		"y": 0,
+		"w": 1,
+		"h": 1
+	}
+}
