@@ -1,0 +1,9 @@
+# Gradle
+.gradle/
+
+# IDE
+.idea/
+.vscode/
+
+# Generated folders
+build/

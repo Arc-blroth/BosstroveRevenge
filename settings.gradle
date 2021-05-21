@@ -1,0 +1,3 @@
+rootProject.name = 'BosstrovesRevenge'
+
+include 'core', 'desktop'
