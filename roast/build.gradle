@@ -1,0 +1,7 @@
+import ai.arcblroth.boss.cargo.CargoWrapperPlugin
+
+apply plugin: CargoWrapperPlugin
+
+cargo {
+    outputs = [Tuple.tuple("", "roast.dll")]
+}

@@ -5,14 +5,29 @@ plugins {
     id 'com.github.johnrengelman.shadow'
 }
 
+sourceCompatibility = JavaVersion.VERSION_16
+targetCompatibility = JavaVersion.VERSION_16
+
 mainClassName = "ai.arcblroth.boss.desktop.DesktopMain"
 
 configurations {
     include
+    backend
 }
 
 dependencies {
     include(implementation(project(':core')))
+    backend(project(':roast'))
+
+    // Backend loader
+    include(implementation("org.scijava:native-lib-loader:$native_lib_loader_version"))
+    include(implementation("org.slf4j:slf4j-jdk14:$slf4j_jdk_binding_version"))
+}
+
+processResources {
+    from(configurations.backend.getFiles()) {
+        into "natives/windows_64"
+    }
 }
 
 jar {
