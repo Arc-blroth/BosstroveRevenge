@@ -804,6 +804,7 @@ version = "0.1.0"
 dependencies = [
  "glam",
  "jni",
+ "log",
  "vulkano",
  "vulkano-shaders",
  "vulkano-win",

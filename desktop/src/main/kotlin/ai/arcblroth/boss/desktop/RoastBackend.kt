@@ -5,6 +5,7 @@ import ai.arcblroth.boss.EventLoop
 import ai.arcblroth.boss.RendererSettings
 import ai.arcblroth.boss.render.Scene
 import org.scijava.nativelib.NativeLoader
+import org.slf4j.LoggerFactory
 
 /**
  * The winit + vulkano backend, implemented in Rust because
@@ -19,7 +20,15 @@ class RoastBackend : Backend, EventLoop {
         init {
             NativeLoader.loadLibrary("roast")
         }
+
+        @JvmStatic
+        private val LOGGER = LoggerFactory.getLogger("RoastBackend")
     }
+
+    /**
+     * Internal pointer to the RoastBackend struct.
+     */
+    private var pointer = 0L
 
     external override fun init(appName: String, appVersion: String, rendererSettings: RendererSettings)
 
@@ -28,4 +37,8 @@ class RoastBackend : Backend, EventLoop {
     external override fun render(scene: Scene)
 
     external override fun exit()
+
+    external override fun close()
 }
+
+class RoastException(msg: String) : RuntimeException(msg)

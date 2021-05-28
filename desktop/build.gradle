@@ -12,7 +12,10 @@ mainClassName = "ai.arcblroth.boss.desktop.DesktopMain"
 
 configurations {
     include
-    backend
+    backend {
+        canBeConsumed false
+        canBeResolved true
+    }
 }
 
 dependencies {
@@ -21,11 +24,10 @@ dependencies {
 
     // Backend loader
     include(implementation("org.scijava:native-lib-loader:$native_lib_loader_version"))
-    include(implementation("org.slf4j:slf4j-jdk14:$slf4j_jdk_binding_version"))
 }
 
 processResources {
-    from(configurations.backend.getFiles()) {
+    from(configurations.backend) {
         into "natives/windows_64"
     }
 }

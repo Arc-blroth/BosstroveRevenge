@@ -10,6 +10,7 @@ crate_type = ["cdylib"]
 [dependencies]
 glam = { version = "0.15.2" }
 jni = "0.19.0"
+log = {version = "0.4.14", features = ["std"]}
 vulkano = "0.23.0"
 vulkano-win = "0.23.0"
 vulkano-shaders = "0.23.0"

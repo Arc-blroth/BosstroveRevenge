@@ -33,8 +33,14 @@ data class RendererSettings(
  * A `Backend` is responsible for running the main
  * event loop, polling input, and rendering output.
  * This is implemented differently on each platform.
+ *
+ * **Thread Safety**: The Backend assumes that it will
+ * only ever be called from one thread. Do not
+ * attempt to invoke Backend or EventLoop methods from
+ * any thread other than the one that calls [init] on
+ * the Backend, or race conditions may occur.
  */
-interface Backend {
+interface Backend : AutoCloseable {
     /**
      * Initializes the backend, which may involve creating a surface to draw on
      * and setting up input methods.
