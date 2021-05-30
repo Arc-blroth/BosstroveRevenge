@@ -25,7 +25,7 @@ data class RendererSettings(
     val transparent: Boolean = false,
 ) {
     enum class FullscreenMode {
-        NONE, WINDOWED, EXCLUSIVE
+        NONE, BORDERLESS, EXCLUSIVE
     }
 }
 
@@ -40,7 +40,7 @@ data class RendererSettings(
  * any thread other than the one that calls [init] on
  * the Backend, or race conditions may occur.
  */
-interface Backend : AutoCloseable {
+interface Backend {
     /**
      * Initializes the backend, which may involve creating a surface to draw on
      * and setting up input methods.
@@ -52,9 +52,10 @@ interface Backend : AutoCloseable {
 
     /**
      * Runs the main event loop and call [step] each frame.
+     * **This method will never return**.
      * @param step called once per frame on the event loop thread
      */
-    fun runEventLoop(step: EventLoop.() -> Unit)
+    fun runEventLoop(step: EventLoop.() -> Unit): Nothing
 }
 
 /**

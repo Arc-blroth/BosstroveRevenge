@@ -32,13 +32,11 @@ class RoastBackend : Backend, EventLoop {
 
     external override fun init(appName: String, appVersion: String, rendererSettings: RendererSettings)
 
-    external override fun runEventLoop(step: EventLoop.() -> Unit)
+    external override fun runEventLoop(step: EventLoop.() -> Unit): Nothing
 
     external override fun render(scene: Scene)
 
     external override fun exit()
-
-    external override fun close()
 }
 
 class RoastException(msg: String) : RuntimeException(msg)

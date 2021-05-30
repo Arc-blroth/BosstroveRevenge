@@ -22,10 +22,10 @@ class BosstrovesRevenge(val backend: Backend) : Runnable {
 
         val scene = Scene()
 
-        backend.use {
-            it.init("Bosstrove's Revenge", "0.1.0")
+        backend.run {
+            init("Bosstrove's Revenge", "0.1.0", RendererSettings(rendererSize = Pair(0.75, 0.75)))
 
-            it.runEventLoop {
+            runEventLoop {
                 render(scene)
             }
         }

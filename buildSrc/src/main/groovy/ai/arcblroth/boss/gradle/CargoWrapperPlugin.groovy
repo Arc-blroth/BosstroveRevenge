@@ -1,4 +1,4 @@
-package ai.arcblroth.boss.cargo
+package ai.arcblroth.boss.gradle
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.Plugin

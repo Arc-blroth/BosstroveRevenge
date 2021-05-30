@@ -1,0 +1,5 @@
+# Rustfmt config options
+max_width = 120
+
+imports_granularity = "Module"
+group_imports = "StdExternalCrate"

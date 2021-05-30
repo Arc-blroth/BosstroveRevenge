@@ -1,7 +1,20 @@
-import ai.arcblroth.boss.cargo.CargoWrapperPlugin
+import ai.arcblroth.boss.gradle.CargoWrapperPlugin
+import ai.arcblroth.boss.gradle.BuildShadersTask
 
 apply plugin: CargoWrapperPlugin
 
 cargo {
     outputs = [Tuple.tuple("", "roast.dll")]
+}
+
+def buildShaders = tasks.register('buildShaders', BuildShadersTask.class) {
+    shaders = [
+            "shader/scene.vert.glsl": "scene_vert",
+            "shader/scene.frag.glsl": "scene_frag",
+    ]
+    outputDir = project.file("target/shader")
+}
+
+project.afterEvaluate {
+    tasks.getByName('build').dependsOn(buildShaders)
 }

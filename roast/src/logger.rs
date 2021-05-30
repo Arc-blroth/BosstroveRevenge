@@ -12,6 +12,7 @@ use crate::jni_util::TypedGlobalRef;
 pub struct JavaLogger<'a> {
     env: JNIEnv<'a>,
     logger: TypedGlobalRef<JObject<'a>>,
+    #[allow(unused)]
     logger_class: TypedGlobalRef<JClass<'a>>,
 
     method_error: JMethodID<'a>,
@@ -32,8 +33,7 @@ impl<'a> JavaLogger<'a> {
                 "Lorg/slf4j/Logger;",
             )?)?,
         )?;
-        let logger_class =
-            TypedGlobalRef::<JClass>::new(&env, env.get_object_class(logger.as_obj())?)?;
+        let logger_class = TypedGlobalRef::<JClass>::new(&env, env.get_object_class(logger.as_obj())?)?;
 
         // DRY taken a bit too far?
         macro_rules! define_methods {
@@ -41,17 +41,13 @@ impl<'a> JavaLogger<'a> {
                 $(let $var = env.get_method_id(logger_class.as_class(), $name, "(Ljava/lang/String;)V")?;)*
             }
         }
+        #[rustfmt::skip]
         define_methods!(
-            method_error,
-            "error",
-            method_warn,
-            "warn",
-            method_info,
-            "info",
-            method_debug,
-            "debug",
-            method_trace,
-            "trace",
+            method_error, "error",
+            method_warn, "warn",
+            method_info, "info",
+            method_debug, "debug",
+            method_trace, "trace",
         );
 
         Ok(Self {

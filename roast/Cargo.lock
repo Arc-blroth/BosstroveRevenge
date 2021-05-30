@@ -804,10 +804,12 @@ version = "0.1.0"
 dependencies = [
  "glam",
  "jni",
+ "lazy_static",
  "log",
  "vulkano",
  "vulkano-shaders",
  "vulkano-win",
+ "winit",
 ]
 
 [[package]]
