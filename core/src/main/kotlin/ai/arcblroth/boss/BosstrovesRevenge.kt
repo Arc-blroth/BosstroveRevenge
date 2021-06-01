@@ -36,12 +36,13 @@ class BosstrovesRevenge(val backend: Backend) : Runnable {
                     scene.sceneMeshes.add(
                         getRenderer().createMesh(
                             arrayOf(
-                                Vertex(Vector3f(-1.0f, -0.25f, -0.5f), Vector4f(0.0f, 1.0f, 1.0f, 1.0f)),
-                                Vertex(Vector3f(-1.0f, 0.25f, 0.0f), Vector4f(0.0f, 1.0f, 0.5f, 1.0f)),
-                                Vertex(Vector3f(-1.0f, -0.25f, 0.5f), Vector4f(1.0f, 0.5f, 1.0f, 1.0f)),
+                                Vertex(Vector3f(-1.0f, 0.25f, -0.25f), Vector4f(1.0f, 0.0f, 0.0f, 0.0f)),
+                                Vertex(Vector3f(-1.0f, 0.25f, 0.25f), Vector4f(0.0f, 0.0f, 0.0f, 0.0f)),
+                                Vertex(Vector3f(-1.0f, -0.25f, 0.25f), Vector4f(0.0f, 1.0f, 0.0f, 0.0f)),
+                                Vertex(Vector3f(-1.0f, -0.25f, -0.25f), Vector4f(1.0f, 1.0f, 0.0f, 0.0f)),
                             ),
-                            arrayOf(1, 2, 3),
-                            VertexType.COLOR,
+                            intArrayOf(0, 1, 2, 0, 2, 3),
+                            VertexType.TEX1,
                             null,
                             null
                         )
@@ -51,9 +52,9 @@ class BosstrovesRevenge(val backend: Backend) : Runnable {
 
                 getRenderer().render(scene)
 
-                val currentTime = System.nanoTime()
-                logger.info("FPS: ${1e+9f / (currentTime - lastFrameTime).toFloat()}")
-                lastFrameTime = currentTime
+                // val currentTime = System.nanoTime()
+                // logger.info("FPS: ${1e+9f / (currentTime - lastFrameTime).toFloat()}")
+                // lastFrameTime = currentTime
             }
         }
     }

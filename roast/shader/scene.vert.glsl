@@ -21,6 +21,7 @@ out gl_PerVertex {
 
 void main() {
     gl_Position = ubo.proj * ubo.view * push.model * vec4(pos, 1.0);
+    tex = color_tex;
     if (int(push.vertex_type) == 0) {
         base_color = color_tex * push.overlay_color;
     } else {

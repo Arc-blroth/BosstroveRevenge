@@ -492,7 +492,7 @@ impl VulkanWrapper {
             scene: Arc::new(
                 builder
                     .clone()
-                    .blend_pass_through()
+                    .blend_alpha_blending()
                     .depth_clamp(false)
                     .depth_stencil(DepthStencil {
                         depth_compare: Compare::Less,

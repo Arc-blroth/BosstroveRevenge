@@ -244,10 +244,11 @@ impl RoastRenderer {
 
             for mesh in descriptor_map.get(descriptors).unwrap() {
                 builder
-                    .draw(
+                    .draw_indexed(
                         self.vulkan.pipelines.scene.clone(),
                         &DynamicState::none(),
                         vec![mesh.vertex_buffer().clone()],
+                        mesh.index_buffer().clone(),
                         (camera_descriptor_set.clone(), scene_descriptor_set.clone()),
                         mesh.fill_push_constants(),
                         std::iter::empty(),

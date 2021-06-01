@@ -7,7 +7,6 @@ import ai.arcblroth.boss.RendererSettings
 import ai.arcblroth.boss.math.Matrix4f
 import ai.arcblroth.boss.math.Vector2f
 import ai.arcblroth.boss.math.Vector4f
-import ai.arcblroth.boss.render.Index
 import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Scene
 import ai.arcblroth.boss.render.Texture
@@ -46,11 +45,11 @@ class RoastBackend : Backend, EventLoop, Renderer {
 
     override fun getRenderer(): Renderer = this
 
-    external override fun createTexture(image: Array<Byte>, sampling: TextureSampling, generateMipmaps: Boolean): Texture
+    external override fun createTexture(image: ByteArray, sampling: TextureSampling, generateMipmaps: Boolean): Texture
 
     external override fun createMesh(
         vertices: Array<Vertex>,
-        indices: Array<Index>,
+        indices: IntArray,
         vertexType: VertexType,
         texture0: Texture?,
         texture1: Texture?

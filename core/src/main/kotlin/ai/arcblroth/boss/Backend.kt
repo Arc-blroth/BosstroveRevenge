@@ -1,6 +1,5 @@
 package ai.arcblroth.boss
 
-import ai.arcblroth.boss.render.Index
 import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Scene
 import ai.arcblroth.boss.render.Texture
@@ -96,7 +95,7 @@ interface Renderer {
      *                          for this texture.
      */
     fun createTexture(
-        image: Array<Byte>,
+        image: ByteArray,
         sampling: TextureSampling,
         generateMipmaps: Boolean,
     ): Texture
@@ -111,7 +110,7 @@ interface Renderer {
      */
     fun createMesh(
         vertices: Array<Vertex>,
-        indices: Array<Index>,
+        indices: IntArray,
         vertexType: VertexType,
         texture0: Texture?,
         texture1: Texture?,

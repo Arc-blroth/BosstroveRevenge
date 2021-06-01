@@ -18,9 +18,8 @@ void main() {
         color *= texture(texture1, tex.xy + push.tex_offsets.xy);
     }
     if(int(push.vertex_type) == 2) {
-        color *= texture(texture2, tex.wz + push.tex_offsets.wz);
+        color *= texture(texture2, tex.zw + push.tex_offsets.zw);
     }
-    color.w *= push.opacity;
 
-    out_color = color;
+    out_color = vec4(sqrt(color.xyz), color.w * push.opacity);
 }
