@@ -37,12 +37,26 @@ impl<'a> TypedGlobalRef<JClass<'a>> {
     }
 }
 
-/// Catches any unwinding panics and rethrows them as a Java exception
+/// Catches any unwinding panics and rethrows them as a Java exception.
+/// This will not attempt to throw a second exception if an exception is already being throw.
 #[macro_export]
 macro_rules! catch_panic {
     ($env:expr, $code:block) => {
         if let Err(_) = std::panic::catch_unwind(|| $code) {
-            let _ = $env.throw_new("ai/arcblroth/boss/desktop/RoastException", "panic!");
+            if !$env.exception_check().unwrap_or(false) {
+                let _ = $env.throw_new("ai/arcblroth/boss/desktop/RoastException", "panic!");
+            }
+        }
+    };
+    ($env:expr, $code:block else $default:block) => {
+        return match std::panic::catch_unwind(|| $code) {
+            Ok(res) => res,
+            Err(_) => {
+                if !$env.exception_check().unwrap_or(false) {
+                    let _ = $env.throw_new("ai/arcblroth/boss/desktop/RoastException", "panic!");
+                }
+                $default
+            }
         }
     };
 }
@@ -58,7 +72,7 @@ macro_rules! unwrap_or_throw_new {
                 // and the JVM is probably not in a state to continue running
                 // anyway
                 let _ = $env.throw_new("ai/arcblroth/boss/desktop/RoastException", format!("{}: {}", $msg, err));
-                return;
+                panic!();
             }
         }
     };
@@ -67,7 +81,7 @@ macro_rules! unwrap_or_throw_new {
             Ok(res) => res,
             Err(err) => {
                 let _ = $env.throw_new("ai/arcblroth/boss/desktop/RoastException", format!("{}", err));
-                return;
+                panic!();
             }
         }
     };
@@ -79,7 +93,7 @@ macro_rules! unwrap_or_throw_new {
 /// a new Java Exception and return.
 #[macro_export]
 macro_rules! call_getter {
-    ($env:expr, $obj:expr, $getter_name:literal, $ty:literal) => {
+    ($env:expr, $obj:expr, $getter_name:expr, $ty:literal) => {
         unwrap_or_throw_new!($env.call_method($obj, $getter_name, concat!("()", $ty), &[]), $env)
     };
 }

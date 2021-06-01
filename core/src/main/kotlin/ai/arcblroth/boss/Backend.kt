@@ -1,6 +1,12 @@
 package ai.arcblroth.boss
 
+import ai.arcblroth.boss.render.Index
+import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Scene
+import ai.arcblroth.boss.render.Texture
+import ai.arcblroth.boss.render.TextureSampling
+import ai.arcblroth.boss.render.Vertex
+import ai.arcblroth.boss.render.VertexType
 
 /**
  * Settings for backend renderer initialization. Depending on the backend,
@@ -64,11 +70,9 @@ interface Backend {
  */
 interface EventLoop {
     /**
-     * Renders the scene. This **must not**
-     * mutate the scene.
-     * @param [scene] Scene to be rendered.
+     * Gets the backend [Renderer] for this event loop.
      */
-    fun render(scene: Scene)
+    fun getRenderer(): Renderer
 
     /**
      * Requests the event loop to stop after this frame.
@@ -76,4 +80,47 @@ interface EventLoop {
      * with the backend.
      */
     fun exit()
+}
+
+/**
+ * The backend renderer handles creating and rendering [Meshes][Mesh]
+ * and [Textures][Texture]
+ */
+interface Renderer {
+    /**
+     * Creates a texture that can then be used in a [Mesh].
+     * @param [image] Raw source of the texture file. What file formats
+     *                are supported are implementation dependent.
+     * @param [sampling] Sampling type of the texture.
+     * @param [generateMipmaps] Whether to generate and use mipmaps
+     *                          for this texture.
+     */
+    fun createTexture(
+        image: Array<Byte>,
+        sampling: TextureSampling,
+        generateMipmaps: Boolean,
+    ): Texture
+
+    /**
+     * Creates a mesh that can be used in a [Scene].
+     * @param [vertices] Vertices of the mesh.
+     * @param [indices] Indices of the mesh.
+     * @param [vertexType] How to interpret each [Vertex] in the [vertices].
+     * @param [texture0] First optional texture slot to bind when rendering this mesh.
+     * @param [texture1] Second optional texture slot to bind when rendering this mesh.
+     */
+    fun createMesh(
+        vertices: Array<Vertex>,
+        indices: Array<Index>,
+        vertexType: VertexType,
+        texture0: Texture?,
+        texture1: Texture?,
+    ): Mesh
+
+    /**
+     * Renders the scene.
+     * Implementations of this method **must not**  mutate the scene.
+     * @param [scene] Scene to be rendered.
+     */
+    fun render(scene: Scene)
 }

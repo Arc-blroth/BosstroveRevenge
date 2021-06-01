@@ -1,21 +1,29 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
-use glam::{Mat4, Vec3, Vec4};
+use egui::CtxRef;
+use image::DynamicImage;
 use lazy_static::lazy_static;
 use vulkano::command_buffer::{
     AutoCommandBufferBuilder, CommandBufferUsage, DynamicState, PrimaryAutoCommandBuffer, SubpassContents,
 };
 use vulkano::device::{DeviceExtensions, Features};
 use vulkano::format::ClearValue;
+use vulkano::sampler::Sampler;
 
 use crate::renderer::camera::Camera;
-use crate::renderer::shader::{CameraBufferObjectData, PushConstantData, Vertex};
-use crate::renderer::types::{UniformBuffer, VertexBuffer};
+use crate::renderer::mesh::Mesh;
+use crate::renderer::scene::Scene;
+use crate::renderer::shader::CameraBufferObjectData;
+use crate::renderer::texture::{Texture, TextureSampling};
+use crate::renderer::types::UniformBuffer;
 use crate::renderer::vulkan::{Frame, VulkanWrapper};
 
 pub mod camera;
 pub mod mesh;
+pub mod scene;
 pub mod shader;
+pub mod texture;
 pub mod types;
 mod util;
 pub mod vulkan;
@@ -60,30 +68,79 @@ lazy_static! {
     ];
 }
 
+/// Id to refer to a texture, so that
+/// the Java side can locate a texture.
+pub type TextureId = u64;
+
+/// Id to refer to a mesh, so that
+/// the Java side can locate a mesh.
+pub type MeshId = u64;
+
 /// Roast's backend renderer. Handles building
 /// command buffers and dispatching them to Vulkan.
 pub struct RoastRenderer {
     pub vulkan: VulkanWrapper,
     pub camera: Camera,
-    triangle_of_doom: Arc<VertexBuffer>,
+    pub gui: CtxRef,
+    pub textures: HashMap<TextureId, Texture>,
+    pub meshes: HashMap<MeshId, Mesh>,
+
+    texture_id_counter: TextureId,
+    mesh_id_counter: MeshId,
+    default_texture: Texture,
 }
 
 impl RoastRenderer {
-    pub fn new(vulkan: VulkanWrapper) -> Self {
-        let camera = Camera::default();
-        let triangle_of_doom = vulkan.create_vertex_buffer(&[
-            Vertex::new(Vec3::new(-1.0, -0.25, -0.5), Vec4::new(0.0, 1.0, 1.0, 1.0)).into(),
-            Vertex::new(Vec3::new(-1.0, 0.25, 0.0), Vec4::new(0.0, 1.0, 0.5, 1.0)).into(),
-            Vertex::new(Vec3::new(-1.0, -0.25, 0.5), Vec4::new(1.0, 0.5, 1.0, 1.0)).into(),
-        ]);
+    pub fn new(vulkan: VulkanWrapper, default_texture: DynamicImage) -> Self {
         Self {
+            default_texture: Texture::new(&vulkan, default_texture, TextureSampling::Pixel, true),
             vulkan,
-            camera,
-            triangle_of_doom,
+            camera: Camera::default(),
+            gui: CtxRef::default(),
+            textures: HashMap::new(),
+            meshes: HashMap::new(),
+            texture_id_counter: 0,
+            mesh_id_counter: 0,
         }
     }
 
-    pub fn render(&mut self) {
+    /// Registers a new texture with this renderer.
+    pub fn register_texture(&mut self, texture: Texture) -> TextureId {
+        let texture_id = self.texture_id_counter;
+        self.textures.insert(texture_id, texture);
+        self.texture_id_counter = self
+            .texture_id_counter
+            .checked_add(1)
+            .expect("this is not okay (too many textures!)");
+        texture_id
+    }
+
+    /// Registers a new mesh with this renderer.
+    pub fn register_mesh(&mut self, mesh: Mesh) -> MeshId {
+        let mesh_id = self.mesh_id_counter;
+        self.meshes.insert(mesh_id, mesh);
+        self.mesh_id_counter = self
+            .mesh_id_counter
+            .checked_add(1)
+            .expect("this is not okay (too many meshes!)");
+        mesh_id
+    }
+
+    fn get_texture_or_default(&self, id: Option<TextureId>) -> &Texture {
+        id.map(|t| self.textures.get(&t).unwrap_or(&self.default_texture))
+            .unwrap_or(&self.default_texture)
+    }
+
+    fn get_sampler_for_texture(&self, texture: &Texture) -> Arc<Sampler> {
+        match texture.sampling() {
+            TextureSampling::Smooth => self.vulkan.samplers.texture.clone(),
+            TextureSampling::Pixel => self.vulkan.samplers.pixel_texture.clone(),
+        }
+    }
+
+    /// The main render function. Renders a single frame of
+    /// the provided scene and GUI.
+    pub fn render(&mut self, scene: Scene) {
         let frame = match self.vulkan.begin_frame() {
             None => return,
             Some(frame) => frame,
@@ -97,7 +154,7 @@ impl RoastRenderer {
         .unwrap();
 
         let camera_buffer = self.update_buffers();
-        self.scene_pass(&frame, &mut builder, &camera_buffer);
+        self.scene_pass(&frame, &mut builder, &camera_buffer, &scene);
 
         // For some reason IntelliJ thinks that the build() function on the next line is
         // PipelineLayoutDesc::build rather than AutoCommandBufferBuilder::build, so we
@@ -129,6 +186,7 @@ impl RoastRenderer {
         frame: &Frame,
         builder: &mut AutoCommandBufferBuilder<PrimaryAutoCommandBuffer>,
         camera_buffer: &Arc<UniformBuffer<CameraBufferObjectData>>,
+        scene: &Scene,
     ) {
         builder
             .begin_render_pass(
@@ -138,10 +196,10 @@ impl RoastRenderer {
             )
             .unwrap();
 
-        let descriptor_set = Arc::new(
+        let camera_descriptor_set = Arc::new(
             self.vulkan
                 .descriptor_sets
-                .scene
+                .camera
                 .next()
                 .add_buffer(camera_buffer.clone())
                 .unwrap()
@@ -149,19 +207,56 @@ impl RoastRenderer {
                 .unwrap(),
         );
 
-        let mut push = PushConstantData::default();
-        push.model = Mat4::IDENTITY;
+        // TODO: bindless descriptor sets
+        // Vulkano doesn't support these yet and support
+        // is blocked on #1355 and #1599 at the very least.
 
-        builder
-            .draw(
-                self.vulkan.pipelines.scene.clone(),
-                &DynamicState::none(),
-                vec![self.triangle_of_doom.clone()],
-                descriptor_set.clone(),
-                push.clone(),
-                std::iter::empty(),
-            )
-            .unwrap();
+        // To minimize descriptor sets and rebinds we build
+        // a map between the resources needed for each mesh
+        // and the meshes that use those resources.
+        let mut descriptor_map = HashMap::new();
+        for mesh_id in &scene.scene_meshes {
+            let mesh = self.meshes.get(mesh_id).unwrap();
+            if !descriptor_map.contains_key(&mesh.textures) {
+                descriptor_map.insert(mesh.textures.clone(), Vec::new());
+            }
+            descriptor_map.get_mut(&mesh.textures).unwrap().push(mesh);
+        }
+
+        for descriptors in descriptor_map.keys() {
+            let texture0 = self.get_texture_or_default(descriptors.0).clone();
+            let texture1 = self.get_texture_or_default(descriptors.1).clone();
+            let sampler0 = self.get_sampler_for_texture(&texture0);
+            let sampler1 = self.get_sampler_for_texture(&texture1);
+
+            let scene_descriptor_set = Arc::new(
+                self.vulkan
+                    .descriptor_sets
+                    .scene
+                    .next()
+                    .add_sampled_image(texture0.image().clone(), sampler0)
+                    .unwrap()
+                    .add_sampled_image(texture1.image().clone(), sampler1)
+                    .unwrap()
+                    .build()
+                    .unwrap(),
+            );
+
+            for mesh in descriptor_map.get(descriptors).unwrap() {
+                builder
+                    .draw(
+                        self.vulkan.pipelines.scene.clone(),
+                        &DynamicState::none(),
+                        vec![mesh.vertex_buffer().clone()],
+                        (camera_descriptor_set.clone(), scene_descriptor_set.clone()),
+                        mesh.fill_push_constants(),
+                        std::iter::empty(),
+                    )
+                    .unwrap();
+            }
+        }
+
+        builder.next_subpass(SubpassContents::Inline).unwrap();
 
         builder.end_render_pass().unwrap();
     }

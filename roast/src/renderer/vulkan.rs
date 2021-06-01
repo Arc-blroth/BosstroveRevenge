@@ -2,6 +2,7 @@ use std::collections::HashSet;
 use std::iter::FromIterator;
 use std::sync::Arc;
 
+use egui_vulkano::Painter;
 use vulkano::buffer::CpuBufferPool;
 use vulkano::command_buffer::PrimaryAutoCommandBuffer;
 use vulkano::descriptor::descriptor_set::FixedSizeDescriptorSetsPool;
@@ -28,7 +29,7 @@ use winit::event_loop::EventLoop;
 use winit::window::{Fullscreen, Window, WindowBuilder};
 
 use crate::backend::{FullscreenMode, RendererSettings};
-use crate::renderer::shader::{GpuVertex, Shader};
+use crate::renderer::shader::{Shader, Vertex};
 use crate::renderer::types::*;
 use crate::renderer::util::*;
 use crate::renderer::{get_device_extensions, get_device_features, ENABLE_DEBUG_UTILS, ENGINE_NAME, VALIDATION_LAYERS};
@@ -55,6 +56,7 @@ pub struct VulkanWrapper {
     pub(super) shader: Shader,
     pub(super) render_passes: RenderPasses,
     pub(super) pipelines: Pipelines,
+    pub(super) gui_painter: Painter,
 
     pub(super) swap_chain_framebuffers: Vec<Framebuffers>,
     pub(super) framebuffer_attachments: FramebufferAttachments,
@@ -80,6 +82,7 @@ impl VulkanWrapper {
         let shader = Shader::load(device.clone()).expect("Could not load shader!");
         let render_passes = Self::create_render_passes(&device, swap_chain.format(), &framebuffer_attachments);
         let pipelines = Self::create_pipelines(&device, swap_chain.dimensions(), &render_passes, &shader);
+        let gui_painter = Self::create_gui_painter(&device, &queues, &render_passes);
         let swap_chain_framebuffers =
             Self::create_framebuffers(&swap_chain_images, &render_passes, &framebuffer_attachments);
         let samplers = Self::create_texture_samplers(&device);
@@ -99,6 +102,7 @@ impl VulkanWrapper {
             shader,
             render_passes,
             pipelines,
+            gui_painter,
             swap_chain_framebuffers,
             framebuffer_attachments,
             samplers,
@@ -130,6 +134,7 @@ impl VulkanWrapper {
             &self.render_passes,
             &self.shader,
         );
+        self.gui_painter = Self::create_gui_painter(&self.device, &self.queues, &self.render_passes);
         self.swap_chain_framebuffers = Self::create_framebuffers(
             &self.swap_chain_images,
             &self.render_passes,
@@ -209,18 +214,18 @@ impl VulkanWrapper {
     #[inline]
     fn init_debug_callback(instance: &Arc<Instance>) -> Option<DebugCallback> {
         if !ENABLE_DEBUG_UTILS {
-            return None;
-        }
-
-        Some(
-            DebugCallback::new(
-                &instance,
-                MessageSeverity::errors_and_warnings(),
-                MessageType::all(),
-                |msg| log::warn!("{}", msg.description),
+            None
+        } else {
+            Some(
+                DebugCallback::new(
+                    &instance,
+                    MessageSeverity::errors_and_warnings(),
+                    MessageType::all(),
+                    |msg| log::warn!("{}", msg.description),
+                )
+                .expect("Failed to set up debug callback"),
             )
-            .expect("Failed to set up debug callback"),
-        )
+        }
     }
 
     #[inline]
@@ -415,7 +420,7 @@ impl VulkanWrapper {
         //     .unwrap(),
         // );
         let scene = Arc::new(
-            vulkano::single_pass_renderpass!(
+            vulkano::ordered_passes_renderpass!(
                 device.clone(),
                 attachments: {
                     color: {
@@ -431,11 +436,20 @@ impl VulkanWrapper {
                         samples: 1,
                     }
                 },
-                pass: {
-                    color: [color],
-                    depth_stencil: {depth_stencil},
-                    resolve: [],
-                }
+                passes: [
+                    {
+                        color: [color],
+                        depth_stencil: {depth_stencil},
+                        input: [],
+                        resolve: [],
+                    },
+                    {
+                        color: [color],
+                        depth_stencil: {},
+                        input: [],
+                        resolve: [],
+                    }
+                ]
             )
             .unwrap(),
         );
@@ -461,16 +475,7 @@ impl VulkanWrapper {
             .viewports(vec![viewport])
             .polygon_mode_fill()
             .line_width(1.0)
-            .cull_mode_back()
-            .blend_pass_through()
-            .depth_clamp(false)
-            .depth_stencil(DepthStencil {
-                depth_compare: Compare::Less,
-                depth_write: true,
-                depth_bounds_test: DepthBounds::Disabled,
-                stencil_front: Default::default(),
-                stencil_back: Default::default(),
-            });
+            .cull_mode_back();
 
         Pipelines {
             // shadow: Arc::new(
@@ -486,14 +491,43 @@ impl VulkanWrapper {
             // ),
             scene: Arc::new(
                 builder
+                    .clone()
+                    .blend_pass_through()
+                    .depth_clamp(false)
+                    .depth_stencil(DepthStencil {
+                        depth_compare: Compare::Less,
+                        depth_write: true,
+                        depth_bounds_test: DepthBounds::Disabled,
+                        stencil_front: Default::default(),
+                        stencil_back: Default::default(),
+                    })
                     .render_pass(Subpass::from(render_passes.scene.clone(), 0).unwrap())
-                    .vertex_input_single_buffer::<GpuVertex>()
+                    .vertex_input_single_buffer::<Vertex>()
+                    .vertex_shader(shader.scene_vert_entry_point(), ())
+                    .fragment_shader(shader.scene_frag_entry_point(), ())
+                    .build(device.clone())
+                    .unwrap(),
+            ),
+            gui: Arc::new(
+                builder
+                    .blend_alpha_blending()
+                    .render_pass(Subpass::from(render_passes.scene.clone(), 1).unwrap())
+                    .vertex_input_single_buffer::<Vertex>()
                     .vertex_shader(shader.scene_vert_entry_point(), ())
                     .fragment_shader(shader.scene_frag_entry_point(), ())
                     .build(device.clone())
                     .unwrap(),
             ),
         }
+    }
+
+    fn create_gui_painter(device: &Arc<Device>, queues: &Queues, render_passes: &RenderPasses) -> Painter {
+        Painter::new(
+            device.clone(),
+            queues.graphics.clone(),
+            Subpass::from(render_passes.scene.clone(), 1).unwrap(),
+        )
+        .unwrap()
     }
 
     fn create_framebuffers(
@@ -581,7 +615,8 @@ impl VulkanWrapper {
     fn create_descriptor_sets_pool(pipelines: Pipelines) -> DescriptorSetPools {
         DescriptorSetPools {
             // shadow: FixedSizeDescriptorSetsPool::new(pipelines.shadow.descriptor_set_layout(0).unwrap().clone()),
-            scene: FixedSizeDescriptorSetsPool::new(pipelines.scene.descriptor_set_layout(0).unwrap().clone()),
+            camera: FixedSizeDescriptorSetsPool::new(pipelines.scene.descriptor_set_layout(0).unwrap().clone()),
+            scene: FixedSizeDescriptorSetsPool::new(pipelines.scene.descriptor_set_layout(1).unwrap().clone()),
         }
     }
 

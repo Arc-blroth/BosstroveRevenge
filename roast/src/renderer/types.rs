@@ -56,6 +56,7 @@ pub struct RenderPasses {
 pub struct Pipelines {
     // pub shadow: Arc<GraphicsPipeline>,
     pub scene: Arc<GraphicsPipeline>,
+    pub gui: Arc<GraphicsPipeline>,
 }
 
 #[derive(Clone)]
@@ -86,5 +87,6 @@ pub struct UniformBuffers {
 #[derive(Clone)]
 pub struct DescriptorSetPools {
     // pub shadow: FixedSizeDescriptorSetsPool,
+    pub camera: FixedSizeDescriptorSetsPool,
     pub scene: FixedSizeDescriptorSetsPool,
 }

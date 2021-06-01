@@ -1,8 +1,26 @@
 #version 450
+#extension GL_GOOGLE_include_directive: enable
 
-layout(location = 0) in vec4 fragColor;
-layout(location = 0) out vec4 outColor;
+// shared push constant
+#include "scene.common.glsl"
+
+layout(binding = 0, set = 1) uniform sampler2D texture1;
+layout(binding = 1, set = 1) uniform sampler2D texture2;
+
+layout(location = 0) in vec4 base_color;
+layout(location = 1) in vec4 tex;
+
+layout(location = 0) out vec4 out_color;
 
 void main() {
-    outColor = fragColor;
+    vec4 color = base_color;
+    if(int(push.vertex_type) >= 1) {
+        color *= texture(texture1, tex.xy + push.tex_offsets.xy);
+    }
+    if(int(push.vertex_type) == 2) {
+        color *= texture(texture2, tex.wz + push.tex_offsets.wz);
+    }
+    color.w *= push.opacity;
+
+    out_color = color;
 }

@@ -9,17 +9,24 @@
 //!
 //! [1]: https://docs.rs/jni/0.19.0/jni/
 
+#![feature(array_map)]
+
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use jni::objects::{JObject, JString, JValue};
-use jni::sys::{jobject, jstring};
+use jni::objects::{JObject, JString, JValue, ReleaseMode};
+use jni::signature::{JavaType, Primitive};
+use jni::sys::{jintArray, jobject, jobjectArray, jstring};
 use jni::JNIEnv;
 
 use crate::backend::{FullscreenMode, RendererSettings, Roast};
 use crate::jni_util::Unboxing;
 use crate::logger::JavaLogger;
+use crate::renderer::mesh::Mesh;
+use crate::renderer::scene::Scene;
+use crate::renderer::shader::{Vertex, VertexType};
+use crate::renderer::MeshId;
 
 pub mod backend;
 pub mod jni_util;
@@ -98,6 +105,8 @@ pub extern "system" fn Java_ai_arcblroth_boss_desktop_RoastBackend_init(
             transparent,
         };
 
+        let default_texture = crate::renderer::texture::generate_default_texture(env);
+
         BACKEND_STORAGE_KEY_COUNTER.with(|counter_cell| {
             let mut counter = counter_cell.borrow_mut();
             *counter = counter
@@ -105,7 +114,10 @@ pub extern "system" fn Java_ai_arcblroth_boss_desktop_RoastBackend_init(
                 .expect("this is not okay (Backend storage overflow)");
             BACKEND_STORAGE.with(|storage_cell| {
                 let mut storage = storage_cell.borrow_mut();
-                storage.insert(*counter, Roast::new(app_name, app_version, renderer_settings));
+                storage.insert(
+                    *counter,
+                    Roast::new(app_name, app_version, renderer_settings, default_texture),
+                );
             });
             env.set_field(this, "pointer", "J", JValue::Long(*counter as i64))
                 .unwrap();
@@ -188,10 +200,180 @@ where
 
 #[no_mangle]
 pub extern "system" fn Java_ai_arcblroth_boss_desktop_RoastBackend_runEventLoop(
-    env: JNIEnv,
+    env: JNIEnv<'static>,
     this: jobject,
     step: jobject,
 ) -> jobject {
-    catch_panic!(env, { with_backend(&env, this, |backend| backend.run_event_loop()) });
+    catch_panic!(env, {
+        let step = JObject::from(step);
+        let step_class = env.get_object_class(step).unwrap();
+        let invoke_method = env
+            .get_method_id(step_class, "invoke", "(Ljava/lang/Object;)Ljava/lang/Object;")
+            .unwrap();
+        let env_for_closure = env.clone();
+        let args = [JValue::Object(JObject::from(this))];
+        let invoke_step = move || {
+            env_for_closure
+                .call_method_unchecked(
+                    step,
+                    invoke_method,
+                    JavaType::Object("Ljava/lang/Object;".to_string()),
+                    &args,
+                )
+                .expect("Failed to invoke step callback");
+        };
+
+        with_backend(&env, this, |backend| backend.run_event_loop(invoke_step))
+    });
     JObject::null().into_inner()
+}
+
+#[no_mangle]
+pub extern "system" fn Java_ai_arcblroth_boss_desktop_RoastBackend_createMesh(
+    env: JNIEnv,
+    this: jobject,
+    vertices: jobjectArray,
+    indices: jintArray,
+    vertex_type: jobject,
+    texture0: jobject,
+    texture1: jobject,
+) -> jobject {
+    catch_panic!(env, {
+        check_backend(&env, this).unwrap();
+
+        const VECTOR3F_CLASS: &str = "ai/arcblroth/boss/math/Vector3f";
+        const VECTOR4F_CLASS: &str = "ai/arcblroth/boss/math/Vector4f";
+        const VECTOR3F_TYPE: &str = "Lai/arcblroth/boss/math/Vector3f;";
+        const VECTOR4F_TYPE: &str = "Lai/arcblroth/boss/math/Vector4f;";
+
+        let vertex_class = env.find_class("ai/arcblroth/boss/render/Vertex").unwrap();
+        let vertex_pos = env.get_field_id(vertex_class, "pos", VECTOR3F_TYPE).unwrap();
+        let vertex_color_tex = env.get_field_id(vertex_class, "colorTex", VECTOR4F_TYPE).unwrap();
+
+        let vector3f_class = env.find_class(VECTOR3F_CLASS).unwrap();
+        let vector3f_x = env.get_field_id(vector3f_class, "x", "F").unwrap();
+        let vector3f_y = env.get_field_id(vector3f_class, "y", "F").unwrap();
+        let vector3f_z = env.get_field_id(vector3f_class, "z", "F").unwrap();
+
+        let vector4f_class = env.find_class(VECTOR4F_CLASS).unwrap();
+        let vector4f_x = env.get_field_id(vector4f_class, "x", "F").unwrap();
+        let vector4f_y = env.get_field_id(vector4f_class, "y", "F").unwrap();
+        let vector4f_z = env.get_field_id(vector4f_class, "z", "F").unwrap();
+        let vector4f_w = env.get_field_id(vector4f_class, "w", "F").unwrap();
+
+        let get_vertex = |obj: JObject| -> Vertex {
+            let pos = env.get_field_unchecked(obj, vertex_pos, JavaType::Object(VECTOR3F_TYPE.to_string())).unwrap().l().unwrap();
+            let pos = [
+                env.get_field_unchecked(pos, vector3f_x, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
+                env.get_field_unchecked(pos, vector3f_y, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
+                env.get_field_unchecked(pos, vector3f_z, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
+            ];
+            let color_tex = env.get_field_unchecked(obj, vertex_color_tex, JavaType::Object(VECTOR4F_TYPE.to_string())).unwrap().l().unwrap();
+            let color_tex = [
+                env.get_field_unchecked(color_tex, vector4f_x, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
+                env.get_field_unchecked(color_tex, vector4f_y, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
+                env.get_field_unchecked(color_tex, vector4f_z, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
+                env.get_field_unchecked(color_tex, vector4f_w, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
+            ];
+            Vertex {
+                pos,
+                color_tex,
+            }
+        };
+
+        let vertices_len = env.get_array_length(vertices).unwrap();
+        let mut rust_vertices = Vec::with_capacity(vertices_len as usize);
+        for i in 0..vertices_len {
+            rust_vertices.push(get_vertex(env.get_object_array_element(vertices, i).unwrap()));
+        }
+
+        let indices_array = env.get_int_array_elements(indices, ReleaseMode::NoCopyBack).unwrap();
+        let rust_indices = unsafe {
+            std::slice::from_raw_parts(indices_array.as_ptr() as *const u32, indices_array.size().unwrap() as usize)
+        };
+
+        let rust_vertex_type = match call_getter!(env, vertex_type, "ordinal", "I").i().unwrap() {
+            0 => VertexType::COLOR,
+            1 => VertexType::TEX1,
+            2 => VertexType::TEX2,
+            _ => {
+                env.throw_new("java/lang/IllegalArgumentException", "Invalid vertex type!").unwrap();
+                panic!();
+            }
+        };
+
+        let get_texture = |obj| {
+            if obj == std::ptr::null_mut() {
+                None
+            } else {
+                unimplemented!();
+            }
+        };
+
+        let rust_texture0 = get_texture(texture0);
+        let rust_texture1 = get_texture(texture1);
+
+        let out_pointer = backend::with_renderer(move |renderer| {
+            let mesh = Mesh::build(
+                rust_vertices.as_slice(),
+                rust_indices,
+                rust_vertex_type,
+                rust_texture0,
+                rust_texture1,
+                &renderer.vulkan,
+            );
+            renderer.register_mesh(mesh)
+        });
+
+        env.new_object("ai/arcblroth/boss/desktop/RoastMesh", "(J)V", &[JValue::Long(out_pointer as i64)]).unwrap().into_inner()
+    } else {
+        JObject::null().into_inner()
+    });
+}
+
+#[no_mangle]
+pub extern "system" fn Java_ai_arcblroth_boss_desktop_RoastBackend_render(env: JNIEnv, this: jobject, scene: jobject) {
+    #[inline]
+    fn get_mesh_array_from_scene(env: JNIEnv, scene: jobject, array_list_getter: &str) -> Vec<MeshId> {
+        let meshes = call_getter!(env, scene, array_list_getter, "Ljava/util/ArrayList;")
+            .l()
+            .unwrap();
+        let len = call_getter!(env, meshes, "size", "I").i().unwrap();
+        let array_obj = env
+            .get_field(meshes, "elementData", "[Ljava/lang/Object;")
+            .unwrap()
+            .l()
+            .unwrap()
+            .into_inner();
+
+        let mesh_class = env.find_class("ai/arcblroth/boss/desktop/RoastMesh").unwrap();
+        let mesh_pointer_field = env.get_field_id(mesh_class, "pointer", "J").unwrap();
+
+        let mut out = Vec::with_capacity(len as usize);
+        for i in 0..len {
+            let mesh = env.get_object_array_element(array_obj, i).unwrap();
+            out.push(
+                env.get_field_unchecked(mesh, mesh_pointer_field, JavaType::Primitive(Primitive::Long))
+                    .unwrap()
+                    .j()
+                    .unwrap() as MeshId,
+            );
+        }
+        out
+    }
+
+    catch_panic!(env, {
+        check_backend(&env, this).unwrap();
+
+        let scene_meshes = get_mesh_array_from_scene(env, scene, "getSceneMeshes");
+        let gui_meshes = get_mesh_array_from_scene(env, scene, "getGuiMeshes");
+        let scene = Scene {
+            scene_meshes,
+            gui_meshes,
+        };
+
+        backend::with_renderer(move |renderer| {
+            renderer.render(scene);
+        });
+    });
 }
