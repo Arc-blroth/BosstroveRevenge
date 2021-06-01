@@ -3,8 +3,10 @@ package ai.arcblroth.boss
 import ai.arcblroth.boss.math.Vector3f
 import ai.arcblroth.boss.math.Vector4f
 import ai.arcblroth.boss.render.Scene
+import ai.arcblroth.boss.render.TextureSampling
 import ai.arcblroth.boss.render.Vertex
 import ai.arcblroth.boss.render.VertexType
+import ai.arcblroth.boss.util.ResourceLoader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -33,6 +35,11 @@ class BosstrovesRevenge(val backend: Backend) : Runnable {
 
             runEventLoop {
                 if (!initYet) {
+                    val hotdog = getRenderer().createTexture(
+                        ResourceLoader.loadResourceAsBytes("hotdog.png"),
+                        TextureSampling.Smooth,
+                        true,
+                    )
                     scene.sceneMeshes.add(
                         getRenderer().createMesh(
                             arrayOf(
@@ -43,7 +50,7 @@ class BosstrovesRevenge(val backend: Backend) : Runnable {
                             ),
                             intArrayOf(0, 1, 2, 0, 2, 3),
                             VertexType.TEX1,
-                            null,
+                            hotdog,
                             null
                         )
                     )

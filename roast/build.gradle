@@ -5,6 +5,7 @@ apply plugin: CargoWrapperPlugin
 
 cargo {
     outputs = [Tuple.tuple("", "roast.dll")]
+    profile = "release"
 }
 
 def buildShaders = tasks.register('buildShaders', BuildShadersTask.class) {

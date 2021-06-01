@@ -91,12 +91,11 @@ class CargoTask extends DefaultTask {
     CargoTask() {
         def config = project.extensions.getByType(CargoExtension.class)
 
-        this.commandLine = []
+        this.commandLine = ["build"]
         if (config.profile != "debug") {
             this.commandLine.add("--release")
         }
         config.arguments.forEach { this.commandLine.add(it) }
-        this.commandLine.add("build")
 
         this.environment = config.environment
 
