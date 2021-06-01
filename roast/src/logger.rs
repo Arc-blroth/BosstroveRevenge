@@ -28,7 +28,7 @@ impl<'a> JavaLogger<'a> {
         let logger = TypedGlobalRef::<JObject>::new(
             &env,
             JObject::try_from(env.get_static_field(
-                "ai/arcblroth/boss/desktop/RoastBackend",
+                "ai/arcblroth/boss/roast/RoastBackend",
                 "LOGGER",
                 "Lorg/slf4j/Logger;",
             )?)?,

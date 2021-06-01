@@ -44,7 +44,7 @@ macro_rules! catch_panic {
     ($env:expr, $code:block) => {
         if let Err(_) = std::panic::catch_unwind(|| $code) {
             if !$env.exception_check().unwrap_or(false) {
-                let _ = $env.throw_new("ai/arcblroth/boss/desktop/RoastException", "panic!");
+                let _ = $env.throw_new("ai/arcblroth/boss/roast/RoastException", "panic!");
             }
         }
     };
@@ -53,7 +53,7 @@ macro_rules! catch_panic {
             Ok(res) => res,
             Err(_) => {
                 if !$env.exception_check().unwrap_or(false) {
-                    let _ = $env.throw_new("ai/arcblroth/boss/desktop/RoastException", "panic!");
+                    let _ = $env.throw_new("ai/arcblroth/boss/roast/RoastException", "panic!");
                 }
                 $default
             }
@@ -71,7 +71,7 @@ macro_rules! unwrap_or_throw_new {
                 // If this throw fails then we have a catastrophic failure
                 // and the JVM is probably not in a state to continue running
                 // anyway
-                let _ = $env.throw_new("ai/arcblroth/boss/desktop/RoastException", format!("{}: {}", $msg, err));
+                let _ = $env.throw_new("ai/arcblroth/boss/roast/RoastException", format!("{}: {}", $msg, err));
                 panic!();
             }
         }
@@ -80,7 +80,7 @@ macro_rules! unwrap_or_throw_new {
         match $result {
             Ok(res) => res,
             Err(err) => {
-                let _ = $env.throw_new("ai/arcblroth/boss/desktop/RoastException", format!("{}", err));
+                let _ = $env.throw_new("ai/arcblroth/boss/roast/RoastException", format!("{}", err));
                 panic!();
             }
         }

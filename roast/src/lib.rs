@@ -55,7 +55,7 @@ thread_local! {
 }
 
 #[no_mangle]
-pub extern "system" fn Java_ai_arcblroth_boss_desktop_RoastBackend_init(
+pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_init(
     env: JNIEnv<'static>,
     this: jobject,
     app_name: jstring,
@@ -199,7 +199,7 @@ where
 }
 
 #[no_mangle]
-pub extern "system" fn Java_ai_arcblroth_boss_desktop_RoastBackend_runEventLoop(
+pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_runEventLoop(
     env: JNIEnv<'static>,
     this: jobject,
     step: jobject,
@@ -229,7 +229,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_desktop_RoastBackend_runEventLoop(
 }
 
 #[no_mangle]
-pub extern "system" fn Java_ai_arcblroth_boss_desktop_RoastBackend_createMesh(
+pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
     env: JNIEnv,
     this: jobject,
     vertices: jobjectArray,
@@ -325,14 +325,14 @@ pub extern "system" fn Java_ai_arcblroth_boss_desktop_RoastBackend_createMesh(
             renderer.register_mesh(mesh)
         });
 
-        env.new_object("ai/arcblroth/boss/desktop/RoastMesh", "(J)V", &[JValue::Long(out_pointer as i64)]).unwrap().into_inner()
+        env.new_object("ai/arcblroth/boss/roast/RoastMesh", "(J)V", &[JValue::Long(out_pointer as i64)]).unwrap().into_inner()
     } else {
         JObject::null().into_inner()
     });
 }
 
 #[no_mangle]
-pub extern "system" fn Java_ai_arcblroth_boss_desktop_RoastBackend_render(env: JNIEnv, this: jobject, scene: jobject) {
+pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_render(env: JNIEnv, this: jobject, scene: jobject) {
     #[inline]
     fn get_mesh_array_from_scene(env: JNIEnv, scene: jobject, array_list_getter: &str) -> Vec<MeshId> {
         let meshes = call_getter!(env, scene, array_list_getter, "Ljava/util/ArrayList;")
@@ -346,7 +346,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_desktop_RoastBackend_render(env: J
             .unwrap()
             .into_inner();
 
-        let mesh_class = env.find_class("ai/arcblroth/boss/desktop/RoastMesh").unwrap();
+        let mesh_class = env.find_class("ai/arcblroth/boss/roast/RoastMesh").unwrap();
         let mesh_pointer_field = env.get_field_id(mesh_class, "pointer", "J").unwrap();
 
         let mut out = Vec::with_capacity(len as usize);

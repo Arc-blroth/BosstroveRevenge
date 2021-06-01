@@ -1,4 +1,4 @@
-package ai.arcblroth.boss.desktop
+package ai.arcblroth.boss.roast
 
 import ai.arcblroth.boss.Backend
 import ai.arcblroth.boss.EventLoop
