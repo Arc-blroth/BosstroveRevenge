@@ -66,6 +66,16 @@ class RoastBackend : Backend, EventLoop, Renderer {
  */
 class RoastException(msg: String) : RuntimeException(msg)
 
+class RoastTexture(
+    private val pointer: Long
+) : Texture() {
+    override val sampling: TextureSampling
+        external get
+
+    override val mipmapped: Boolean
+        external get
+}
+
 class RoastMesh(
     private val pointer: Long,
 ) : Mesh() {

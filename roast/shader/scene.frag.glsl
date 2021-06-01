@@ -15,11 +15,11 @@ layout(location = 0) out vec4 out_color;
 void main() {
     vec4 color = base_color;
     if(int(push.vertex_type) >= 1) {
-        color *= texture(texture1, tex.xy + push.tex_offsets.xy);
+        color *= sqrt(texture(texture1, tex.xy + push.tex_offsets.xy));
     }
     if(int(push.vertex_type) == 2) {
-        color *= texture(texture2, tex.zw + push.tex_offsets.zw);
+        color *= sqrt(texture(texture2, tex.zw + push.tex_offsets.zw));
     }
 
-    out_color = vec4(sqrt(color.xyz), color.w * push.opacity);
+    out_color = vec4(color.xyz, color.w * push.opacity);
 }

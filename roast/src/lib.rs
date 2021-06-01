@@ -17,7 +17,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 use jni::objects::{JObject, JString, JValue, ReleaseMode};
 use jni::signature::{JavaType, Primitive};
-use jni::sys::{jintArray, jobject, jobjectArray, jstring};
+use jni::sys::{jboolean, jbyteArray, jintArray, jobject, jobjectArray, jstring, JNI_TRUE};
 use jni::JNIEnv;
 
 use crate::backend::{FullscreenMode, RendererSettings, Roast};
@@ -26,7 +26,8 @@ use crate::logger::JavaLogger;
 use crate::renderer::mesh::Mesh;
 use crate::renderer::scene::Scene;
 use crate::renderer::shader::{Vertex, VertexType};
-use crate::renderer::MeshId;
+use crate::renderer::texture::{Texture, TextureSampling};
+use crate::renderer::{MeshId, TextureId};
 
 pub mod backend;
 pub mod jni_util;
@@ -229,6 +230,56 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_runEventLoop(
 }
 
 #[no_mangle]
+pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createTexture(
+    env: JNIEnv,
+    this: jobject,
+    image: jbyteArray,
+    sampling: jobject,
+    generate_mipmaps: jboolean,
+) -> jobject {
+    catch_panic!(env, {
+        check_backend(&env, this).unwrap();
+
+        let image_array = env.get_byte_array_elements(image, ReleaseMode::NoCopyBack).unwrap();
+        let rust_image = unsafe {
+            std::slice::from_raw_parts(image_array.as_ptr() as *const u8, image_array.size().unwrap() as usize)
+        };
+        let rust_image = match image::load_from_memory(rust_image) {
+            Ok(img) => img,
+            Err(err) => {
+                env.throw_new("ai/arcblroth/boss/roast/RoastException", format!("Could not load image: {:?}", err)).unwrap();
+                panic!();
+            }
+        };
+
+        let rust_sampling = match call_getter!(env, sampling, "ordinal", "I").i().unwrap() {
+            0 => TextureSampling::Smooth,
+            1 => TextureSampling::Pixel,
+            _ => {
+                env.throw_new("java/lang/IllegalArgumentException", "Invalid texture sampling!").unwrap();
+                panic!();
+            }
+        };
+
+        let rust_gen_mipmaps = generate_mipmaps == JNI_TRUE;
+
+        let out_pointer = backend::with_renderer(move |renderer| {
+            let texture = Texture::new(
+                &renderer.vulkan,
+                rust_image,
+                rust_sampling,
+                rust_gen_mipmaps,
+            );
+            renderer.register_texture(texture)
+        });
+
+        env.new_object("ai/arcblroth/boss/roast/RoastTexture", "(J)V", &[JValue::Long(out_pointer as i64)]).unwrap().into_inner()
+    } else {
+        JObject::null().into_inner()
+    });
+}
+
+#[no_mangle]
 pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
     env: JNIEnv,
     this: jobject,
@@ -306,7 +357,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
             if obj == std::ptr::null_mut() {
                 None
             } else {
-                unimplemented!();
+                Some(env.get_field(obj, "pointer", "J").unwrap().j().unwrap() as TextureId)
             }
         };
 
