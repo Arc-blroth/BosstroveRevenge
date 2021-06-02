@@ -19,7 +19,7 @@ task hotdog(type: Download) {
 }
 
 processResources {
-    from hotdog {
-        into "hotdog.png"
+    from(hotdog) {
+        into "assets"
     }
 }

@@ -36,7 +36,7 @@ class BosstrovesRevenge(val backend: Backend) : Runnable {
             runEventLoop {
                 if (!initYet) {
                     val hotdog = getRenderer().createTexture(
-                        ResourceLoader.loadResourceAsBytes("hotdog.png"),
+                        ResourceLoader.loadResourceAsBytes("assets/hotdog.png"),
                         TextureSampling.Smooth,
                         true,
                     )
