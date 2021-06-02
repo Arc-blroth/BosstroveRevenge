@@ -1,5 +1,6 @@
 # Gradle
 .gradle/
+local.properties
 
 # IDE
 .idea/

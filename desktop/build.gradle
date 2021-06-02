@@ -45,3 +45,46 @@ shadowJar {
 }
 
 assemble.dependsOn shadowJar
+
+def buildNativeImage = tasks.register("buildNativeImage") {
+    dependsOn shadowJar
+
+    Properties local = new Properties()
+    if (rootProject.file("local.properties").exists()) {
+        local.load(rootProject.file("local.properties").newDataInputStream())
+    }
+    def nativeImageCmd
+    if(local.containsKey("nativeImagePath")) {
+        nativeImageCmd = new File(local.getProperty("nativeImagePath"), "native-image").getAbsolutePath()
+    } else {
+        nativeImageCmd = "native-image"
+    }
+
+    def graalWorkingDir = project.file("$buildDir/graal")
+    if(!graalWorkingDir.exists()) {
+        graalWorkingDir.mkdirs()
+    }
+    
+    def graalConfigDir = project.file("$projectDir/graal")
+    def jniConfig = new File(graalConfigDir, "jni-config.json").getAbsolutePath()
+    def reflectConfig = new File(graalConfigDir, "reflect-config.json").getAbsolutePath()
+    def resourceConfig = new File(graalConfigDir, "resource-config.json").getAbsolutePath()
+
+    doLast {
+        def builtJar = shadowJar.archiveFile.get()
+        project.exec {
+            commandLine(nativeImageCmd)
+            args(
+                "-O2",
+                "--no-fallback",
+                "--install-exit-handlers",
+                "-H:Name=BosstrovesRevenge",
+                "-H:JNIConfigurationFiles=$jniConfig",
+                "-H:ReflectionConfigurationFiles=$reflectConfig",
+                "-H:ResourceConfigurationFiles=$resourceConfig",
+                "-jar", builtJar
+            )
+            workingDir(graalWorkingDir.getAbsolutePath())
+        }
+    }
+}

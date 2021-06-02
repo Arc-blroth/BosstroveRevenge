@@ -1,0 +1,209 @@
+[
+  {
+    "name":"java.lang.Double",
+    "methods":[
+      {
+        "name": "doubleValue",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "java.lang.Enum",
+    "methods": [
+      {
+        "name": "ordinal"
+      }
+    ]
+  },
+  {
+    "name": "java.lang.IllegalArgumentException",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.lang.IllegalStateException",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.lang.NullPointerException",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "java.util.ArrayList",
+    "methods": [
+      {
+        "name": "size"
+      }
+    ],
+    "fields": [
+      {
+        "name": "elementData"
+      }
+    ]
+  },
+  {
+    "name": "java.util.Random",
+    "methods": [
+      {
+        "name": "<init>",
+        "parameterTypes": [
+          "long"
+        ]
+      },
+      {
+        "name": "nextDouble",
+        "parameterTypes": []
+      }
+    ]
+  },
+  {
+    "name": "kotlin.Pair",
+    "allPublicMethods": true
+  },
+  {
+    "name": "org.slf4j.helpers.AbstractLogger",
+    "methods": [
+      {
+        "name": "error",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "warn",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "info",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "debug",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      },
+      {
+        "name": "trace",
+        "parameterTypes": [
+          "java.lang.String"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "org.slf4j.jul.JDK14LoggerAdapter"
+  },
+  {
+    "name": "ai.arcblroth.boss.math.Vector2f",
+    "allPublicConstructors": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ai.arcblroth.boss.math.Vector3f",
+    "allPublicConstructors": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ai.arcblroth.boss.math.Vector4f",
+    "allPublicConstructors": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ai.arcblroth.boss.math.Matrix4f",
+    "allPublicConstructors": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ai.arcblroth.boss.render.Vertex",
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ai.arcblroth.boss.render.VertexType"
+  },
+  {
+    "name": "ai.arcblroth.boss.render.Mesh",
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ai.arcblroth.boss.render.Scene",
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ai.arcblroth.boss.render.TextureSampling"
+  },
+  {
+    "name": "ai.arcblroth.boss.render.Texture",
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ai.arcblroth.boss.RendererSettings",
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ai.arcblroth.boss.RendererSettings$FullscreenMode"
+  },
+  {
+    "name": "ai.arcblroth.boss.BosstrovesRevenge$run$1$1",
+    "methods": [
+      {
+        "name": "invoke",
+        "parameterTypes": [
+          "java.lang.Object"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "ai.arcblroth.boss.roast.RoastBackend",
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ai.arcblroth.boss.roast.RoastTexture",
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ai.arcblroth.boss.roast.RoastMesh",
+    "allPublicConstructors": true,
+    "allPublicMethods": true,
+    "allDeclaredFields": true
+  },
+  {
+    "name": "ai.arcblroth.boss.roast.RoastException",
+    "allPublicConstructors": true
+  }
+]
