@@ -1,13 +1,13 @@
 use std::sync::Arc;
 
 use image::{DynamicImage, GenericImage, GenericImageView, Rgba};
+use jni::JNIEnv;
 use jni::objects::JValue;
 use jni::signature::{JavaType, Primitive};
 use jni::sys::jlong;
-use jni::JNIEnv;
 use vulkano::format::Format;
-use vulkano::image::view::ImageView;
 use vulkano::image::{ImageDimensions, ImmutableImage, MipmapsCount};
+use vulkano::image::view::ImageView;
 use vulkano::sync::GpuFuture;
 
 use crate::renderer::types::ImageWithView;
@@ -32,7 +32,7 @@ impl VulkanWrapper {
             } else {
                 MipmapsCount::One
             },
-            Format::R8G8B8A8Srgb,
+            Format::R8G8B8A8Unorm,
             if self.queues.transfer.family().supports_graphics() {
                 self.queues.transfer.clone()
             } else {
