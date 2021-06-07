@@ -1,7 +1,10 @@
+import ai.arcblroth.boss.gradle.AsepritePlugin
+
 plugins {
     id 'org.jetbrains.kotlin.jvm'
     id 'org.jlleitschuh.gradle.ktlint'
 }
+apply plugin: AsepritePlugin
 
 sourceCompatibility = JavaVersion.VERSION_16
 targetCompatibility = JavaVersion.VERSION_16

@@ -68,7 +68,7 @@ class BuildShadersTask extends DefaultTask {
         def linkerArgs = this.linkerArgs
         def outputFile = new File(this.outputDir, "shader.spv")
         project.exec { ExecSpec spec ->
-            spec.commandLine("spirv-link")
+            spec.commandLine(project.rootProject.getExecutableFromProperties("spirv-link", "spirvLink"))
             spec.args(linkerArgs + compiledShaders + ["-o", outputFile])
         }.assertNormalExitValue()
 
@@ -78,7 +78,7 @@ class BuildShadersTask extends DefaultTask {
             optimizerArgs = ["-O"]
         }
         project.exec { ExecSpec spec ->
-            spec.commandLine("spirv-opt")
+            spec.commandLine(project.rootProject.getExecutableFromProperties("spirv-opt", "spirvOpt"))
             spec.args(optimizerArgs + [outputFile.getPath(), "-o", outputFile.getPath()])
         }.assertNormalExitValue()
     }
@@ -87,7 +87,7 @@ class BuildShadersTask extends DefaultTask {
         def outputFile = new File(this.outputDir, entrypointName + ".spv")
         def validatorArgs = this.validatorArgs
         project.exec { ExecSpec spec ->
-            spec.commandLine('glslangValidator')
+            spec.commandLine(project.rootProject.getExecutableFromProperties("glslangValidator"))
             spec.args(["-V", "-e", entrypointName, "--sep", "main", "-o", outputFile.getPath()] + validatorArgs + [shader.getPath()])
         }.assertNormalExitValue()
         return outputFile

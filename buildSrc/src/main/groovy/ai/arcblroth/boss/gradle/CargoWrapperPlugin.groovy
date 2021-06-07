@@ -67,7 +67,7 @@ class CargoExtension {
  */
 class CargoTask extends DefaultTask {
 
-    private List<String> commandLine
+    private List<String> args
     private Map<String, String> environment
 
     /**
@@ -91,11 +91,11 @@ class CargoTask extends DefaultTask {
     CargoTask() {
         def config = project.extensions.getByType(CargoExtension.class)
 
-        this.commandLine = ["build"]
+        this.args = ["build"]
         if (config.profile != "debug") {
-            this.commandLine.add("--release")
+            this.args.add("--release")
         }
-        config.arguments.forEach { this.commandLine.add(it) }
+        config.arguments.forEach { this.args.add(it) }
 
         this.environment = config.environment
 
@@ -111,12 +111,12 @@ class CargoTask extends DefaultTask {
         // These have to fetched here rather than
         // in the closure below, because Groovy's
         // handling of modifiers makes no sense
-        def commandLine = this.commandLine
+        def args = this.args
         def environment = this.environment
         def workingDir = this.workingDir
         project.exec { ExecSpec spec ->
-            spec.commandLine("cargo")
-            spec.args(commandLine)
+            spec.commandLine(project.rootProject.getExecutableFromProperties("cargo"))
+            spec.args(args)
             spec.workingDir(workingDir)
             spec.environment(environment)
         }.assertNormalExitValue()

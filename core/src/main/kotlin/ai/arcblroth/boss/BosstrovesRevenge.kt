@@ -2,9 +2,12 @@ package ai.arcblroth.boss
 
 import ai.arcblroth.boss.math.Vector3f
 import ai.arcblroth.boss.math.Vector4f
+import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Scene
+import ai.arcblroth.boss.render.TextureSampling
 import ai.arcblroth.boss.render.Vertex
 import ai.arcblroth.boss.render.VertexType
+import ai.arcblroth.boss.util.ResourceLoader
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -31,22 +34,28 @@ class BosstrovesRevenge(val backend: Backend) : Runnable {
             var initYet = false
             var lastFrameTime = System.nanoTime()
 
+            var mesh: Mesh? = null
+
             runEventLoop {
                 if (!initYet) {
-                    scene.sceneMeshes.add(
-                        getRenderer().createMesh(
-                            arrayOf(
-                                Vertex(Vector3f(-1.0f, 0.25f, -0.25f), Vector4f(1.0f, 0.0f, 0.0f, 0.0f)),
-                                Vertex(Vector3f(-1.0f, 0.25f, 0.25f), Vector4f(0.0f, 0.0f, 0.0f, 0.0f)),
-                                Vertex(Vector3f(-1.0f, -0.25f, 0.25f), Vector4f(0.0f, 1.0f, 0.0f, 0.0f)),
-                                Vertex(Vector3f(-1.0f, -0.25f, -0.25f), Vector4f(1.0f, 1.0f, 0.0f, 0.0f)),
-                            ),
-                            intArrayOf(0, 1, 2, 0, 2, 3),
-                            VertexType.TEX1,
-                            null,
-                            null
-                        )
+                    val texture = getRenderer().createTexture(
+                        ResourceLoader.loadResourceAsBytes("assets/entity/polymorph/lago.png"),
+                        TextureSampling.Pixel,
+                        true
                     )
+                    mesh = getRenderer().createMesh(
+                        arrayOf(
+                            Vertex(Vector3f(-1.0f, 0.25f, -0.25f), Vector4f(16.0f / 48.0f, 0.0f, 0.0f, 0.0f)),
+                            Vertex(Vector3f(-1.0f, 0.25f, 0.25f), Vector4f(0.0f, 0.0f, 0.0f, 0.0f)),
+                            Vertex(Vector3f(-1.0f, -0.25f, 0.25f), Vector4f(0.0f, 16.0f / 48.0f, 0.0f, 0.0f)),
+                            Vertex(Vector3f(-1.0f, -0.25f, -0.25f), Vector4f(16.0f / 48.0f, 16.0f / 48.0f, 0.0f, 0.0f)),
+                        ),
+                        intArrayOf(0, 1, 2, 0, 2, 3),
+                        VertexType.TEX1,
+                        texture,
+                        null
+                    )
+                    scene.sceneMeshes.add(mesh!!)
                     initYet = true
                 }
 
