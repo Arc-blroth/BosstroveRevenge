@@ -30,9 +30,31 @@ use crate::renderer::texture::{Texture, TextureSampling};
 use crate::renderer::{MeshId, TextureId};
 
 pub mod backend;
+#[macro_use]
 pub mod jni_util;
+mod lib_mesh;
+mod lib_texture;
 pub mod logger;
 pub mod renderer;
+
+pub use lib_mesh::*;
+pub use lib_texture::*;
+
+pub const PAIR_CLASS: &str = "kotlin/Pair";
+pub const VECTOR2F_CLASS: &str = "ai/arcblroth/boss/math/Vector2f";
+pub const VECTOR3F_CLASS: &str = "ai/arcblroth/boss/math/Vector3f";
+pub const VECTOR4F_CLASS: &str = "ai/arcblroth/boss/math/Vector4f";
+pub const MATRIX4F_CLASS: &str = "ai/arcblroth/boss/math/Matrix4f";
+pub const VERTEX_TYPE_CLASS: &str = "ai/arcblroth/boss/render/VertexType";
+pub const TEXTURE_SAMPLING_CLASS: &str = "ai/arcblroth/boss/render/TextureSampling";
+pub const ROAST_TEXTURE_CLASS: &str = "ai/arcblroth/boss/roast/RoastTexture";
+pub const ROAST_MESH_CLASS: &str = "ai/arcblroth/boss/roast/RoastMesh";
+
+pub const OBJECT_TYPE: &str = "Ljava/lang/Object;";
+pub const PAIR_TYPE: &str = "Lkotlin/Pair;";
+pub const VECTOR3F_TYPE: &str = "Lai/arcblroth/boss/math/Vector3f;";
+pub const VECTOR4F_TYPE: &str = "Lai/arcblroth/boss/math/Vector4f;";
+pub const VERTEX_TYPE_TYPE: &str = "Lai/arcblroth/boss/render/VertexType;";
 
 /// JNI initialization lock. This prevents the backend logger
 /// from being initialized twice.
@@ -75,31 +97,40 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_init(
         let app_name = env.get_string(JString::from(app_name)).unwrap().into();
         let app_version = env.get_string(JString::from(app_version)).unwrap().into();
         let renderer_settings = JObject::from(renderer_settings);
-        let renderer_size = call_getter!(env, renderer_settings, "getRendererSize", "Lkotlin/Pair;")
+        let renderer_size = env
+            .get_field(renderer_settings, "rendererSize", PAIR_TYPE)
+            .unwrap()
             .l()
             .unwrap();
         let renderer_size = (
-            call_getter!(env, renderer_size, "getFirst", "Ljava/lang/Object;")
+            env.get_field(renderer_size, "first", OBJECT_TYPE)
+                .unwrap()
                 .unbox_double(&env)
                 .unwrap(),
-            call_getter!(env, renderer_size, "getSecond", "Ljava/lang/Object;")
+            env.get_field(renderer_size, "second", OBJECT_TYPE)
+                .unwrap()
                 .unbox_double(&env)
                 .unwrap(),
         );
-        let fullscreen_mode = call_getter!(
-            env,
-            renderer_settings,
-            "getFullscreenMode",
-            "Lai/arcblroth/boss/RendererSettings$FullscreenMode;"
-        )
-        .l()
-        .unwrap();
+        let fullscreen_mode = env
+            .get_field(
+                renderer_settings,
+                "fullscreenMode",
+                "Lai/arcblroth/boss/RendererSettings$FullscreenMode;",
+            )
+            .unwrap()
+            .l()
+            .unwrap();
         let fullscreen_mode = match call_getter!(env, fullscreen_mode, "ordinal", "I").i().unwrap() {
             1 => FullscreenMode::Exclusive,
             2 => FullscreenMode::Borderless,
             _ => FullscreenMode::None,
         };
-        let transparent = call_getter!(env, renderer_settings, "getTransparent", "Z").z().unwrap();
+        let transparent = env
+            .get_field(renderer_settings, "transparent", "Z")
+            .unwrap()
+            .z()
+            .unwrap();
         let renderer_settings = RendererSettings {
             renderer_size,
             fullscreen_mode,
@@ -131,7 +162,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_init(
 /// Checks if the backend pointer from `this` refers to a non-null
 /// and existing backend. On success, returns the pointer as a u64.
 /// On error, throws a Java exception and returns `Err`.
-fn check_backend(env: &JNIEnv, this: jobject) -> Result<u64, ()> {
+pub fn check_backend(env: &JNIEnv, this: jobject) -> Result<u64, ()> {
     let pointer = env.get_field(this, "pointer", "J").unwrap().j().unwrap() as u64;
     if pointer == 0 {
         env.throw_new("java/lang/NullPointerException", "Backend pointer is null!")
@@ -215,12 +246,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_runEventLoop(
         let args = [JValue::Object(JObject::from(this))];
         let invoke_step = move || {
             env_for_closure
-                .call_method_unchecked(
-                    step,
-                    invoke_method,
-                    JavaType::Object("Ljava/lang/Object;".to_string()),
-                    &args,
-                )
+                .call_method_unchecked(step, invoke_method, JavaType::Object(OBJECT_TYPE.to_string()), &args)
                 .expect("Failed to invoke step callback");
         };
 
@@ -273,7 +299,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createTexture(
             renderer.register_texture(texture)
         });
 
-        env.new_object("ai/arcblroth/boss/roast/RoastTexture", "(J)V", &[JValue::Long(out_pointer as i64)]).unwrap().into_inner()
+        env.new_object(ROAST_TEXTURE_CLASS, "(J)V", &[JValue::Long(out_pointer as i64)]).unwrap().into_inner()
     } else {
         JObject::null().into_inner()
     });
@@ -291,11 +317,6 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
 ) -> jobject {
     catch_panic!(env, {
         check_backend(&env, this).unwrap();
-
-        const VECTOR3F_CLASS: &str = "ai/arcblroth/boss/math/Vector3f";
-        const VECTOR4F_CLASS: &str = "ai/arcblroth/boss/math/Vector4f";
-        const VECTOR3F_TYPE: &str = "Lai/arcblroth/boss/math/Vector3f;";
-        const VECTOR4F_TYPE: &str = "Lai/arcblroth/boss/math/Vector4f;";
 
         let vertex_class = env.find_class("ai/arcblroth/boss/render/Vertex").unwrap();
         let vertex_pos = env.get_field_id(vertex_class, "pos", VECTOR3F_TYPE).unwrap();
@@ -376,7 +397,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
             renderer.register_mesh(mesh)
         });
 
-        env.new_object("ai/arcblroth/boss/roast/RoastMesh", "(J)V", &[JValue::Long(out_pointer as i64)]).unwrap().into_inner()
+        env.new_object(ROAST_MESH_CLASS, "(J)V", &[JValue::Long(out_pointer as i64)]).unwrap().into_inner()
     } else {
         JObject::null().into_inner()
     });
@@ -385,8 +406,10 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
 #[no_mangle]
 pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_render(env: JNIEnv, this: jobject, scene: jobject) {
     #[inline]
-    fn get_mesh_array_from_scene(env: JNIEnv, scene: jobject, array_list_getter: &str) -> Vec<MeshId> {
-        let meshes = call_getter!(env, scene, array_list_getter, "Ljava/util/ArrayList;")
+    fn get_mesh_array_from_scene(env: JNIEnv, scene: jobject, array_list_field: &str) -> Vec<MeshId> {
+        let meshes = env
+            .get_field(scene, array_list_field, "Ljava/util/ArrayList;")
+            .unwrap()
             .l()
             .unwrap();
         let len = call_getter!(env, meshes, "size", "I").i().unwrap();
@@ -397,7 +420,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_render(env: JNI
             .unwrap()
             .into_inner();
 
-        let mesh_class = env.find_class("ai/arcblroth/boss/roast/RoastMesh").unwrap();
+        let mesh_class = env.find_class(ROAST_MESH_CLASS).unwrap();
         let mesh_pointer_field = env.get_field_id(mesh_class, "pointer", "J").unwrap();
 
         let mut out = Vec::with_capacity(len as usize);
@@ -416,8 +439,8 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_render(env: JNI
     catch_panic!(env, {
         check_backend(&env, this).unwrap();
 
-        let scene_meshes = get_mesh_array_from_scene(env, scene, "getSceneMeshes");
-        let gui_meshes = get_mesh_array_from_scene(env, scene, "getGuiMeshes");
+        let scene_meshes = get_mesh_array_from_scene(env, scene, "sceneMeshes");
+        let gui_meshes = get_mesh_array_from_scene(env, scene, "guiMeshes");
         let scene = Scene {
             scene_meshes,
             gui_meshes,

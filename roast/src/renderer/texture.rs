@@ -1,13 +1,13 @@
 use std::sync::Arc;
 
 use image::{DynamicImage, GenericImage, GenericImageView, Rgba};
-use jni::JNIEnv;
 use jni::objects::JValue;
 use jni::signature::{JavaType, Primitive};
 use jni::sys::jlong;
+use jni::JNIEnv;
 use vulkano::format::Format;
-use vulkano::image::{ImageDimensions, ImmutableImage, MipmapsCount};
 use vulkano::image::view::ImageView;
+use vulkano::image::{ImageDimensions, ImmutableImage, MipmapsCount};
 use vulkano::sync::GpuFuture;
 
 use crate::renderer::types::ImageWithView;

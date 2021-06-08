@@ -93,7 +93,7 @@ macro_rules! unwrap_or_throw_new {
 /// a new Java Exception and return.
 #[macro_export]
 macro_rules! call_getter {
-    ($env:expr, $obj:expr, $getter_name:expr, $ty:literal) => {
+    ($env:expr, $obj:expr, $getter_name:expr, $ty:expr) => {
         unwrap_or_throw_new!($env.call_method($obj, $getter_name, concat!("()", $ty), &[]), $env)
     };
 }

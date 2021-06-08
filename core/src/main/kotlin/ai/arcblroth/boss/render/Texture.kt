@@ -8,12 +8,12 @@ enum class TextureSampling {
      * A linear sampling method that
      * interpolates nearby pixels.
      */
-    Smooth,
+    SMOOTH,
     /**
      * A nearest sampling method that
      * uses the nearest pixel.
      */
-    Pixel,
+    PIXEL,
 }
 
 /**
