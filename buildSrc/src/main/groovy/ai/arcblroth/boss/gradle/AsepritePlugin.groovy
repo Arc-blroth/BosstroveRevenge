@@ -94,7 +94,7 @@ class AsepriteBuildTask extends DefaultTask {
             // to strip unneeded fields and save a bit of space.
             def metaObj = jsonSlurper.parse(meta)
             metaObj.frames = metaObj["frames"].values().collect {
-                ["frame": it["frame"], "duration": it["duration"]]
+                ["duration": it["duration"]] + it["frame"]
             }
             metaObj["image"] = metaObj["meta"]["image"]
             metaObj["size"] = metaObj["meta"]["size"]
