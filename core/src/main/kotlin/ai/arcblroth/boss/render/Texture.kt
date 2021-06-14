@@ -22,6 +22,16 @@ enum class TextureSampling {
  */
 abstract class Texture {
     /**
+     * The width of this texture.
+     */
+    abstract val width: Int
+
+    /**
+     * The height of this texture.
+     */
+    abstract val height: Int
+
+    /**
      * The sampling method for this texture.
      */
     abstract val sampling: TextureSampling

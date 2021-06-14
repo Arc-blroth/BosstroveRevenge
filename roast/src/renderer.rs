@@ -16,7 +16,7 @@ use crate::renderer::mesh::Mesh;
 use crate::renderer::scene::Scene;
 use crate::renderer::shader::CameraBufferObjectData;
 use crate::renderer::texture::{Texture, TextureSampling};
-use crate::renderer::types::UniformBuffer;
+use crate::renderer::types::{GraphicsPipeline, UniformBuffer};
 use crate::renderer::vulkan::{Frame, VulkanWrapper};
 
 pub mod camera;
@@ -153,8 +153,7 @@ impl RoastRenderer {
         )
         .unwrap();
 
-        let camera_buffer = self.update_buffers();
-        self.scene_pass(&frame, &mut builder, &camera_buffer, &scene);
+        self.scene_pass(&frame, &mut builder, &scene);
 
         // For some reason IntelliJ thinks that the build() function on the next line is
         // PipelineLayoutDesc::build rather than AutoCommandBufferBuilder::build, so we
@@ -169,33 +168,14 @@ impl RoastRenderer {
         );
     }
 
-    #[inline]
-    fn update_buffers(&mut self) -> Arc<UniformBuffer<CameraBufferObjectData>> {
-        Arc::new(
-            self.vulkan
-                .uniform_buffers
-                .camera
-                .next(self.camera.update_uniform_buffer(self.vulkan.swap_chain.dimensions()))
-                .unwrap(),
-        )
-    }
-
-    #[inline]
-    fn scene_pass(
+    /// Sorts and renders the meshes referenced by `mesh_ids`.
+    fn render_meshes(
         &mut self,
-        frame: &Frame,
         builder: &mut AutoCommandBufferBuilder<PrimaryAutoCommandBuffer>,
+        pipeline: Arc<GraphicsPipeline>,
         camera_buffer: &Arc<UniformBuffer<CameraBufferObjectData>>,
-        scene: &Scene,
+        mesh_ids: &Vec<MeshId>,
     ) {
-        builder
-            .begin_render_pass(
-                frame.framebuffers.scene.clone(),
-                SubpassContents::Inline,
-                (*SCENE_CLEAR).clone(),
-            )
-            .unwrap();
-
         let camera_descriptor_set = Arc::new(
             self.vulkan
                 .descriptor_sets
@@ -215,7 +195,7 @@ impl RoastRenderer {
         // a map between the resources needed for each mesh
         // and the meshes that use those resources.
         let mut descriptor_map = HashMap::new();
-        for mesh_id in &scene.scene_meshes {
+        for mesh_id in mesh_ids {
             let mesh = self.meshes.get(mesh_id).unwrap();
             if !descriptor_map.contains_key(&mesh.textures) {
                 descriptor_map.insert(mesh.textures.clone(), Vec::new());
@@ -245,7 +225,7 @@ impl RoastRenderer {
             for mesh in descriptor_map.get(descriptors).unwrap() {
                 builder
                     .draw_indexed(
-                        self.vulkan.pipelines.scene.clone(),
+                        pipeline.clone(),
                         &DynamicState::none(),
                         vec![mesh.vertex_buffer().clone()],
                         mesh.index_buffer().clone(),
@@ -256,9 +236,57 @@ impl RoastRenderer {
                     .unwrap();
             }
         }
+    }
 
+    #[inline]
+    fn scene_pass(
+        &mut self,
+        frame: &Frame,
+        builder: &mut AutoCommandBufferBuilder<PrimaryAutoCommandBuffer>,
+        scene: &Scene,
+    ) {
+        let perspective_camera_buffer = Arc::new(
+            self.vulkan
+                .uniform_buffers
+                .camera
+                .next(
+                    self.camera
+                        .update_uniform_buffer(self.vulkan.swap_chain.dimensions(), false),
+                )
+                .unwrap(),
+        );
+
+        let ortho_camera_buffer = Arc::new(
+            self.vulkan
+                .uniform_buffers
+                .camera
+                .next(
+                    self.camera
+                        .update_uniform_buffer(self.vulkan.swap_chain.dimensions(), true),
+                )
+                .unwrap(),
+        );
+
+        builder
+            .begin_render_pass(
+                frame.framebuffers.scene.clone(),
+                SubpassContents::Inline,
+                (*SCENE_CLEAR).clone(),
+            )
+            .unwrap();
+        self.render_meshes(
+            builder,
+            self.vulkan.pipelines.scene.clone(),
+            &perspective_camera_buffer,
+            &scene.scene_meshes,
+        );
         builder.next_subpass(SubpassContents::Inline).unwrap();
-
+        self.render_meshes(
+            builder,
+            self.vulkan.pipelines.gui.clone(),
+            &ortho_camera_buffer,
+            &scene.gui_meshes,
+        );
         builder.end_render_pass().unwrap();
     }
 }

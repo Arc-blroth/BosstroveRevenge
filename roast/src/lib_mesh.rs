@@ -11,7 +11,7 @@ use crate::renderer::shader::VertexType;
 use crate::renderer::TextureId;
 use crate::{
     backend, MATRIX4F_CLASS, OBJECT_TYPE, PAIR_CLASS, ROAST_TEXTURE_CLASS, VECTOR2F_CLASS, VECTOR4F_CLASS,
-    VECTOR4F_TYPE, VERTEX_TYPE_CLASS, VERTEX_TYPE_TYPE,
+    VERTEX_TYPE_CLASS, VERTEX_TYPE_TYPE,
 };
 
 const MESH_NOT_FOUND_MSG: &str = "Mesh pointer does not point to a valid struct";
@@ -124,25 +124,8 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastMesh_setTextures(
 #[no_mangle]
 pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastMesh_getTransform(env: JNIEnv, this: jobject) -> jobject {
     catch_panic!(env, {
-        let vector4f_class = env.find_class(VECTOR4F_CLASS).unwrap();
         let matrix4f_class = env.find_class(MATRIX4F_CLASS).unwrap();
-        let vector4f_ctor = (vector4f_class, "(FFFF)V").lookup(&env).unwrap();
-        let matrix4f_ctor = (matrix4f_class, format!("({})V", VECTOR4F_TYPE.repeat(4))).lookup(&env).unwrap();
-        let new_vector4f = move |vector: Vec4| {
-            JValue::Object(
-                env.new_object_unchecked(
-                    vector4f_class,
-                    vector4f_ctor,
-                    &[
-                        JValue::Float(vector.x),
-                        JValue::Float(vector.y),
-                        JValue::Float(vector.z),
-                        JValue::Float(vector.w),
-                    ],
-                )
-                .unwrap()
-            )
-        };
+        let matrix4f_ctor = (matrix4f_class, "(FFFFFFFFFFFFFFFF)V").lookup(&env).unwrap();
 
         let pointer = get_mesh_pointer(env, this);
 
@@ -152,10 +135,22 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastMesh_getTransform(env: 
                 matrix4f_class,
                 matrix4f_ctor,
                 &[
-                    new_vector4f(transform.x_axis),
-                    new_vector4f(transform.y_axis),
-                    new_vector4f(transform.z_axis),
-                    new_vector4f(transform.w_axis),
+                    JValue::Float(transform.x_axis.x),
+                    JValue::Float(transform.x_axis.y),
+                    JValue::Float(transform.x_axis.z),
+                    JValue::Float(transform.x_axis.w),
+                    JValue::Float(transform.y_axis.x),
+                    JValue::Float(transform.y_axis.y),
+                    JValue::Float(transform.y_axis.z),
+                    JValue::Float(transform.y_axis.w),
+                    JValue::Float(transform.z_axis.x),
+                    JValue::Float(transform.z_axis.y),
+                    JValue::Float(transform.z_axis.z),
+                    JValue::Float(transform.z_axis.w),
+                    JValue::Float(transform.w_axis.x),
+                    JValue::Float(transform.w_axis.y),
+                    JValue::Float(transform.w_axis.z),
+                    JValue::Float(transform.w_axis.w),
                 ],
             )
             .unwrap()
@@ -173,50 +168,34 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastMesh_setTransform(
     transform: jobject,
 ) {
     catch_panic!(env, {
-        let vector4f_class = env.find_class(VECTOR4F_CLASS).unwrap();
         let matrix4f_class = env.find_class(MATRIX4F_CLASS).unwrap();
 
-        let vector4f_x = env.get_field_id(vector4f_class, "x", "F").unwrap();
-        let vector4f_y = env.get_field_id(vector4f_class, "y", "F").unwrap();
-        let vector4f_z = env.get_field_id(vector4f_class, "z", "F").unwrap();
-        let vector4f_w = env.get_field_id(vector4f_class, "w", "F").unwrap();
-
-        let get_axis = move |name: &str| {
-            let axis_field = env.get_field_id(matrix4f_class, name, VECTOR4F_TYPE).unwrap();
-            let axis = env
-                .get_field_unchecked(transform, axis_field, JavaType::Object(VECTOR4F_TYPE.to_string()))
-                .unwrap()
-                .l()
-                .unwrap();
-            let x = env
-                .get_field_unchecked(axis, vector4f_x, JavaType::Primitive(Primitive::Float))
+        let get_field = move |name: &str| {
+            let field = env.get_field_id(matrix4f_class, name, "F").unwrap();
+            env.get_field_unchecked(transform, field, JavaType::Primitive(Primitive::Float))
                 .unwrap()
                 .f()
-                .unwrap();
-            let y = env
-                .get_field_unchecked(axis, vector4f_y, JavaType::Primitive(Primitive::Float))
                 .unwrap()
-                .f()
-                .unwrap();
-            let z = env
-                .get_field_unchecked(axis, vector4f_z, JavaType::Primitive(Primitive::Float))
-                .unwrap()
-                .f()
-                .unwrap();
-            let w = env
-                .get_field_unchecked(axis, vector4f_w, JavaType::Primitive(Primitive::Float))
-                .unwrap()
-                .f()
-                .unwrap();
-            Vec4::new(x, y, z, w)
         };
 
-        let rust_transform = Mat4::from_cols(
-            get_axis("x_axis"),
-            get_axis("y_axis"),
-            get_axis("z_axis"),
-            get_axis("w_axis"),
-        );
+        let rust_transform = Mat4::from_cols_array(&[
+            get_field("m00"),
+            get_field("m01"),
+            get_field("m02"),
+            get_field("m03"),
+            get_field("m10"),
+            get_field("m11"),
+            get_field("m12"),
+            get_field("m13"),
+            get_field("m20"),
+            get_field("m21"),
+            get_field("m22"),
+            get_field("m23"),
+            get_field("m30"),
+            get_field("m31"),
+            get_field("m32"),
+            get_field("m33"),
+        ]);
 
         let pointer = get_mesh_pointer(env, this);
 

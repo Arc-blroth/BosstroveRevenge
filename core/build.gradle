@@ -1,4 +1,5 @@
 import ai.arcblroth.boss.gradle.AsepritePlugin
+import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
 
 plugins {
     id 'org.jetbrains.kotlin.jvm'
@@ -10,8 +11,16 @@ sourceCompatibility = JavaVersion.VERSION_16
 targetCompatibility = JavaVersion.VERSION_16
 
 dependencies {
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_version"
-    implementation "org.slf4j:slf4j-jdk14:$slf4j_jdk_binding_version"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_version"
+    api "org.slf4j:slf4j-jdk14:$slf4j_jdk_binding_version"
 
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+    api "com.fasterxml.jackson.core:jackson-databind:$jackson_version"
+
+    api "org.joml:joml:$joml_version"
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+    }
 }

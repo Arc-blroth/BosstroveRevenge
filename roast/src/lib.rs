@@ -17,11 +17,12 @@ use std::sync::atomic::{AtomicBool, Ordering};
 
 use jni::objects::{JObject, JString, JValue, ReleaseMode};
 use jni::signature::{JavaType, Primitive};
-use jni::sys::{jboolean, jbyteArray, jintArray, jobject, jobjectArray, jstring, JNI_TRUE};
+use jni::sys::{jboolean, jbyteArray, jdouble, jintArray, jobject, jobjectArray, jstring, JNI_TRUE};
 use jni::JNIEnv;
+pub use lib_mesh::*;
+pub use lib_texture::*;
 
 use crate::backend::{FullscreenMode, RendererSettings, Roast};
-use crate::jni_util::Unboxing;
 use crate::logger::JavaLogger;
 use crate::renderer::mesh::Mesh;
 use crate::renderer::scene::Scene;
@@ -37,23 +38,20 @@ mod lib_texture;
 pub mod logger;
 pub mod renderer;
 
-pub use lib_mesh::*;
-pub use lib_texture::*;
-
 pub const PAIR_CLASS: &str = "kotlin/Pair";
-pub const VECTOR2F_CLASS: &str = "ai/arcblroth/boss/math/Vector2f";
-pub const VECTOR3F_CLASS: &str = "ai/arcblroth/boss/math/Vector3f";
-pub const VECTOR4F_CLASS: &str = "ai/arcblroth/boss/math/Vector4f";
-pub const MATRIX4F_CLASS: &str = "ai/arcblroth/boss/math/Matrix4f";
+pub const VECTOR2F_CLASS: &str = "org/joml/Vector2f";
+pub const VECTOR3F_CLASS: &str = "org/joml/Vector3f";
+pub const VECTOR4F_CLASS: &str = "org/joml/Vector4f";
+pub const MATRIX4F_CLASS: &str = "org/joml/Matrix4f";
 pub const VERTEX_TYPE_CLASS: &str = "ai/arcblroth/boss/render/VertexType";
 pub const TEXTURE_SAMPLING_CLASS: &str = "ai/arcblroth/boss/render/TextureSampling";
 pub const ROAST_TEXTURE_CLASS: &str = "ai/arcblroth/boss/roast/RoastTexture";
 pub const ROAST_MESH_CLASS: &str = "ai/arcblroth/boss/roast/RoastMesh";
 
 pub const OBJECT_TYPE: &str = "Ljava/lang/Object;";
-pub const PAIR_TYPE: &str = "Lkotlin/Pair;";
-pub const VECTOR3F_TYPE: &str = "Lai/arcblroth/boss/math/Vector3f;";
-pub const VECTOR4F_TYPE: &str = "Lai/arcblroth/boss/math/Vector4f;";
+pub const VECTOR2D_TYPE: &str = "Lorg/joml/Vector2d;";
+pub const VECTOR3F_TYPE: &str = "Lorg/joml/Vector3f;";
+pub const VECTOR4F_TYPE: &str = "Lorg/joml/Vector4f;";
 pub const VERTEX_TYPE_TYPE: &str = "Lai/arcblroth/boss/render/VertexType;";
 
 /// JNI initialization lock. This prevents the backend logger
@@ -98,19 +96,13 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_init(
         let app_version = env.get_string(JString::from(app_version)).unwrap().into();
         let renderer_settings = JObject::from(renderer_settings);
         let renderer_size = env
-            .get_field(renderer_settings, "rendererSize", PAIR_TYPE)
+            .get_field(renderer_settings, "rendererSize", VECTOR2D_TYPE)
             .unwrap()
             .l()
             .unwrap();
         let renderer_size = (
-            env.get_field(renderer_size, "first", OBJECT_TYPE)
-                .unwrap()
-                .unbox_double(&env)
-                .unwrap(),
-            env.get_field(renderer_size, "second", OBJECT_TYPE)
-                .unwrap()
-                .unbox_double(&env)
-                .unwrap(),
+            env.get_field(renderer_size, "x", "D").unwrap().d().unwrap(),
+            env.get_field(renderer_size, "y", "D").unwrap().d().unwrap(),
         );
         let fullscreen_mode = env
             .get_field(
@@ -398,6 +390,27 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
         });
 
         env.new_object(ROAST_MESH_CLASS, "(J)V", &[JValue::Long(out_pointer as i64)]).unwrap().into_inner()
+    } else {
+        JObject::null().into_inner()
+    });
+}
+
+#[no_mangle]
+pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_getSize(env: JNIEnv, this: jobject) -> jobject {
+    catch_panic!(env, {
+        check_backend(&env, this).unwrap();
+
+        let size = backend::with_renderer(|renderer| {
+            renderer.vulkan.surface.window().inner_size()
+        });
+
+        env.new_object(
+            VECTOR2D_TYPE,
+            "(DD)V",
+            &[JValue::Double(size.width as jdouble), JValue::Double(size.height as jdouble)]
+        )
+        .unwrap()
+        .into_inner()
     } else {
         JObject::null().into_inner()
     });

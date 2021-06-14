@@ -1,13 +1,7 @@
 package ai.arcblroth.boss
 
-import ai.arcblroth.boss.anim.AnimationController
-import ai.arcblroth.boss.anim.OffsetIndex
-import ai.arcblroth.boss.anim.Spritesheet
-import ai.arcblroth.boss.math.Vector3f
-import ai.arcblroth.boss.math.Vector4f
-import ai.arcblroth.boss.render.Scene
-import ai.arcblroth.boss.render.Vertex
-import ai.arcblroth.boss.render.VertexType
+import ai.arcblroth.boss.load.LoadEngine
+import org.joml.Vector2d
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -28,41 +22,19 @@ class BosstrovesRevenge(val backend: Backend) : Runnable {
         logger.info("Hello Bosstrove!")
 
         backend.run {
-            init("Bosstrove's Revenge", "0.1.0", RendererSettings(rendererSize = Pair(0.75, 0.75)))
+            init("Bosstrove's Revenge", "0.1.0", RendererSettings(rendererSize = Vector2d(0.75, 0.75)))
 
-            val scene = Scene()
-            var initYet = false
             var lastFrameTime = System.nanoTime()
-
-            var animation: AnimationController? = null
+            var engine: Engine = LoadEngine()
 
             runEventLoop {
-                if (!initYet) {
-                    val spritesheet = Spritesheet("assets/entity/polymorph/lago.json", getRenderer())
-                    val mesh = getRenderer().createMesh(
-                        arrayOf(
-                            Vertex(Vector3f(-1.0f, 0.25f, -0.25f), Vector4f(16.0f / 48.0f, 0.0f, 0.0f, 0.0f)),
-                            Vertex(Vector3f(-1.0f, 0.25f, 0.25f), Vector4f(0.0f, 0.0f, 0.0f, 0.0f)),
-                            Vertex(Vector3f(-1.0f, -0.25f, 0.25f), Vector4f(0.0f, 16.0f / 48.0f, 0.0f, 0.0f)),
-                            Vertex(Vector3f(-1.0f, -0.25f, -0.25f), Vector4f(16.0f / 48.0f, 16.0f / 48.0f, 0.0f, 0.0f)),
-                        ),
-                        intArrayOf(0, 1, 2, 0, 2, 3),
-                        VertexType.TEX1,
-                        spritesheet.texture,
-                        null
-                    )
-                    scene.sceneMeshes.add(mesh)
-                    animation = AnimationController(mesh, OffsetIndex.FIRST, spritesheet, 2..7, true)
-                    initYet = true
-                } else {
-                    animation!!.animate()
-                }
-
+                val (scene, newEngine) = engine.step(this, lastFrameTime)
+                engine = newEngine
                 getRenderer().render(scene)
 
-                // val currentTime = System.nanoTime()
+                val currentTime = System.nanoTime()
                 // logger.info("FPS: ${1e+9f / (currentTime - lastFrameTime).toFloat()}")
-                // lastFrameTime = currentTime
+                lastFrameTime = currentTime
             }
         }
     }

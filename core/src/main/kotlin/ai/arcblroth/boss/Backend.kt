@@ -6,6 +6,7 @@ import ai.arcblroth.boss.render.Texture
 import ai.arcblroth.boss.render.TextureSampling
 import ai.arcblroth.boss.render.Vertex
 import ai.arcblroth.boss.render.VertexType
+import org.joml.Vector2d
 
 /**
  * Settings for backend renderer initialization. Depending on the backend,
@@ -16,7 +17,7 @@ data class RendererSettings(
      * Size of the renderer surface (not necessarily its swapchain size),
      * relative to the size of the parent display space.
      */
-    val rendererSize: Pair<Double, Double> = Pair(1.0, 1.0),
+    val rendererSize: Vector2d = Vector2d(0.0, 0.0),
 
     /**
      * Fullscreen mode. May not have an effect if fullscreen
@@ -115,6 +116,11 @@ interface Renderer {
         texture0: Texture?,
         texture1: Texture?,
     ): Mesh
+
+    /**
+     * Gets the size of the output surface of this renderer.
+     */
+    fun getSize(): Vector2d
 
     /**
      * Renders the scene.

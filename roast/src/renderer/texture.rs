@@ -69,6 +69,8 @@ impl Default for TextureSampling {
 /// alongside a mesh.
 #[derive(Clone)]
 pub struct Texture {
+    width: u32,
+    height: u32,
     image: Arc<ImageWithView<ImmutableImage>>,
     sampling: TextureSampling,
     mipmapped: bool,
@@ -78,6 +80,8 @@ impl Texture {
     /// Creates and uploads a texture.
     pub fn new(vulkan: &VulkanWrapper, image: DynamicImage, sampling: TextureSampling, mipmapped: bool) -> Self {
         Texture {
+            width: image.width(),
+            height: image.height(),
             image: vulkan.create_texture_image(image, mipmapped),
             sampling,
             mipmapped,
@@ -87,6 +91,16 @@ impl Texture {
     /// The internal image object of this texture.
     pub fn image(&self) -> &Arc<ImageWithView<ImmutableImage>> {
         &self.image
+    }
+
+    /// The width of this texture.
+    pub fn width(&self) -> u32 {
+        self.width
+    }
+
+    /// The height of this texture.
+    pub fn height(&self) -> u32 {
+        self.height
     }
 
     /// The sampling method for this texture.

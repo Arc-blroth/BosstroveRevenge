@@ -4,15 +4,16 @@ import ai.arcblroth.boss.Backend
 import ai.arcblroth.boss.EventLoop
 import ai.arcblroth.boss.Renderer
 import ai.arcblroth.boss.RendererSettings
-import ai.arcblroth.boss.math.Matrix4f
-import ai.arcblroth.boss.math.Vector2f
-import ai.arcblroth.boss.math.Vector4f
 import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Scene
 import ai.arcblroth.boss.render.Texture
 import ai.arcblroth.boss.render.TextureSampling
 import ai.arcblroth.boss.render.Vertex
 import ai.arcblroth.boss.render.VertexType
+import org.joml.Matrix4f
+import org.joml.Vector2d
+import org.joml.Vector2f
+import org.joml.Vector4f
 import org.scijava.nativelib.NativeLoader
 import org.slf4j.LoggerFactory
 
@@ -55,6 +56,8 @@ class RoastBackend : Backend, EventLoop, Renderer {
         texture1: Texture?
     ): Mesh
 
+    external override fun getSize(): Vector2d
+
     external override fun render(scene: Scene)
 
     external override fun exit()
@@ -69,6 +72,12 @@ class RoastException(msg: String) : RuntimeException(msg)
 class RoastTexture(
     private val pointer: Long
 ) : Texture() {
+    override val width: Int
+        external get
+
+    override val height: Int
+        external get
+
     override val sampling: TextureSampling
         external get
 

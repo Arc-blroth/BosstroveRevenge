@@ -1,7 +1,7 @@
 //! JNI implementation of the `ai.arcblroth.roast.RoastTexture` native methods.
 
 use jni::objects::JObject;
-use jni::sys::{jboolean, jobject, JNI_FALSE, JNI_TRUE};
+use jni::sys::{jboolean, jint, jobject, JNI_FALSE, JNI_TRUE};
 use jni::JNIEnv;
 
 use crate::renderer::texture::TextureSampling;
@@ -11,6 +11,32 @@ const TEXTURE_NOT_FOUND_MSG: &str = "Texture pointer does not point to a valid t
 
 fn get_texture_pointer(env: JNIEnv, this: jobject) -> u64 {
     env.get_field(this, "pointer", "J").unwrap().j().unwrap() as u64
+}
+
+#[no_mangle]
+pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastTexture_getWidth(env: JNIEnv, this: jobject) -> jint {
+    catch_panic!(env, {
+        let pointer = get_texture_pointer(env, this);
+
+        backend::with_renderer(move |renderer| {
+            renderer.textures.get(&pointer).expect(TEXTURE_NOT_FOUND_MSG).width() as i32
+        })
+    } else {
+        0
+    });
+}
+
+#[no_mangle]
+pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastTexture_getHeight(env: JNIEnv, this: jobject) -> jint {
+    catch_panic!(env, {
+        let pointer = get_texture_pointer(env, this);
+
+        backend::with_renderer(move |renderer| {
+            renderer.textures.get(&pointer).expect(TEXTURE_NOT_FOUND_MSG).height() as i32
+        })
+    } else {
+        0
+    });
 }
 
 #[no_mangle]

@@ -27,8 +27,12 @@ impl Camera {
         Mat4::look_at_rh(self.pos, self.pos + front, UP)
     }
 
+    pub fn view_ortho(&self) -> Mat4 {
+        Mat4::look_at_lh(Vec3::new(0.0, 0.0, 0.0), Vec3::new(0.0, 0.0, 1.0), UP)
+    }
+
     pub fn proj(&self, dimensions: [f32; 2]) -> Mat4 {
-        let mut proj = Mat4::perspective_rh_gl(
+        let mut proj = Mat4::perspective_rh(
             self.fov.clone(),
             dimensions[0] as f32 / dimensions[1] as f32,
             0.01,
@@ -38,10 +42,23 @@ impl Camera {
         proj
     }
 
-    pub(super) fn update_uniform_buffer(&self, swap_chain_dimensions: [u32; 2]) -> CameraBufferObjectData {
+    pub fn proj_ortho(dimensions: [f32; 2]) -> Mat4 {
+        Mat4::orthographic_rh(0.0, dimensions[0], 0.0, dimensions[1], 0.0, 1.0)
+    }
+
+    pub(super) fn update_uniform_buffer(
+        &self,
+        swap_chain_dimensions: [u32; 2],
+        orthogonal: bool,
+    ) -> CameraBufferObjectData {
+        let swap_chain_dimensions = [swap_chain_dimensions[0] as f32, swap_chain_dimensions[1] as f32];
         CameraBufferObjectData {
-            view: self.view(),
-            proj: self.proj([swap_chain_dimensions[0] as f32, swap_chain_dimensions[1] as f32]),
+            view: if orthogonal { self.view_ortho() } else { self.view() },
+            proj: if orthogonal {
+                Self::proj_ortho(swap_chain_dimensions)
+            } else {
+                self.proj(swap_chain_dimensions)
+            },
         }
     }
 }

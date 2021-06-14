@@ -1,12 +1,12 @@
 package ai.arcblroth.boss.anim
 
 import ai.arcblroth.boss.Renderer
-import ai.arcblroth.boss.math.Vector2f
 import ai.arcblroth.boss.render.Texture
 import ai.arcblroth.boss.render.TextureSampling
 import ai.arcblroth.boss.util.ResourceLoader
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.joml.Vector2f
 
 /**
  * An arbitrary epsilon value that is added to each texture

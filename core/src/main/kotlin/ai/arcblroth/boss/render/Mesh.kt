@@ -1,10 +1,10 @@
 package ai.arcblroth.boss.render
 
 import ai.arcblroth.boss.Renderer
-import ai.arcblroth.boss.math.Matrix4f
-import ai.arcblroth.boss.math.Vector2f
-import ai.arcblroth.boss.math.Vector3f
-import ai.arcblroth.boss.math.Vector4f
+import org.joml.Matrix4f
+import org.joml.Vector2f
+import org.joml.Vector3f
+import org.joml.Vector4f
 
 /**
  * The vertex primitive passed to the backend.
