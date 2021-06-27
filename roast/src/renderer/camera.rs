@@ -48,16 +48,15 @@ impl Camera {
 
     pub(super) fn update_uniform_buffer(
         &self,
-        swap_chain_dimensions: [u32; 2],
+        viewport_dimensions: [f32; 2],
         orthogonal: bool,
     ) -> CameraBufferObjectData {
-        let swap_chain_dimensions = [swap_chain_dimensions[0] as f32, swap_chain_dimensions[1] as f32];
         CameraBufferObjectData {
             view: if orthogonal { self.view_ortho() } else { self.view() },
             proj: if orthogonal {
-                Self::proj_ortho(swap_chain_dimensions)
+                Self::proj_ortho(viewport_dimensions)
             } else {
-                self.proj(swap_chain_dimensions)
+                self.proj(viewport_dimensions)
             },
         }
     }

@@ -1,11 +1,14 @@
-use std::collections::HashMap;
+use std::borrow::Cow;
+use std::collections::{BTreeMap, HashMap};
 use std::sync::Arc;
 
-use egui::CtxRef;
+use egui::paint::ClippedShape;
+use egui::{FontDefinitions, FontFamily, Style, TextStyle};
+use egui_winit_platform::{Platform, PlatformDescriptor};
 use image::DynamicImage;
 use lazy_static::lazy_static;
 use vulkano::command_buffer::{
-    AutoCommandBufferBuilder, CommandBufferUsage, DynamicState, PrimaryAutoCommandBuffer, SubpassContents,
+    AutoCommandBufferBuilder, CommandBufferUsage, PrimaryAutoCommandBuffer, SubpassContents,
 };
 use vulkano::device::{DeviceExtensions, Features};
 use vulkano::format::ClearValue;
@@ -54,6 +57,7 @@ pub fn get_device_features() -> Features {
 pub fn get_device_extensions() -> DeviceExtensions {
     DeviceExtensions {
         khr_swapchain: true,
+        khr_storage_buffer_storage_class: true,
         khr_8bit_storage: true,
         khr_16bit_storage: true,
         ..DeviceExtensions::none()
@@ -81,7 +85,7 @@ pub type MeshId = u64;
 pub struct RoastRenderer {
     pub vulkan: VulkanWrapper,
     pub camera: Camera,
-    pub gui: CtxRef,
+    pub gui: Platform,
     pub textures: HashMap<TextureId, Texture>,
     pub meshes: HashMap<MeshId, Mesh>,
 
@@ -92,16 +96,59 @@ pub struct RoastRenderer {
 
 impl RoastRenderer {
     pub fn new(vulkan: VulkanWrapper, default_texture: DynamicImage) -> Self {
+        let size = vulkan.surface.window().inner_size();
+        let scale_factor = vulkan.surface.window().scale_factor();
+
         Self {
             default_texture: Texture::new(&vulkan, default_texture, TextureSampling::Pixel, true),
             vulkan,
             camera: Camera::default(),
-            gui: CtxRef::default(),
+            gui: Platform::new(PlatformDescriptor {
+                physical_width: size.width as u32,
+                physical_height: size.height as u32,
+                scale_factor,
+                font_definitions: FontDefinitions::default(),
+                style: Style::default(),
+            }),
             textures: HashMap::new(),
             meshes: HashMap::new(),
             texture_id_counter: 0,
             mesh_id_counter: 0,
         }
+    }
+
+    pub fn init(&self) {
+        // Init fonts
+        type FontData = Cow<'static, [u8]>;
+
+        let mut font_data: BTreeMap<String, FontData> = BTreeMap::new();
+        let mut fonts_for_family = BTreeMap::new();
+        let mut family_and_size = BTreeMap::new();
+
+        font_data.insert(
+            "Cascadia Mono".to_owned(),
+            Cow::Borrowed(include_bytes!(
+                "../target/fonts/cascadia/ttf/static/CascadiaMono-Regular.ttf"
+            )),
+        );
+
+        fonts_for_family.insert(FontFamily::Proportional, vec!["Cascadia Mono".to_owned()]);
+        fonts_for_family.insert(FontFamily::Monospace, vec!["Cascadia Mono".to_owned()]);
+
+        family_and_size.insert(TextStyle::Small, (FontFamily::Proportional, 8.0));
+        family_and_size.insert(TextStyle::Body, (FontFamily::Proportional, 16.0));
+        family_and_size.insert(TextStyle::Button, (FontFamily::Proportional, 16.0));
+        family_and_size.insert(TextStyle::Heading, (FontFamily::Proportional, 32.0));
+        family_and_size.insert(TextStyle::Monospace, (FontFamily::Monospace, 16.0));
+
+        self.gui.context().set_fonts(FontDefinitions {
+            font_data,
+            fonts_for_family,
+            family_and_size,
+        });
+
+        // Show window
+        self.vulkan.surface.window().set_visible(true);
     }
 
     /// Registers a new texture with this renderer.
@@ -140,7 +187,7 @@ impl RoastRenderer {
 
     /// The main render function. Renders a single frame of
     /// the provided scene and GUI.
-    pub fn render(&mut self, scene: Scene) {
+    pub fn render(&mut self, scene: Scene, gui_data: Vec<ClippedShape>) {
         let frame = match self.vulkan.begin_frame() {
             None => return,
             Some(frame) => frame,
@@ -153,7 +200,7 @@ impl RoastRenderer {
         )
         .unwrap();
 
-        self.scene_pass(&frame, &mut builder, &scene);
+        self.scene_pass(&frame, &mut builder, &scene, gui_data);
 
         // For some reason IntelliJ thinks that the build() function on the next line is
         // PipelineLayoutDesc::build rather than AutoCommandBufferBuilder::build, so we
@@ -226,7 +273,7 @@ impl RoastRenderer {
                 builder
                     .draw_indexed(
                         pipeline.clone(),
-                        &DynamicState::none(),
+                        &self.vulkan.dynamic_state,
                         vec![mesh.vertex_buffer().clone()],
                         mesh.index_buffer().clone(),
                         (camera_descriptor_set.clone(), scene_descriptor_set.clone()),
@@ -244,15 +291,15 @@ impl RoastRenderer {
         frame: &Frame,
         builder: &mut AutoCommandBufferBuilder<PrimaryAutoCommandBuffer>,
         scene: &Scene,
+        gui_data: Vec<ClippedShape>,
     ) {
+        let swap_chain_dimensions = self.vulkan.swap_chain.dimensions().map(|x| x as f32);
+
         let perspective_camera_buffer = Arc::new(
             self.vulkan
                 .uniform_buffers
                 .camera
-                .next(
-                    self.camera
-                        .update_uniform_buffer(self.vulkan.swap_chain.dimensions(), false),
-                )
+                .next(self.camera.update_uniform_buffer(swap_chain_dimensions, false))
                 .unwrap(),
         );
 
@@ -260,10 +307,7 @@ impl RoastRenderer {
             self.vulkan
                 .uniform_buffers
                 .camera
-                .next(
-                    self.camera
-                        .update_uniform_buffer(self.vulkan.swap_chain.dimensions(), true),
-                )
+                .next(self.camera.update_uniform_buffer(swap_chain_dimensions, true))
                 .unwrap(),
         );
 
@@ -280,13 +324,25 @@ impl RoastRenderer {
             &perspective_camera_buffer,
             &scene.scene_meshes,
         );
-        builder.next_subpass(SubpassContents::Inline).unwrap();
+
+        // The GUI Painter will call builder.next_subpass
+        self.vulkan
+            .gui_painter
+            .draw(
+                builder,
+                &self.vulkan.dynamic_state,
+                swap_chain_dimensions,
+                &self.gui.context(),
+                gui_data,
+            )
+            .unwrap();
         self.render_meshes(
             builder,
             self.vulkan.pipelines.gui.clone(),
             &ortho_camera_buffer,
             &scene.gui_meshes,
         );
+
         builder.end_render_pass().unwrap();
     }
 }

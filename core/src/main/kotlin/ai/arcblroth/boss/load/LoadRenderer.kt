@@ -1,6 +1,6 @@
 package ai.arcblroth.boss.load
 
-import ai.arcblroth.boss.Renderer
+import ai.arcblroth.boss.backend.Renderer
 import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Scene
 import ai.arcblroth.boss.render.Texture

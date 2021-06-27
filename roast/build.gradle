@@ -1,20 +1,43 @@
 import ai.arcblroth.boss.gradle.CargoWrapperPlugin
 import ai.arcblroth.boss.gradle.BuildShadersTask
 
+plugins {
+    id 'de.undercouch.download'
+}
 apply plugin: CargoWrapperPlugin
 
+// Set buildDir to the target folder
+// to be consistent with Rust projects
+buildDir = new File(projectDir, 'target')
+
 cargo {
-    outputs = [Tuple.tuple("", "roast.dll")]
+    outputs = [Tuple.tuple('', 'roast.dll')]
 }
 
-def buildShaders = tasks.register('buildShaders', BuildShadersTask.class) {
+def buildShaders = tasks.register('buildShaders', BuildShadersTask) {
     shaders = [
             "shader/scene.vert.glsl": "scene_vert",
             "shader/scene.frag.glsl": "scene_frag",
     ]
-    outputDir = project.file("target/shader")
+    outputDir = new File(buildDir, 'shader')
+}
+
+def downloadCascadiaFont = tasks.register('downloadCascadiaFont', Download) {
+    src cascadia_release
+    dest new File(buildDir, 'fonts/cascadia.zip')
+    onlyIfModified true
+}
+
+def unzipCascadiaFont = tasks.register('unzipFonts', Copy) {
+    dependsOn(downloadCascadiaFont)
+
+    from(zipTree(downloadCascadiaFont.get().dest))
+    into new File(buildDir, 'fonts/cascadia')
+    include 'ttf/static/CascadiaMono-Regular.ttf'
 }
 
 project.afterEvaluate {
-    tasks.getByName('build').dependsOn(buildShaders)
+    def build = tasks.getByName('build');
+    build.dependsOn(buildShaders)
+    build.dependsOn(unzipCascadiaFont)
 }

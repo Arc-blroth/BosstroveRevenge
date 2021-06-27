@@ -1,6 +1,6 @@
 package ai.arcblroth.boss.anim
 
-import ai.arcblroth.boss.Renderer
+import ai.arcblroth.boss.backend.Renderer
 import ai.arcblroth.boss.render.Texture
 import ai.arcblroth.boss.render.TextureSampling
 import ai.arcblroth.boss.util.ResourceLoader

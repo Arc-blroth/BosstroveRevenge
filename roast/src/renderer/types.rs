@@ -10,17 +10,18 @@ use vulkano::device::Queue;
 use vulkano::image::view::ImageView;
 use vulkano::image::AttachmentImage;
 use vulkano::memory::pool::StdMemoryPool;
-use vulkano::pipeline::GraphicsPipelineAbstract;
+use vulkano::pipeline::vertex::SingleBufferDefinition;
+use vulkano::pipeline::GraphicsPipeline as VulkanoGraphicsPipeline;
 use vulkano::render_pass::{FramebufferAbstract, RenderPass};
 use vulkano::sampler::Sampler;
 use vulkano::swapchain::Surface;
 use winit::window::Window;
 
-use crate::renderer::shader::CameraBufferObjectData;
+use crate::renderer::shader::{CameraBufferObjectData, Vertex};
 
 pub type Index = u32;
 pub type WindowSurface = Surface<Window>;
-pub type GraphicsPipeline = dyn GraphicsPipelineAbstract + Send + Sync;
+pub type GraphicsPipeline = VulkanoGraphicsPipeline<SingleBufferDefinition<Vertex>>;
 pub type Framebuffer = dyn FramebufferAbstract + Send + Sync;
 pub type VertexBuffer = dyn BufferAccess + Send + Sync;
 pub type IndexBuffer = dyn TypedBufferAccess<Content = [Index]> + Send + Sync;

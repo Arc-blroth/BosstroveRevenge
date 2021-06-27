@@ -1,13 +1,14 @@
 package ai.arcblroth.boss.load
 
-import ai.arcblroth.boss.Renderer
 import ai.arcblroth.boss.anim.AnimationController
 import ai.arcblroth.boss.anim.OffsetIndex
 import ai.arcblroth.boss.anim.Spritesheet
+import ai.arcblroth.boss.backend.Renderer
 import ai.arcblroth.boss.render.Vertex
 import ai.arcblroth.boss.render.VertexType
 import org.joml.Vector3f
 import org.joml.Vector4f
+
 /**
  * LoadProcess handles all of the work needed for
  * initial startup of the game. It locates

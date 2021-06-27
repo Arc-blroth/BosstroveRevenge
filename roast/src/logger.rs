@@ -7,6 +7,7 @@ use jni::JNIEnv;
 use log::{Level, LevelFilter, Log, Metadata, Record, SetLoggerError};
 
 use crate::jni_util::TypedGlobalRef;
+use crate::ROAST_BACKEND_CLASS;
 
 /// Logging facade that redirects to the RoastBackend logger.
 pub struct JavaLogger<'a> {
@@ -27,11 +28,7 @@ impl<'a> JavaLogger<'a> {
     pub fn new(env: JNIEnv<'a>) -> JNIResult<Self> {
         let logger = TypedGlobalRef::<JObject>::new(
             &env,
-            JObject::try_from(env.get_static_field(
-                "ai/arcblroth/boss/roast/RoastBackend",
-                "LOGGER",
-                "Lorg/slf4j/Logger;",
-            )?)?,
+            JObject::try_from(env.get_static_field(ROAST_BACKEND_CLASS, "LOGGER", "Lorg/slf4j/Logger;")?)?,
         )?;
         let logger_class = TypedGlobalRef::<JClass>::new(&env, env.get_object_class(logger.as_obj())?)?;
 

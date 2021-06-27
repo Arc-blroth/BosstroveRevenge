@@ -1,9 +1,9 @@
 package ai.arcblroth.boss.roast
 
-import ai.arcblroth.boss.Backend
-import ai.arcblroth.boss.EventLoop
-import ai.arcblroth.boss.Renderer
-import ai.arcblroth.boss.RendererSettings
+import ai.arcblroth.boss.backend.Backend
+import ai.arcblroth.boss.backend.EventLoop
+import ai.arcblroth.boss.backend.Renderer
+import ai.arcblroth.boss.backend.RendererSettings
 import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Scene
 import ai.arcblroth.boss.render.Texture

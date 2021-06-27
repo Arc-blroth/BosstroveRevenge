@@ -8,14 +8,24 @@ edition = "2018"
 crate_type = ["cdylib"]
 
 [dependencies]
-egui = "0.12.0"
-egui_vulkano = { git = "https://github.com/Arc-blroth/egui_vulkano", rev = "ae95a4b" }
+egui = { version = "0.12.0", default-features = false, features = ["single_threaded"] }
 glam = { version = "0.15.2" }
 image = "0.23.14"
 jni = "0.19.0"
 lazy_static = "1.4.0"
 log = {version = "0.4.14", features = ["std"]}
-vulkano = "0.23.0"
-vulkano-win = "0.23.0"
-vulkano-shaders = "0.23.0"
-winit = "0.24.0"
+vulkano = "0.24.0"
+vulkano-win = "0.24.0"
+vulkano-shaders = "0.24.0"
+winit = "0.25.0"
+
+[dependencies.egui_vulkano]
+git = "https://github.com/Arc-blroth/egui_vulkano"
+rev = "70c6e1a"
+default-features = false
+
+[dependencies.egui_winit_platform]
+git = "https://github.com/hasenbanck/egui_winit_platform"
+rev = "ab57659"
+default-features = false
+features = ["clipboard"]

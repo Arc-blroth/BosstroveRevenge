@@ -4,7 +4,7 @@ use std::sync::Arc;
 
 use egui_vulkano::Painter;
 use vulkano::buffer::CpuBufferPool;
-use vulkano::command_buffer::PrimaryAutoCommandBuffer;
+use vulkano::command_buffer::{DynamicState, PrimaryAutoCommandBuffer};
 use vulkano::descriptor::descriptor_set::FixedSizeDescriptorSetsPool;
 use vulkano::device::Device;
 use vulkano::format::Format;
@@ -15,7 +15,7 @@ use vulkano::instance::debug::{DebugCallback, MessageSeverity, MessageType};
 use vulkano::instance::{ApplicationInfo, Instance, PhysicalDevice, Version};
 use vulkano::pipeline::depth_stencil::{Compare, DepthBounds, DepthStencil};
 use vulkano::pipeline::viewport::Viewport;
-use vulkano::pipeline::GraphicsPipeline as VulkanoGraphicsPipeline;
+use vulkano::pipeline::{GraphicsPipeline as VulkanoGraphicsPipeline, GraphicsPipelineAbstract};
 use vulkano::render_pass::{Framebuffer as VulkanoFramebuffer, Subpass};
 use vulkano::sampler::{BorderColor, Filter, MipmapMode, Sampler, SamplerAddressMode};
 use vulkano::swapchain::{
@@ -55,6 +55,7 @@ pub struct VulkanWrapper {
 
     pub(super) shader: Shader,
     pub(super) render_passes: RenderPasses,
+    pub(super) dynamic_state: DynamicState,
     pub(super) pipelines: Pipelines,
     pub(super) gui_painter: Painter,
 
@@ -81,7 +82,8 @@ impl VulkanWrapper {
         let framebuffer_attachments = Self::create_framebuffer_attachments(&device, &surface, &swap_chain);
         let shader = Shader::load(device.clone()).expect("Could not load shader!");
         let render_passes = Self::create_render_passes(&device, swap_chain.format(), &framebuffer_attachments);
-        let pipelines = Self::create_pipelines(&device, swap_chain.dimensions(), &render_passes, &shader);
+        let dynamic_state = Self::create_dynamic_state(swap_chain.dimensions());
+        let pipelines = Self::create_pipelines(&device, &render_passes, &shader);
         let gui_painter = Self::create_gui_painter(&device, &queues, &render_passes);
         let swap_chain_framebuffers =
             Self::create_framebuffers(&swap_chain_images, &render_passes, &framebuffer_attachments);
@@ -101,6 +103,7 @@ impl VulkanWrapper {
             swap_chain_images,
             shader,
             render_passes,
+            dynamic_state,
             pipelines,
             gui_painter,
             swap_chain_framebuffers,
@@ -128,12 +131,8 @@ impl VulkanWrapper {
             Self::create_framebuffer_attachments(&self.device, &self.surface, &self.swap_chain);
         self.render_passes =
             Self::create_render_passes(&self.device, self.swap_chain.format(), &self.framebuffer_attachments);
-        self.pipelines = Self::create_pipelines(
-            &self.device,
-            self.swap_chain.dimensions(),
-            &self.render_passes,
-            &self.shader,
-        );
+        self.dynamic_state = Self::create_dynamic_state(self.swap_chain.dimensions());
+        self.pipelines = Self::create_pipelines(&self.device, &self.render_passes, &self.shader);
         self.gui_painter = Self::create_gui_painter(&self.device, &self.queues, &self.render_passes);
         self.swap_chain_framebuffers = Self::create_framebuffers(
             &self.swap_chain_images,
@@ -168,11 +167,16 @@ impl VulkanWrapper {
         let required_extensions = get_required_extensions();
 
         if ENABLE_DEBUG_UTILS && check_validation_layer_support() {
-            Instance::new(Some(&app_info), &required_extensions, VALIDATION_LAYERS.iter().cloned())
-                .expect("Failed to create Vulkan instance")
+            Instance::new(
+                Some(&app_info),
+                Version::V1_2,
+                &required_extensions,
+                VALIDATION_LAYERS.iter().cloned(),
+            )
         } else {
-            Instance::new(Some(&app_info), &required_extensions, None).expect("Failed to create Vulkan instance")
+            Instance::new(Some(&app_info), Version::V1_2, &required_extensions, None)
         }
+        .expect("Failed to create Vulkan instance")
     }
 
     #[inline]
@@ -456,23 +460,21 @@ impl VulkanWrapper {
         RenderPasses { /*shadow,*/ scene }
     }
 
-    fn create_pipelines(
-        device: &Arc<Device>,
-        swap_chain_extent: [u32; 2],
-        render_passes: &RenderPasses,
-        shader: &Shader,
-    ) -> Pipelines {
-        let dimensions = [swap_chain_extent[0] as f32, swap_chain_extent[1] as f32];
-        let viewport = Viewport {
+    fn create_dynamic_state(swap_chain_extent: [u32; 2]) -> DynamicState {
+        let mut dynamic_state = DynamicState::none();
+        dynamic_state.viewports = Some(vec![Viewport {
             origin: [0.0, 0.0],
-            dimensions,
+            dimensions: swap_chain_extent.map(|x| x as f32),
             depth_range: 0.0..1.0,
-        };
+        }]);
+        dynamic_state
+    }
 
+    fn create_pipelines(device: &Arc<Device>, render_passes: &RenderPasses, shader: &Shader) -> Pipelines {
         let builder = VulkanoGraphicsPipeline::start()
             .triangle_list()
             .primitive_restart(false)
-            .viewports(vec![viewport])
+            .viewports_dynamic_scissors_irrelevant(1)
             .polygon_mode_fill()
             .line_width(1.0)
             .cull_mode_back();
@@ -608,15 +610,21 @@ impl VulkanWrapper {
     fn create_uniform_buffers(device: &Arc<Device>) -> UniformBuffers {
         UniformBuffers {
             camera: CpuBufferPool::uniform_buffer(device.clone()),
-            dynamic_buffer_alignment: device.physical_device().limits().min_uniform_buffer_offset_alignment() as usize,
+            dynamic_buffer_alignment: device
+                .physical_device()
+                .properties()
+                .min_uniform_buffer_offset_alignment
+                .unwrap_or(0) as usize,
         }
     }
 
     fn create_descriptor_sets_pool(pipelines: Pipelines) -> DescriptorSetPools {
         DescriptorSetPools {
-            // shadow: FixedSizeDescriptorSetsPool::new(pipelines.shadow.descriptor_set_layout(0).unwrap().clone()),
-            camera: FixedSizeDescriptorSetsPool::new(pipelines.scene.descriptor_set_layout(0).unwrap().clone()),
-            scene: FixedSizeDescriptorSetsPool::new(pipelines.scene.descriptor_set_layout(1).unwrap().clone()),
+            // shadow: FixedSizeDescriptorSetsPool::new(pipelines.shadow.layout().descriptor_set_layout(0).unwrap().clone()),
+            camera: FixedSizeDescriptorSetsPool::new(
+                pipelines.scene.layout().descriptor_set_layout(0).unwrap().clone(),
+            ),
+            scene: FixedSizeDescriptorSetsPool::new(pipelines.scene.layout().descriptor_set_layout(1).unwrap().clone()),
         }
     }
 

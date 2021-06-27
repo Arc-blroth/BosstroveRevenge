@@ -1,6 +1,6 @@
 package ai.arcblroth.boss.render
 
-import ai.arcblroth.boss.Renderer
+import ai.arcblroth.boss.backend.Renderer
 import org.joml.Matrix4f
 import org.joml.Vector2f
 import org.joml.Vector3f

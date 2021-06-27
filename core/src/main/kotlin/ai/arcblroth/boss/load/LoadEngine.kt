@@ -1,7 +1,7 @@
 package ai.arcblroth.boss.load
 
 import ai.arcblroth.boss.Engine
-import ai.arcblroth.boss.EventLoop
+import ai.arcblroth.boss.backend.EventLoop
 import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Scene
 import ai.arcblroth.boss.render.Texture
@@ -23,7 +23,9 @@ import kotlin.math.abs
 
 // Padding height and logo colors from
 // https://github.com/Arc-blroth/BosstroveRevenge/blob/try1/core/src/main/java/ai/arcblroth/boss/load/LoadEngine.java#L20
-private const val ARBITRARY_PADDING_HEIGHT = 8.0f * 2
+// Note that a single "row" of characters in a `PixelAndTextGrid`
+// took up 16 pixels and was represented by 2 units of height.
+private const val ARBITRARY_PADDING_HEIGHT = 8.0f * 16
 private val SAT_BLUE = Color(41, 166, 255).toHSV()
 private val LIGHT_BLUE = Color(107, 190, 250).toHSV()
 
@@ -70,6 +72,7 @@ class LoadEngine : Engine {
     private var colorVec = Vector4f()
     private var transformMat = Matrix4f()
 
+    private var logoTexture: Texture? = null
     private var logoMesh: Mesh? = null
     private var scene: Scene? = null
 
@@ -111,6 +114,8 @@ class LoadEngine : Engine {
                 logoTexture,
                 null
             )
+
+            this.logoTexture = logoTexture
             this.logoMesh = logoMesh
 
             this.scene = Scene(guiMeshes = arrayListOf(logoMesh))
@@ -126,7 +131,7 @@ class LoadEngine : Engine {
             val rendererSize = eventLoop.getRenderer().getSize()
             it.transform = transformMat.translation(
                 (rendererSize.x / 2.0).toFloat(),
-                (rendererSize.y / 2.0).toFloat() - ARBITRARY_PADDING_HEIGHT,
+                (rendererSize.y / 2.0).toFloat() - ARBITRARY_PADDING_HEIGHT / 2.0f,
                 0.0f
             )
         }

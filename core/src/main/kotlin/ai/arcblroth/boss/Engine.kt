@@ -1,5 +1,6 @@
 package ai.arcblroth.boss
 
+import ai.arcblroth.boss.backend.EventLoop
 import ai.arcblroth.boss.render.Scene
 
 /**

@@ -67,7 +67,7 @@ impl Roast {
         S: 'static + Fn() -> (),
     {
         let renderer = self.renderer;
-        renderer.vulkan.surface.window().set_visible(true);
+        renderer.init();
 
         // Move the renderer into the thread-local storage so JNI
         // calls can easily find it.
@@ -79,6 +79,10 @@ impl Roast {
             move |event: Event<_>, _event_loop_target: &EventLoopWindowTarget<_>, control_flow: &mut ControlFlow| {
                 *control_flow = ControlFlow::Poll;
                 let mut should_stop = false;
+
+                with_renderer(|renderer| {
+                    renderer.gui.handle_event(&event);
+                });
 
                 match event {
                     Event::WindowEvent {

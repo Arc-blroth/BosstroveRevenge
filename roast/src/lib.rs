@@ -15,6 +15,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use egui::{Color32, Frame, Label, Window};
 use jni::objects::{JObject, JString, JValue, ReleaseMode};
 use jni::signature::{JavaType, Primitive};
 use jni::sys::{jboolean, jbyteArray, jdouble, jintArray, jobject, jobjectArray, jstring, JNI_TRUE};
@@ -38,21 +39,28 @@ mod lib_texture;
 pub mod logger;
 pub mod renderer;
 
+pub const ILLEGAL_ARGUMENT_EXCEPTION_CLASS: &str = "java/lang/IllegalArgumentException";
+pub const ILLEGAL_STATE_EXCEPTION_CLASS: &str = "java/lang/IllegalStateException";
+pub const NULL_POINTER_EXCEPTION_CLASS: &str = "java/lang/NullPointerException";
 pub const PAIR_CLASS: &str = "kotlin/Pair";
 pub const VECTOR2F_CLASS: &str = "org/joml/Vector2f";
 pub const VECTOR3F_CLASS: &str = "org/joml/Vector3f";
 pub const VECTOR4F_CLASS: &str = "org/joml/Vector4f";
 pub const MATRIX4F_CLASS: &str = "org/joml/Matrix4f";
+pub const VERTEX_CLASS: &str = "ai/arcblroth/boss/render/Vertex";
 pub const VERTEX_TYPE_CLASS: &str = "ai/arcblroth/boss/render/VertexType";
 pub const TEXTURE_SAMPLING_CLASS: &str = "ai/arcblroth/boss/render/TextureSampling";
+pub const ROAST_BACKEND_CLASS: &str = "ai/arcblroth/boss/roast/RoastBackend";
 pub const ROAST_TEXTURE_CLASS: &str = "ai/arcblroth/boss/roast/RoastTexture";
 pub const ROAST_MESH_CLASS: &str = "ai/arcblroth/boss/roast/RoastMesh";
+pub const ROAST_EXCEPTION_CLASS: &str = "ai/arcblroth/boss/roast/RoastException";
 
 pub const OBJECT_TYPE: &str = "Ljava/lang/Object;";
 pub const VECTOR2D_TYPE: &str = "Lorg/joml/Vector2d;";
 pub const VECTOR3F_TYPE: &str = "Lorg/joml/Vector3f;";
 pub const VECTOR4F_TYPE: &str = "Lorg/joml/Vector4f;";
 pub const VERTEX_TYPE_TYPE: &str = "Lai/arcblroth/boss/render/VertexType;";
+pub const FULLSCREEN_MODE_TYPE: &str = "Lai/arcblroth/boss/backend/RendererSettings$FullscreenMode;";
 
 /// JNI initialization lock. This prevents the backend logger
 /// from being initialized twice.
@@ -105,11 +113,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_init(
             env.get_field(renderer_size, "y", "D").unwrap().d().unwrap(),
         );
         let fullscreen_mode = env
-            .get_field(
-                renderer_settings,
-                "fullscreenMode",
-                "Lai/arcblroth/boss/RendererSettings$FullscreenMode;",
-            )
+            .get_field(renderer_settings, "fullscreenMode", FULLSCREEN_MODE_TYPE)
             .unwrap()
             .l()
             .unwrap();
@@ -157,7 +161,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_init(
 pub fn check_backend(env: &JNIEnv, this: jobject) -> Result<u64, ()> {
     let pointer = env.get_field(this, "pointer", "J").unwrap().j().unwrap() as u64;
     if pointer == 0 {
-        env.throw_new("java/lang/NullPointerException", "Backend pointer is null!")
+        env.throw_new(NULL_POINTER_EXCEPTION_CLASS, "Backend pointer is null!")
             .unwrap();
         return Err(());
     }
@@ -170,7 +174,7 @@ pub fn check_backend(env: &JNIEnv, this: jobject) -> Result<u64, ()> {
                         Ok(pointer)
                     } else {
                         env.throw_new(
-                            "java/lang/IllegalStateException",
+                            ILLEGAL_STATE_EXCEPTION_CLASS,
                             "Backend pointer does not point to a valid struct",
                         )
                         .unwrap();
@@ -185,7 +189,7 @@ pub fn check_backend(env: &JNIEnv, this: jobject) -> Result<u64, ()> {
                     Ok(pointer)
                 } else {
                     env.throw_new(
-                        "java/lang/IllegalStateException",
+                        ILLEGAL_STATE_EXCEPTION_CLASS,
                         "Only one backend can run its event loop at a time",
                     )
                     .unwrap();
@@ -208,7 +212,7 @@ where
         match storage.remove(&pointer) {
             None => {
                 // We can only get here if init() is called on a valid, running backend
-                env.throw_new("java/lang/IllegalStateException", "Cannot initialize backend twice")
+                env.throw_new(ILLEGAL_STATE_EXCEPTION_CLASS, "Cannot initialize backend twice")
                     .unwrap();
                 Err(())
             }
@@ -265,7 +269,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createTexture(
         let rust_image = match image::load_from_memory(rust_image) {
             Ok(img) => img,
             Err(err) => {
-                env.throw_new("ai/arcblroth/boss/roast/RoastException", format!("Could not load image: {:?}", err)).unwrap();
+                env.throw_new(ROAST_EXCEPTION_CLASS, format!("Could not load image: {:?}", err)).unwrap();
                 panic!();
             }
         };
@@ -274,7 +278,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createTexture(
             0 => TextureSampling::Smooth,
             1 => TextureSampling::Pixel,
             _ => {
-                env.throw_new("java/lang/IllegalArgumentException", "Invalid texture sampling!").unwrap();
+                env.throw_new(ILLEGAL_ARGUMENT_EXCEPTION_CLASS, "Invalid texture sampling!").unwrap();
                 panic!();
             }
         };
@@ -310,7 +314,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
     catch_panic!(env, {
         check_backend(&env, this).unwrap();
 
-        let vertex_class = env.find_class("ai/arcblroth/boss/render/Vertex").unwrap();
+        let vertex_class = env.find_class(VERTEX_CLASS).unwrap();
         let vertex_pos = env.get_field_id(vertex_class, "pos", VECTOR3F_TYPE).unwrap();
         let vertex_color_tex = env.get_field_id(vertex_class, "colorTex", VECTOR4F_TYPE).unwrap();
 
@@ -361,7 +365,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
             1 => VertexType::TEX1,
             2 => VertexType::TEX2,
             _ => {
-                env.throw_new("java/lang/IllegalArgumentException", "Invalid vertex type!").unwrap();
+                env.throw_new(ILLEGAL_ARGUMENT_EXCEPTION_CLASS, "Invalid vertex type!").unwrap();
                 panic!();
             }
         };
@@ -460,7 +464,20 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_render(env: JNI
         };
 
         backend::with_renderer(move |renderer| {
-            renderer.render(scene);
+            renderer.gui.begin_frame();
+            let size = renderer.vulkan.surface.window().inner_size();
+            Window::new("test")
+                .fixed_size((size.width as f32, size.height as f32))
+                .fixed_pos((0.0, size.height as f32 / 2.0 + ((18.0 * 8.0 + 8.0 * 16.0) / 2.0 - 16.0)))
+                .title_bar(false)
+                .frame(Frame::none())
+                .show(&renderer.gui.context(), move |ui| {
+                    ui.vertical_centered_justified(|ui| {
+                        ui.label(Label::new("Loading - 0%").text_color(Color32::from_rgb(40, 237, 63)));
+                    });
+                });
+            let gui_data = renderer.gui.end_frame();
+            renderer.render(scene, gui_data.1);
         });
     });
 }

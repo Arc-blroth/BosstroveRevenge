@@ -1,4 +1,4 @@
-package ai.arcblroth.boss
+package ai.arcblroth.boss.backend
 
 import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Scene
