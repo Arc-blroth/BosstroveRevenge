@@ -1,13 +1,13 @@
 use std::convert::TryFrom;
 
 use jni::errors::Result as JNIResult;
+use jni::JNIEnv;
 use jni::objects::{JClass, JMethodID, JObject, JValue};
 use jni::signature::{JavaType, Primitive};
-use jni::JNIEnv;
 use log::{Level, LevelFilter, Log, Metadata, Record, SetLoggerError};
 
+use crate::jni_types::ROAST_BACKEND_CLASS;
 use crate::jni_util::TypedGlobalRef;
-use crate::ROAST_BACKEND_CLASS;
 
 /// Logging facade that redirects to the RoastBackend logger.
 pub struct JavaLogger<'a> {

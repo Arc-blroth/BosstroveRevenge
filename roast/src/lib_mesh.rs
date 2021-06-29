@@ -2,17 +2,15 @@
 
 use glam::{Mat4, Vec2, Vec4};
 use jni::descriptors::Desc;
-use jni::objects::{JObject, JValue};
-use jni::signature::{JavaType, Primitive};
-use jni::sys::{jfloat, jobject};
 use jni::JNIEnv;
+use jni::objects::{JObject, JValue};
+use jni::sys::{jfloat, jobject};
 
+use crate::backend;
+use crate::jni_classes::{JavaMatrix4f, JavaPair, JavaRoastTexture, JavaVector2f, JavaVector4f};
+use crate::jni_types::*;
 use crate::renderer::shader::VertexType;
 use crate::renderer::TextureId;
-use crate::{
-    backend, MATRIX4F_CLASS, OBJECT_TYPE, PAIR_CLASS, ROAST_TEXTURE_CLASS, VECTOR2F_CLASS, VECTOR4F_CLASS,
-    VERTEX_TYPE_CLASS, VERTEX_TYPE_TYPE,
-};
 
 const MESH_NOT_FOUND_MSG: &str = "Mesh pointer does not point to a valid struct";
 
@@ -75,40 +73,19 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastMesh_setTextures(
     textures: jobject,
 ) {
     catch_panic!(env, {
-        let pair_class = env.find_class(PAIR_CLASS).unwrap();
-        let roast_texture_class = env.find_class(ROAST_TEXTURE_CLASS).unwrap();
-        let pair_first_field = env.get_field_id(pair_class, "first", OBJECT_TYPE).unwrap();
-        let pair_second_field = env.get_field_id(pair_class, "second", OBJECT_TYPE).unwrap();
-        let texture_pointer_field = env.get_field_id(roast_texture_class, "pointer", "J").unwrap();
+        let pair_class = JavaPair::accessor(env);
+        let roast_texture_class = JavaRoastTexture::accessor(env);
 
-        let texture0 = env
-            .get_field_unchecked(textures, pair_first_field, JavaType::Object(OBJECT_TYPE.to_string()))
-            .unwrap()
-            .l()
-            .unwrap();
-        let texture1 = env
-            .get_field_unchecked(textures, pair_second_field, JavaType::Object(OBJECT_TYPE.to_string()))
-            .unwrap()
-            .l()
-            .unwrap();
+        let texture0 = pair_class.first(textures);
+        let texture1 = pair_class.second(textures);
 
         let texture0_id = if !texture0.is_null() {
-            Some(
-                env.get_field_unchecked(texture0, texture_pointer_field, JavaType::Primitive(Primitive::Long))
-                    .unwrap()
-                    .j()
-                    .unwrap() as u64,
-            )
+            Some(roast_texture_class.pointer(texture0) as u64)
         } else {
             None
         };
         let texture1_id = if !texture1.is_null() {
-            Some(
-                env.get_field_unchecked(texture1, texture_pointer_field, JavaType::Primitive(Primitive::Long))
-                    .unwrap()
-                    .j()
-                    .unwrap() as u64,
-            )
+            Some(roast_texture_class.pointer(texture1) as u64)
         } else {
             None
         };
@@ -168,33 +145,25 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastMesh_setTransform(
     transform: jobject,
 ) {
     catch_panic!(env, {
-        let matrix4f_class = env.find_class(MATRIX4F_CLASS).unwrap();
-
-        let get_field = move |name: &str| {
-            let field = env.get_field_id(matrix4f_class, name, "F").unwrap();
-            env.get_field_unchecked(transform, field, JavaType::Primitive(Primitive::Float))
-                .unwrap()
-                .f()
-                .unwrap()
-        };
+        let matrix4f_class = JavaMatrix4f::accessor(env);
 
         let rust_transform = Mat4::from_cols_array(&[
-            get_field("m00"),
-            get_field("m01"),
-            get_field("m02"),
-            get_field("m03"),
-            get_field("m10"),
-            get_field("m11"),
-            get_field("m12"),
-            get_field("m13"),
-            get_field("m20"),
-            get_field("m21"),
-            get_field("m22"),
-            get_field("m23"),
-            get_field("m30"),
-            get_field("m31"),
-            get_field("m32"),
-            get_field("m33"),
+            matrix4f_class.m00(transform),
+            matrix4f_class.m01(transform),
+            matrix4f_class.m02(transform),
+            matrix4f_class.m03(transform),
+            matrix4f_class.m10(transform),
+            matrix4f_class.m11(transform),
+            matrix4f_class.m12(transform),
+            matrix4f_class.m13(transform),
+            matrix4f_class.m20(transform),
+            matrix4f_class.m21(transform),
+            matrix4f_class.m22(transform),
+            matrix4f_class.m23(transform),
+            matrix4f_class.m30(transform),
+            matrix4f_class.m31(transform),
+            matrix4f_class.m32(transform),
+            matrix4f_class.m33(transform),
         ]);
 
         let pointer = get_mesh_pointer(env, this);
@@ -240,50 +209,19 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastMesh_setTextureOffsets(
     texture_offsets: jobject,
 ) {
     catch_panic!(env, {
-        let pair_class = env.find_class(PAIR_CLASS).unwrap();
-        let pair_first_field = env.get_field_id(pair_class, "first", OBJECT_TYPE).unwrap();
-        let pair_second_field = env.get_field_id(pair_class, "second", OBJECT_TYPE).unwrap();
+        let pair_class = JavaPair::accessor(env);
+        let vector2f_class = JavaVector2f::accessor(env);
 
-        let vector2f_class = env.find_class(VECTOR2F_CLASS).unwrap();
-        let vector2f_x = env.get_field_id(vector2f_class, "x", "F").unwrap();
-        let vector2f_y = env.get_field_id(vector2f_class, "y", "F").unwrap();
         let get_vector2f = move |obj: JObject| {
             if !obj.is_null() {
-                Vec2::new(
-                    env.get_field_unchecked(obj, vector2f_x, JavaType::Primitive(Primitive::Float))
-                        .unwrap()
-                        .f()
-                        .unwrap(),
-                    env.get_field_unchecked(obj, vector2f_y, JavaType::Primitive(Primitive::Float))
-                        .unwrap()
-                        .f()
-                        .unwrap(),
-                )
+                Vec2::new(vector2f_class.x(obj), vector2f_class.y(obj))
             } else {
                 Vec2::ZERO
             }
         };
 
-        let offset0 = get_vector2f(
-            env.get_field_unchecked(
-                texture_offsets,
-                pair_first_field,
-                JavaType::Object(OBJECT_TYPE.to_string()),
-            )
-            .unwrap()
-            .l()
-            .unwrap(),
-        );
-        let offset1 = get_vector2f(
-            env.get_field_unchecked(
-                texture_offsets,
-                pair_second_field,
-                JavaType::Object(OBJECT_TYPE.to_string()),
-            )
-            .unwrap()
-            .l()
-            .unwrap(),
-        );
+        let offset0 = get_vector2f(pair_class.first(texture_offsets));
+        let offset1 = get_vector2f(pair_class.second(texture_offsets));
 
         let pointer = get_mesh_pointer(env, this);
 
@@ -328,33 +266,12 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastMesh_setOverlayColor(
 ) {
     catch_panic!(env, {
         let overlay_color_rust = if !overlay_color.is_null() {
-            let vector4f_class = env.find_class(VECTOR4F_CLASS).unwrap();
+            let vector4f_class = JavaVector4f::accessor(env);
 
-            let vector4f_x = env.get_field_id(vector4f_class, "x", "F").unwrap();
-            let vector4f_y = env.get_field_id(vector4f_class, "y", "F").unwrap();
-            let vector4f_z = env.get_field_id(vector4f_class, "z", "F").unwrap();
-            let vector4f_w = env.get_field_id(vector4f_class, "w", "F").unwrap();
-
-            let x = env
-                .get_field_unchecked(overlay_color, vector4f_x, JavaType::Primitive(Primitive::Float))
-                .unwrap()
-                .f()
-                .unwrap();
-            let y = env
-                .get_field_unchecked(overlay_color, vector4f_y, JavaType::Primitive(Primitive::Float))
-                .unwrap()
-                .f()
-                .unwrap();
-            let z = env
-                .get_field_unchecked(overlay_color, vector4f_z, JavaType::Primitive(Primitive::Float))
-                .unwrap()
-                .f()
-                .unwrap();
-            let w = env
-                .get_field_unchecked(overlay_color, vector4f_w, JavaType::Primitive(Primitive::Float))
-                .unwrap()
-                .f()
-                .unwrap();
+            let x = vector4f_class.x(overlay_color);
+            let y = vector4f_class.y(overlay_color);
+            let z = vector4f_class.z(overlay_color);
+            let w = vector4f_class.w(overlay_color);
 
             Some(Vec4::new(x, y, z, w))
         } else {

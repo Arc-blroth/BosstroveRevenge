@@ -1,11 +1,12 @@
 //! JNI implementation of the `ai.arcblroth.roast.RoastTexture` native methods.
 
-use jni::objects::JObject;
-use jni::sys::{jboolean, jint, jobject, JNI_FALSE, JNI_TRUE};
 use jni::JNIEnv;
+use jni::objects::JObject;
+use jni::sys::{jboolean, jint, JNI_FALSE, JNI_TRUE, jobject};
 
+use crate::backend;
+use crate::jni_types::*;
 use crate::renderer::texture::TextureSampling;
-use crate::{backend, TEXTURE_SAMPLING_CLASS};
 
 const TEXTURE_NOT_FOUND_MSG: &str = "Texture pointer does not point to a valid texture";
 
@@ -55,7 +56,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastTexture_getTextureSampl
             }
         });
 
-        env.get_static_field(texture_sampling_class, field_name, TEXTURE_NOT_FOUND_MSG)
+        env.get_static_field(texture_sampling_class, field_name, TEXTURE_SAMPLING_TYPE)
             .unwrap()
             .l()
             .unwrap()

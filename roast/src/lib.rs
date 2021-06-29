@@ -16,51 +16,33 @@ use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use egui::{Color32, Frame, Label, Window};
+use jni::JNIEnv;
 use jni::objects::{JObject, JString, JValue, ReleaseMode};
 use jni::signature::{JavaType, Primitive};
-use jni::sys::{jboolean, jbyteArray, jdouble, jintArray, jobject, jobjectArray, jstring, JNI_TRUE};
-use jni::JNIEnv;
+use jni::sys::{jboolean, jbyteArray, jdouble, jintArray, JNI_TRUE, jobject, jobjectArray, jstring};
+
 pub use lib_mesh::*;
 pub use lib_texture::*;
 
 use crate::backend::{FullscreenMode, RendererSettings, Roast};
+use crate::jni_classes::{JavaRendererSettings, JavaVector2d, JavaVector3f, JavaVector4f, JavaVertex};
+use crate::jni_types::*;
 use crate::logger::JavaLogger;
+use crate::renderer::{MeshId, TextureId};
 use crate::renderer::mesh::Mesh;
 use crate::renderer::scene::Scene;
 use crate::renderer::shader::{Vertex, VertexType};
 use crate::renderer::texture::{Texture, TextureSampling};
-use crate::renderer::{MeshId, TextureId};
 
 pub mod backend;
+pub mod jni_classes;
+pub mod jni_types;
 #[macro_use]
 pub mod jni_util;
 mod lib_mesh;
 mod lib_texture;
 pub mod logger;
 pub mod renderer;
-
-pub const ILLEGAL_ARGUMENT_EXCEPTION_CLASS: &str = "java/lang/IllegalArgumentException";
-pub const ILLEGAL_STATE_EXCEPTION_CLASS: &str = "java/lang/IllegalStateException";
-pub const NULL_POINTER_EXCEPTION_CLASS: &str = "java/lang/NullPointerException";
-pub const PAIR_CLASS: &str = "kotlin/Pair";
-pub const VECTOR2F_CLASS: &str = "org/joml/Vector2f";
-pub const VECTOR3F_CLASS: &str = "org/joml/Vector3f";
-pub const VECTOR4F_CLASS: &str = "org/joml/Vector4f";
-pub const MATRIX4F_CLASS: &str = "org/joml/Matrix4f";
-pub const VERTEX_CLASS: &str = "ai/arcblroth/boss/render/Vertex";
-pub const VERTEX_TYPE_CLASS: &str = "ai/arcblroth/boss/render/VertexType";
-pub const TEXTURE_SAMPLING_CLASS: &str = "ai/arcblroth/boss/render/TextureSampling";
-pub const ROAST_BACKEND_CLASS: &str = "ai/arcblroth/boss/roast/RoastBackend";
-pub const ROAST_TEXTURE_CLASS: &str = "ai/arcblroth/boss/roast/RoastTexture";
-pub const ROAST_MESH_CLASS: &str = "ai/arcblroth/boss/roast/RoastMesh";
-pub const ROAST_EXCEPTION_CLASS: &str = "ai/arcblroth/boss/roast/RoastException";
-
-pub const OBJECT_TYPE: &str = "Ljava/lang/Object;";
-pub const VECTOR2D_TYPE: &str = "Lorg/joml/Vector2d;";
-pub const VECTOR3F_TYPE: &str = "Lorg/joml/Vector3f;";
-pub const VECTOR4F_TYPE: &str = "Lorg/joml/Vector4f;";
-pub const VERTEX_TYPE_TYPE: &str = "Lai/arcblroth/boss/render/VertexType;";
-pub const FULLSCREEN_MODE_TYPE: &str = "Lai/arcblroth/boss/backend/RendererSettings$FullscreenMode;";
 
 /// JNI initialization lock. This prevents the backend logger
 /// from being initialized twice.
@@ -100,33 +82,25 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_init(
             unwrap_or_throw_new!(logger.init(), env, "Could not initialize backend logger");
         }
 
+        let vector2d_class = JavaVector2d::accessor(env);
+        let renderer_settings_class = JavaRendererSettings::accessor(env);
+
         let app_name = env.get_string(JString::from(app_name)).unwrap().into();
         let app_version = env.get_string(JString::from(app_version)).unwrap().into();
         let renderer_settings = JObject::from(renderer_settings);
-        let renderer_size = env
-            .get_field(renderer_settings, "rendererSize", VECTOR2D_TYPE)
-            .unwrap()
-            .l()
-            .unwrap();
-        let renderer_size = (
-            env.get_field(renderer_size, "x", "D").unwrap().d().unwrap(),
-            env.get_field(renderer_size, "y", "D").unwrap().d().unwrap(),
-        );
-        let fullscreen_mode = env
-            .get_field(renderer_settings, "fullscreenMode", FULLSCREEN_MODE_TYPE)
-            .unwrap()
-            .l()
-            .unwrap();
+
+        let renderer_size = renderer_settings_class.rendererSize(renderer_settings);
+        let renderer_size = (vector2d_class.x(renderer_size), vector2d_class.y(renderer_size));
+
+        let fullscreen_mode = renderer_settings_class.fullscreenMode(renderer_settings);
         let fullscreen_mode = match call_getter!(env, fullscreen_mode, "ordinal", "I").i().unwrap() {
             1 => FullscreenMode::Exclusive,
             2 => FullscreenMode::Borderless,
             _ => FullscreenMode::None,
         };
-        let transparent = env
-            .get_field(renderer_settings, "transparent", "Z")
-            .unwrap()
-            .z()
-            .unwrap();
+
+        let transparent = renderer_settings_class.transparent(renderer_settings);
+
         let renderer_settings = RendererSettings {
             renderer_size,
             fullscreen_mode,
@@ -314,34 +288,23 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
     catch_panic!(env, {
         check_backend(&env, this).unwrap();
 
-        let vertex_class = env.find_class(VERTEX_CLASS).unwrap();
-        let vertex_pos = env.get_field_id(vertex_class, "pos", VECTOR3F_TYPE).unwrap();
-        let vertex_color_tex = env.get_field_id(vertex_class, "colorTex", VECTOR4F_TYPE).unwrap();
-
-        let vector3f_class = env.find_class(VECTOR3F_CLASS).unwrap();
-        let vector3f_x = env.get_field_id(vector3f_class, "x", "F").unwrap();
-        let vector3f_y = env.get_field_id(vector3f_class, "y", "F").unwrap();
-        let vector3f_z = env.get_field_id(vector3f_class, "z", "F").unwrap();
-
-        let vector4f_class = env.find_class(VECTOR4F_CLASS).unwrap();
-        let vector4f_x = env.get_field_id(vector4f_class, "x", "F").unwrap();
-        let vector4f_y = env.get_field_id(vector4f_class, "y", "F").unwrap();
-        let vector4f_z = env.get_field_id(vector4f_class, "z", "F").unwrap();
-        let vector4f_w = env.get_field_id(vector4f_class, "w", "F").unwrap();
+        let vertex_class = JavaVertex::accessor(env);
+        let vector3f_class = JavaVector3f::accessor(env);
+        let vector4f_class = JavaVector4f::accessor(env);
 
         let get_vertex = |obj: JObject| -> Vertex {
-            let pos = env.get_field_unchecked(obj, vertex_pos, JavaType::Object(VECTOR3F_TYPE.to_string())).unwrap().l().unwrap();
+            let pos = vertex_class.pos(obj);
             let pos = [
-                env.get_field_unchecked(pos, vector3f_x, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
-                env.get_field_unchecked(pos, vector3f_y, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
-                env.get_field_unchecked(pos, vector3f_z, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
+                vector3f_class.x(pos),
+                vector3f_class.y(pos),
+                vector3f_class.z(pos),
             ];
-            let color_tex = env.get_field_unchecked(obj, vertex_color_tex, JavaType::Object(VECTOR4F_TYPE.to_string())).unwrap().l().unwrap();
+            let color_tex = vertex_class.colorTex(obj);
             let color_tex = [
-                env.get_field_unchecked(color_tex, vector4f_x, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
-                env.get_field_unchecked(color_tex, vector4f_y, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
-                env.get_field_unchecked(color_tex, vector4f_z, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
-                env.get_field_unchecked(color_tex, vector4f_w, JavaType::Primitive(Primitive::Float)).unwrap().f().unwrap(),
+                vector4f_class.x(color_tex),
+                vector4f_class.y(color_tex),
+                vector4f_class.z(color_tex),
+                vector4f_class.w(color_tex),
             ];
             Vertex {
                 pos,
