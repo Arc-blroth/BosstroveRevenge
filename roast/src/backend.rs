@@ -100,6 +100,10 @@ impl Roast {
                         });
                     }
                     Event::MainEventsCleared => {
+                        with_renderer(|renderer| {
+                            // end_frame is called in RoastBackend.render
+                            renderer.gui.begin_frame();
+                        });
                         step();
                     }
                     _ => (),

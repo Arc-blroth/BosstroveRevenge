@@ -15,24 +15,20 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use egui::{Color32, Frame, Label, Window};
-use jni::JNIEnv;
 use jni::objects::{JObject, JString, JValue, ReleaseMode};
 use jni::signature::{JavaType, Primitive};
-use jni::sys::{jboolean, jbyteArray, jdouble, jintArray, JNI_TRUE, jobject, jobjectArray, jstring};
-
-pub use lib_mesh::*;
-pub use lib_texture::*;
+use jni::sys::{jboolean, jbyteArray, jdouble, jintArray, jobject, jobjectArray, jstring, JNI_TRUE};
+use jni::JNIEnv;
 
 use crate::backend::{FullscreenMode, RendererSettings, Roast};
 use crate::jni_classes::{JavaRendererSettings, JavaVector2d, JavaVector3f, JavaVector4f, JavaVertex};
 use crate::jni_types::*;
 use crate::logger::JavaLogger;
-use crate::renderer::{MeshId, TextureId};
 use crate::renderer::mesh::Mesh;
 use crate::renderer::scene::Scene;
 use crate::renderer::shader::{Vertex, VertexType};
 use crate::renderer::texture::{Texture, TextureSampling};
+use crate::renderer::{MeshId, TextureId};
 
 pub mod backend;
 pub mod jni_classes;
@@ -41,6 +37,7 @@ pub mod jni_types;
 pub mod jni_util;
 mod lib_mesh;
 mod lib_texture;
+mod lib_ui;
 pub mod logger;
 pub mod renderer;
 
@@ -427,18 +424,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_render(env: JNI
         };
 
         backend::with_renderer(move |renderer| {
-            renderer.gui.begin_frame();
-            let size = renderer.vulkan.surface.window().inner_size();
-            Window::new("test")
-                .fixed_size((size.width as f32, size.height as f32))
-                .fixed_pos((0.0, size.height as f32 / 2.0 + ((18.0 * 8.0 + 8.0 * 16.0) / 2.0 - 16.0)))
-                .title_bar(false)
-                .frame(Frame::none())
-                .show(&renderer.gui.context(), move |ui| {
-                    ui.vertical_centered_justified(|ui| {
-                        ui.label(Label::new("Loading - 0%").text_color(Color32::from_rgb(40, 237, 63)));
-                    });
-                });
+            // begin_frame is called in the main event loop in backend.rs
             let gui_data = renderer.gui.end_frame();
             renderer.render(scene, gui_data.1);
         });

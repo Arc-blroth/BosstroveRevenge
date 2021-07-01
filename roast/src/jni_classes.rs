@@ -1,5 +1,8 @@
 //! Common class! accessor definitions.
 
+use egui::Color32;
+use jni::objects::JObject;
+
 use crate::class;
 use crate::jni_types::*;
 
@@ -50,15 +53,54 @@ class!(MATRIX4F_CLASS, class JavaMatrix4f(
     val m33: Float,
 ));
 
+class!(COLOR_CLASS, class JavaColor(
+    val rgba: Int,
+));
+
+impl<'a> JavaColor<'a> {
+    /// Converts this JavaColor into an array of [r, g, b, a].
+    pub fn as_color32<O: Into<JObject<'a>>>(&self, obj: O) -> Color32 {
+        let rgba = self.rgba(obj) as u32;
+        Color32::from_rgba_unmultiplied(
+            ((rgba >> 16) & 0xFF) as u8,
+            ((rgba >> 8) & 0xFF) as u8,
+            (rgba & 0xFF) as u8,
+            ((rgba >> 24) & 0xFF) as u8,
+        )
+    }
+}
+
+class!(VERTEX_CLASS, class JavaVertex(
+    val pos: VECTOR3F_CLASS,
+    val colorTex: VECTOR4F_CLASS,
+));
+
 class!(RENDERER_SETTINGS_CLASS, data class JavaRendererSettings(
     val rendererSize: VECTOR2D_CLASS,
     val fullscreenMode: FULLSCREEN_MODE_CLASS,
     val transparent: Boolean,
 ));
 
-class!(VERTEX_CLASS, class JavaVertex(
-    val pos: VECTOR3F_CLASS,
-    val colorTex: VECTOR4F_CLASS,
+class!(BOUNDS_CLASS, data class JavaBounds(
+    val x: Float,
+    val y: Float,
+    val w: Float,
+    val h: Float,
+));
+
+class!(LABEL_CLASS, data class JavaLabel(
+    val text: String,
+    val wrap: BOOLEAN_CLASS?,
+    val textStyle: TEXT_STYLE_CLASS?,
+    val backgroundColor: COLOR_CLASS,
+    val textColor: COLOR_CLASS?,
+    val code: Boolean,
+    val strong: Boolean,
+    val weak: Boolean,
+    val strikethrough: Boolean,
+    val underline: Boolean,
+    val italics: Boolean,
+    val raised: Boolean,
 ));
 
 class!(ROAST_TEXTURE_CLASS, class JavaRoastTexture(

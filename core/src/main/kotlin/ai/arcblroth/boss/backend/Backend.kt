@@ -1,5 +1,6 @@
 package ai.arcblroth.boss.backend
 
+import ai.arcblroth.boss.backend.ui.UI
 import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Scene
 import ai.arcblroth.boss.render.Texture
@@ -84,9 +85,11 @@ interface EventLoop {
 
 /**
  * The backend renderer handles creating and rendering [Meshes][Mesh]
- * and [Textures][Texture]
+ * and [Textures][Texture]. This interface is separate from [Renderer]
+ * so that code that only creates or destroys resources does not need
+ * access to a full Renderer implementation.
  */
-interface Renderer {
+interface RendererResourceFactory {
     /**
      * Creates a texture that can then be used in a [Mesh].
      * @param [image] Raw source of the texture file. What file formats
@@ -116,11 +119,27 @@ interface Renderer {
         texture0: Texture?,
         texture1: Texture?,
     ): Mesh
+}
 
+/**
+ * A `Renderer` is responsible for managing renderer
+ * resources and rendering each frame of the game.
+ */
+interface Renderer : RendererResourceFactory {
     /**
      * Gets the size of the output surface of this renderer.
      */
     fun getSize(): Vector2d
+
+    /**
+     * Starts building the intermediate mode UI.
+     *
+     * Note that this can be called multiple times
+     * within a frame - all parts of the UI will be
+     * rendered once [render] is called.
+     * @see UI
+     */
+    fun showUI(withUI: UI.() -> Unit)
 
     /**
      * Renders the scene.

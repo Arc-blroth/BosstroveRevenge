@@ -1,8 +1,8 @@
 package ai.arcblroth.boss.load
 
 import ai.arcblroth.boss.backend.Renderer
+import ai.arcblroth.boss.backend.RendererResourceFactory
 import ai.arcblroth.boss.render.Mesh
-import ai.arcblroth.boss.render.Scene
 import ai.arcblroth.boss.render.Texture
 import ai.arcblroth.boss.render.TextureSampling
 import ai.arcblroth.boss.render.Vertex
@@ -12,17 +12,17 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.runBlocking
 
 /**
- * LoadRenderer is a special implementation of [Renderer]
+ * LoadRenderer is a special implementation of [RendererResourceFactory]
  * that allows creating textures and meshes from coroutines
  * other than the main thread. Note that both [createTexture]
  * and [createMesh] will block until creation is complete.
  */
-class LoadRenderer(
+class LoadRendererResourceFactory(
     private val sendTexture: SendChannel<TextureCreationParams>,
     private val receiveTexture: ReceiveChannel<Texture>,
     private val sendMesh: SendChannel<MeshCreationParams>,
     private val receiveMesh: ReceiveChannel<Mesh>,
-) : Renderer {
+) : RendererResourceFactory {
 
     override fun createTexture(image: ByteArray, sampling: TextureSampling, generateMipmaps: Boolean): Texture {
         return runBlocking {
@@ -43,18 +43,6 @@ class LoadRenderer(
             receiveMesh.receive()
         }
     }
-
-    /**
-     * Always throws [UnsupportedOperationException].
-     */
-    @Throws(UnsupportedOperationException::class)
-    override fun getSize() = throw UnsupportedOperationException()
-
-    /**
-     * Always throws [UnsupportedOperationException].
-     */
-    @Throws(UnsupportedOperationException::class)
-    override fun render(scene: Scene) = throw UnsupportedOperationException()
 }
 
 /**

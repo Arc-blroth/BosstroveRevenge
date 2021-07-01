@@ -4,6 +4,7 @@ import ai.arcblroth.boss.backend.Backend
 import ai.arcblroth.boss.backend.EventLoop
 import ai.arcblroth.boss.backend.Renderer
 import ai.arcblroth.boss.backend.RendererSettings
+import ai.arcblroth.boss.backend.ui.UI
 import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Scene
 import ai.arcblroth.boss.render.Texture
@@ -58,6 +59,10 @@ class RoastBackend : Backend, EventLoop, Renderer {
 
     external override fun getSize(): Vector2d
 
+    override fun showUI(withUI: UI.() -> Unit) {
+        withUI(RoastUI(pointer))
+    }
+
     external override fun render(scene: Scene)
 
     external override fun exit()
@@ -69,9 +74,7 @@ class RoastBackend : Backend, EventLoop, Renderer {
  */
 class RoastException(msg: String) : RuntimeException(msg)
 
-class RoastTexture(
-    private val pointer: Long
-) : Texture() {
+class RoastTexture private constructor(private val pointer: Long) : Texture() {
     override val width: Int
         external get
 
@@ -85,9 +88,7 @@ class RoastTexture(
         external get
 }
 
-class RoastMesh(
-    private val pointer: Long,
-) : Mesh() {
+class RoastMesh private constructor(private val pointer: Long) : Mesh() {
     override val vertexType: VertexType
         external get
 

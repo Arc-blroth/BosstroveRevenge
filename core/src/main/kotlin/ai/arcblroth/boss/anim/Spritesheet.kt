@@ -1,6 +1,6 @@
 package ai.arcblroth.boss.anim
 
-import ai.arcblroth.boss.backend.Renderer
+import ai.arcblroth.boss.backend.RendererResourceFactory
 import ai.arcblroth.boss.render.Texture
 import ai.arcblroth.boss.render.TextureSampling
 import ai.arcblroth.boss.util.ResourceLoader
@@ -46,7 +46,7 @@ class Spritesheet {
      * Constructs a Spritesheet from the given spritesheet meta json file, which
      * will be loaded using [ResourceLoader.loadResourceAsBytes].
      */
-    constructor(spritesheetMetaPath: String, renderer: Renderer) {
+    constructor(spritesheetMetaPath: String, resourceFactory: RendererResourceFactory) {
         val serialized = MAPPER.readValue(ResourceLoader.loadResourceAsBytes(spritesheetMetaPath), SerializedSpritesheet::class.java)
 
         this.width = serialized.size.w
@@ -59,7 +59,7 @@ class Spritesheet {
         } else {
             spritesheetMetaPath.substring(0, lastSlash) + "/" + serialized.image
         }
-        this.texture = renderer.createTexture(
+        this.texture = resourceFactory.createTexture(
             ResourceLoader.loadResourceAsBytes(imagePath),
             TextureSampling.PIXEL,
             true

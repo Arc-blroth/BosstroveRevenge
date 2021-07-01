@@ -3,7 +3,7 @@ package ai.arcblroth.boss.load
 import ai.arcblroth.boss.anim.AnimationController
 import ai.arcblroth.boss.anim.OffsetIndex
 import ai.arcblroth.boss.anim.Spritesheet
-import ai.arcblroth.boss.backend.Renderer
+import ai.arcblroth.boss.backend.RendererResourceFactory
 import ai.arcblroth.boss.render.Vertex
 import ai.arcblroth.boss.render.VertexType
 import org.joml.Vector3f
@@ -20,9 +20,9 @@ class LoadProcess {
     var isDone = false
         private set
 
-    fun load(renderer: Renderer) {
-        val spritesheet = Spritesheet("assets/entity/polymorph/lago.json", renderer)
-        val mesh = renderer.createMesh(
+    fun load(resourceFactory: RendererResourceFactory) {
+        val spritesheet = Spritesheet("assets/entity/polymorph/lago.json", resourceFactory)
+        val mesh = resourceFactory.createMesh(
             arrayOf(
                 Vertex(Vector3f(-1.0f, 0.25f, -0.25f), Vector4f(16.0f / 48.0f, 0.0f, 0.0f, 0.0f)),
                 Vertex(Vector3f(-1.0f, 0.25f, 0.25f), Vector4f(0.0f, 0.0f, 0.0f, 0.0f)),

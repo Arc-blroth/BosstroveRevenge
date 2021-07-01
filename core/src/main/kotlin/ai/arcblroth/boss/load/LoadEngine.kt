@@ -2,6 +2,8 @@ package ai.arcblroth.boss.load
 
 import ai.arcblroth.boss.Engine
 import ai.arcblroth.boss.backend.EventLoop
+import ai.arcblroth.boss.backend.ui.Bounds
+import ai.arcblroth.boss.backend.ui.Label
 import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Scene
 import ai.arcblroth.boss.render.Texture
@@ -56,7 +58,7 @@ class LoadEngine : Engine {
     private val sendMesh = Channel<MeshCreationParams>(Channel.UNLIMITED)
     private val receiveMesh = Channel<Mesh>(Channel.UNLIMITED)
 
-    private val loadRenderer = LoadRenderer(
+    private val loadRenderer = LoadRendererResourceFactory(
         sendTexture,
         receiveTexture,
         sendMesh,
@@ -121,6 +123,8 @@ class LoadEngine : Engine {
             this.scene = Scene(guiMeshes = arrayListOf(logoMesh))
         }
 
+        val rendererSize = eventLoop.getRenderer().getSize()
+
         this.logoMesh!!.let {
             // Make the logo change color!
             val blueInterpolation = abs(System.currentTimeMillis() / (MS_PER_STEP / LOGO_ANIMATION_SPEED) % 2 - 1)
@@ -128,12 +132,24 @@ class LoadEngine : Engine {
                 SAT_BLUE.lerp(LIGHT_BLUE, blueInterpolation, interpVec)
             ).asVector4f(colorVec)
 
-            val rendererSize = eventLoop.getRenderer().getSize()
             it.transform = transformMat.translation(
                 (rendererSize.x / 2.0).toFloat(),
                 (rendererSize.y / 2.0).toFloat() - ARBITRARY_PADDING_HEIGHT / 2.0f,
                 0.0f
             )
+        }
+
+        // Show the loading text
+        val textY = (rendererSize.y / 2.0).toFloat() + (logoTexture!!.height * 8.0f + ARBITRARY_PADDING_HEIGHT) / 2.0f - 16.0f
+        eventLoop.getRenderer().showUI {
+            window("Test") {
+                label(Label(text = "It works!", textColor = ai.arcblroth.boss.util.RED))
+            }
+            area("loading", Bounds(0.0f, textY, rendererSize.x.toFloat(), rendererSize.y.toFloat())) {
+                verticalCenteredJustified {
+                    label(Label(text = "Loading - 0%", textColor = Color(40, 237, 63)))
+                }
+            }
         }
 
         // Check if the loading thread crashed

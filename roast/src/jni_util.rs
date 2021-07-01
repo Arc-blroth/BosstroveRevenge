@@ -1,8 +1,8 @@
 use std::marker::PhantomData;
 
 use jni::errors::Result as JNIResult;
-use jni::JNIEnv;
 use jni::objects::{GlobalRef, JClass, JObject};
+use jni::JNIEnv;
 
 /// Slightly more type safe version of GlobalRef
 #[derive(Clone)]
@@ -113,6 +113,7 @@ macro_rules! class {
     (@jvm_type Boolean) => ("Z");
     (@jvm_type Float) => ("F");
     (@jvm_type Double) => ("D");
+    (@jvm_type String) => ("Ljava/lang/String;".to_string());
     (@jvm_type $class_name:expr) => (::std::format!("L{};", $class_name));
 
     (@field_init $env:expr, $class:expr, $name:ident: $type:tt) => (
@@ -164,7 +165,7 @@ macro_rules! class {
             self.env.get_field_unchecked(
                 obj,
                 self.$name,
-                ::jni::signature::JavaType::Primitive(::jni::signature::Primitive::Integer)
+                ::jni::signature::JavaType::Primitive(::jni::signature::Primitive::Int)
             )
             .unwrap()
             .i()
@@ -223,6 +224,20 @@ macro_rules! class {
             .unwrap()
         }
     );
+    (@field_impl val $name:ident: String) => (
+        #[inline(always)]
+        pub fn $name<O: ::core::convert::Into<::jni::objects::JObject<'a>>>(&self, obj: O) -> String {
+            let string = self.env.get_field_unchecked(
+                obj,
+                self.$name,
+                ::jni::signature::JavaType::Object($crate::class!(@jvm_type String))
+            )
+            .unwrap()
+            .l()
+            .unwrap();
+            self.env.get_string(::jni::objects::JString::from(string)).unwrap().into()
+        }
+    );
     (@field_impl val $name:ident: $class_name:expr) => (
         #[inline(always)]
         pub fn $name<O>(&self, obj: O) -> ::jni::objects::JObject<'a>
@@ -240,7 +255,7 @@ macro_rules! class {
         }
     );
 
-    ($name:expr, $(data)? class $short_name:ident ($($va:tt $field:ident: $ty:tt),+$(,)?)) => {
+    ($name:expr, $(data)? class $short_name:ident ($($va:tt $field:ident: $ty:tt$(?)?),+$(,)?)) => {
         #[allow(non_snake_case)]
         pub struct $short_name<'a> {
             env: ::jni::JNIEnv<'a>,
