@@ -360,6 +360,29 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
 }
 
 #[no_mangle]
+pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMeshWithGeometry(
+    env: JNIEnv,
+    this: jobject,
+    geometry: jobject,
+) -> jobject {
+    catch_panic!(env, {
+        check_backend(&env, this).unwrap();
+
+        let geometry_ptr = lib_mesh::get_mesh_pointer(env, geometry);
+
+        let out_pointer = backend::with_renderer(move |renderer| {
+            let geometry_mesh = renderer.meshes.get(geometry_ptr).expect(lib_mesh::MESH_NOT_FOUND_MSG);
+            let mesh = Mesh::with_geometry(geometry_mesh);
+            renderer.register_mesh(mesh)
+        });
+
+        env.new_object(ROAST_MESH_CLASS, "(J)V", &[JValue::Long(out_pointer as i64)]).unwrap().into_inner()
+    } else {
+        JObject::null().into_inner()
+    });
+}
+
+#[no_mangle]
 pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_getSize(env: JNIEnv, this: jobject) -> jobject {
     catch_panic!(env, {
         check_backend(&env, this).unwrap();

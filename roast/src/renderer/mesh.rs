@@ -77,6 +77,20 @@ impl Mesh {
         }
     }
 
+    /// Builds a mesh with the same geometry as an existing Mesh.
+    pub fn with_geometry(geometry: &Mesh) -> Self {
+        Self {
+            vertex_buffer: geometry.vertex_buffer.clone(),
+            index_buffer: geometry.index_buffer.clone(),
+            vertex_type: geometry.vertex_type,
+            textures: geometry.textures,
+            transform: Mat4::IDENTITY,
+            texture_offsets: (Vec2::ZERO, Vec2::ZERO),
+            overlay_color: None,
+            opacity: 1.0,
+        }
+    }
+
     pub fn vertex_buffer(&self) -> &Arc<VertexBuffer> {
         &self.vertex_buffer
     }

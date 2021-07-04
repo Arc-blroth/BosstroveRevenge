@@ -57,12 +57,16 @@ class LoadEngine : Engine {
     private val receiveTexture = Channel<Texture>(Channel.UNLIMITED)
     private val sendMesh = Channel<MeshCreationParams>(Channel.UNLIMITED)
     private val receiveMesh = Channel<Mesh>(Channel.UNLIMITED)
+    private val sendMeshGeometry = Channel<Mesh>(Channel.UNLIMITED)
+    private val receiveMeshGeometry = Channel<Mesh>(Channel.UNLIMITED)
 
     private val loadRenderer = LoadRendererResourceFactory(
         sendTexture,
         receiveTexture,
         sendMesh,
-        receiveMesh
+        receiveMesh,
+        sendMeshGeometry,
+        receiveMeshGeometry
     )
 
     private val loadProcess = LoadProcess()
@@ -158,6 +162,7 @@ class LoadEngine : Engine {
             throw error
         }
 
+        // Handle requests to register resources.
         while (!exceededFrameRate() && !sendTexture.isEmpty) {
             val params = sendTexture.tryReceive().getOrThrow()
             val texture = eventLoop.getRenderer().createTexture(params.image, params.sampling, params.generateMipmaps)
@@ -173,6 +178,11 @@ class LoadEngine : Engine {
                 params.texture1
             )
             receiveMesh.trySendBlocking(mesh).getOrThrow()
+        }
+        while (!exceededFrameRate() && !sendMeshGeometry.isEmpty) {
+            val geometry = sendMeshGeometry.tryReceive().getOrThrow()
+            val mesh = eventLoop.getRenderer().createMeshWithGeometry(geometry)
+            receiveMeshGeometry.trySendBlocking(mesh).getOrThrow()
         }
 
         return Pair(this.scene!!, this)

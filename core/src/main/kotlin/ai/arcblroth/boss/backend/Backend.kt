@@ -119,6 +119,13 @@ interface RendererResourceFactory {
         texture0: Texture?,
         texture1: Texture?,
     ): Mesh
+
+    /**
+     * Creates a mesh with the same geometry as an existing mesh.
+     * @param [geometry] The mesh from which to copy the vertices,
+     *                   indices, and textures for this mesh.
+     */
+    fun createMeshWithGeometry(geometry: Mesh): Mesh
 }
 
 /**

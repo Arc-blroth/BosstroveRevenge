@@ -22,6 +22,8 @@ class LoadRendererResourceFactory(
     private val receiveTexture: ReceiveChannel<Texture>,
     private val sendMesh: SendChannel<MeshCreationParams>,
     private val receiveMesh: ReceiveChannel<Mesh>,
+    private val sendMeshGeometry: SendChannel<Mesh>,
+    private val receiveMeshGeometry: ReceiveChannel<Mesh>,
 ) : RendererResourceFactory {
 
     override fun createTexture(image: ByteArray, sampling: TextureSampling, generateMipmaps: Boolean): Texture {
@@ -41,6 +43,13 @@ class LoadRendererResourceFactory(
         return runBlocking {
             sendMesh.send(MeshCreationParams(vertices, indices, vertexType, texture0, texture1))
             receiveMesh.receive()
+        }
+    }
+
+    override fun createMeshWithGeometry(geometry: Mesh): Mesh {
+        return runBlocking {
+            sendMeshGeometry.send(geometry)
+            receiveMeshGeometry.receive()
         }
     }
 }

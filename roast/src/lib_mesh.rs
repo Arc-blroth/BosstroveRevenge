@@ -12,9 +12,9 @@ use crate::jni_types::*;
 use crate::renderer::shader::VertexType;
 use crate::renderer::TextureId;
 
-const MESH_NOT_FOUND_MSG: &str = "Mesh pointer does not point to a valid struct";
+pub const MESH_NOT_FOUND_MSG: &str = "Mesh pointer does not point to a valid struct";
 
-fn get_mesh_pointer(env: JNIEnv, this: jobject) -> u64 {
+pub fn get_mesh_pointer(env: JNIEnv, this: jobject) -> u64 {
     env.get_field(this, "pointer", "J").unwrap().j().unwrap() as u64
 }
 
