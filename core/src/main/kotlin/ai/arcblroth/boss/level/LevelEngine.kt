@@ -8,7 +8,7 @@ import org.joml.Matrix4f
 
 class LevelEngine(private val load: LoadProcess) : Engine {
     init {
-        load.testingRoom.transform = Matrix4f().translation(-100.0f, -50.0f, 50.0f)
+        load.testingRoom.transform = Matrix4f().translation(50.0f, -50.0f, 40.0f)
     }
 
     override fun step(eventLoop: EventLoop, lastFrameTime: Long): Pair<Scene, Engine> {

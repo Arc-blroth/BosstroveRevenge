@@ -29,10 +29,10 @@ class LoadProcess {
         val spritesheet = Spritesheet("assets/entity/polymorph/lago.json", resourceFactory)
         val mesh = resourceFactory.createMesh(
             arrayOf(
-                Vertex(Vector3f(-1.0f, 0.25f, -0.25f), Vector4f(16.0f / 48.0f, 0.0f, 0.0f, 0.0f)),
-                Vertex(Vector3f(-1.0f, 0.25f, 0.25f), Vector4f(0.0f, 0.0f, 0.0f, 0.0f)),
-                Vertex(Vector3f(-1.0f, -0.25f, 0.25f), Vector4f(0.0f, 16.0f / 48.0f, 0.0f, 0.0f)),
-                Vertex(Vector3f(-1.0f, -0.25f, -0.25f), Vector4f(16.0f / 48.0f, 16.0f / 48.0f, 0.0f, 0.0f)),
+                Vertex(Vector3f(1.0f, 0.25f, -0.25f), Vector4f(16.0f / 48.0f, 0.0f, 0.0f, 0.0f)),
+                Vertex(Vector3f(1.0f, 0.25f, 0.25f), Vector4f(0.0f, 0.0f, 0.0f, 0.0f)),
+                Vertex(Vector3f(1.0f, -0.25f, 0.25f), Vector4f(0.0f, 16.0f / 48.0f, 0.0f, 0.0f)),
+                Vertex(Vector3f(1.0f, -0.25f, -0.25f), Vector4f(16.0f / 48.0f, 16.0f / 48.0f, 0.0f, 0.0f)),
             ),
             intArrayOf(0, 1, 2, 0, 2, 3),
             VertexType.TEX1,

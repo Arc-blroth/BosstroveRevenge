@@ -32,7 +32,7 @@ impl Camera {
     }
 
     pub fn proj(&self, dimensions: [f32; 2]) -> Mat4 {
-        let mut proj = Mat4::perspective_rh(
+        let mut proj = Mat4::perspective_lh(
             self.fov.clone(),
             dimensions[0] as f32 / dimensions[1] as f32,
             0.01,
