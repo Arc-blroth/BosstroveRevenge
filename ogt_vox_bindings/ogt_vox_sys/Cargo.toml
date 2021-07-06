@@ -1,0 +1,11 @@
+[package]
+name = "ogt_vox_sys"
+version = "0.1.0"
+authors = ["Arc-blroth <45273859+Arc-blroth@users.noreply.github.com>"]
+edition = "2018"
+
+[lib]
+
+[build-dependencies]
+bindgen = "0.58.1"
+cc = "1.0.68"

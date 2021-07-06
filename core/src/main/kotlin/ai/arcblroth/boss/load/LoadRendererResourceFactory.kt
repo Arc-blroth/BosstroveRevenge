@@ -22,15 +22,15 @@ class LoadRendererResourceFactory(
     private val receiveTexture: ReceiveChannel<Texture>,
     private val sendMesh: SendChannel<MeshCreationParams>,
     private val receiveMesh: ReceiveChannel<Mesh>,
+    private val sendMeshVox: SendChannel<ByteArray>,
+    private val receiveMeshVox: ReceiveChannel<Mesh>,
     private val sendMeshGeometry: SendChannel<Mesh>,
     private val receiveMeshGeometry: ReceiveChannel<Mesh>,
 ) : RendererResourceFactory {
 
-    override fun createTexture(image: ByteArray, sampling: TextureSampling, generateMipmaps: Boolean): Texture {
-        return runBlocking {
-            sendTexture.send(TextureCreationParams(image, sampling, generateMipmaps))
-            receiveTexture.receive()
-        }
+    override fun createTexture(image: ByteArray, sampling: TextureSampling, generateMipmaps: Boolean) = runBlocking {
+        sendTexture.send(TextureCreationParams(image, sampling, generateMipmaps))
+        receiveTexture.receive()
     }
 
     override fun createMesh(
@@ -39,18 +39,19 @@ class LoadRendererResourceFactory(
         vertexType: VertexType,
         texture0: Texture?,
         texture1: Texture?
-    ): Mesh {
-        return runBlocking {
-            sendMesh.send(MeshCreationParams(vertices, indices, vertexType, texture0, texture1))
-            receiveMesh.receive()
-        }
+    ) = runBlocking {
+        sendMesh.send(MeshCreationParams(vertices, indices, vertexType, texture0, texture1))
+        receiveMesh.receive()
     }
 
-    override fun createMeshWithGeometry(geometry: Mesh): Mesh {
-        return runBlocking {
-            sendMeshGeometry.send(geometry)
-            receiveMeshGeometry.receive()
-        }
+    override fun createMeshFromVox(vox: ByteArray) = runBlocking {
+        sendMeshVox.send(vox)
+        receiveMeshVox.receive()
+    }
+
+    override fun createMeshWithGeometry(geometry: Mesh) = runBlocking {
+        sendMeshGeometry.send(geometry)
+        receiveMeshGeometry.receive()
     }
 }
 

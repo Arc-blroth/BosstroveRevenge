@@ -4,8 +4,10 @@ import ai.arcblroth.boss.anim.AnimationController
 import ai.arcblroth.boss.anim.OffsetIndex
 import ai.arcblroth.boss.anim.Spritesheet
 import ai.arcblroth.boss.backend.RendererResourceFactory
+import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Vertex
 import ai.arcblroth.boss.render.VertexType
+import ai.arcblroth.boss.util.ResourceLoader
 import org.joml.Vector3f
 import org.joml.Vector4f
 
@@ -19,6 +21,9 @@ class LoadProcess {
 
     var isDone = false
         private set
+
+    lateinit var animation: AnimationController
+    lateinit var testingRoom: Mesh
 
     fun load(resourceFactory: RendererResourceFactory) {
         val spritesheet = Spritesheet("assets/entity/polymorph/lago.json", resourceFactory)
@@ -34,7 +39,12 @@ class LoadProcess {
             spritesheet.texture,
             null
         )
-        val animation = AnimationController(mesh, OffsetIndex.FIRST, spritesheet, 2..7, true)
+        animation = AnimationController(mesh, OffsetIndex.FIRST, spritesheet, 2..7, true)
+
+        testingRoom = resourceFactory.createMeshFromVox(
+            ResourceLoader.loadResourceAsBytes("assets/room/testing.vox")
+        )
+
         isDone = true
     }
 }

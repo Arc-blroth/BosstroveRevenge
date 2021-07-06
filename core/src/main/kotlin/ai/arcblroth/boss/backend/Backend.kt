@@ -121,6 +121,12 @@ interface RendererResourceFactory {
     ): Mesh
 
     /**
+     * Creates a mesh from a MagicaVoxel file.
+     * @param [vox] The bytes of the MagicaVoxel file.
+     */
+    fun createMeshFromVox(vox: ByteArray): Mesh
+
+    /**
      * Creates a mesh with the same geometry as an existing mesh.
      * @param [geometry] The mesh from which to copy the vertices,
      *                   indices, and textures for this mesh.

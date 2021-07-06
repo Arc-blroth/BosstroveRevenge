@@ -57,6 +57,8 @@ class RoastBackend : Backend, EventLoop, Renderer {
         texture1: Texture?
     ): Mesh
 
+    external override fun createMeshFromVox(vox: ByteArray): Mesh
+
     external override fun createMeshWithGeometry(geometry: Mesh): Mesh
 
     external override fun getSize(): Vector2d

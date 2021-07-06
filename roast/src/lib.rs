@@ -39,6 +39,7 @@ mod lib_mesh;
 mod lib_texture;
 mod lib_ui;
 pub mod logger;
+mod ogt_util;
 pub mod renderer;
 
 /// JNI initialization lock. This prevents the backend logger
@@ -272,6 +273,13 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createTexture(
     });
 }
 
+/// Builds a new `RoastMesh` with the given pointer.
+fn new_roast_mesh(env: &JNIEnv, pointer: u64) -> jobject {
+    env.new_object(ROAST_MESH_CLASS, "(J)V", &[JValue::Long(pointer as i64)])
+        .unwrap()
+        .into_inner()
+}
+
 #[no_mangle]
 pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
     env: JNIEnv,
@@ -353,7 +361,41 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
             renderer.register_mesh(mesh)
         });
 
-        env.new_object(ROAST_MESH_CLASS, "(J)V", &[JValue::Long(out_pointer as i64)]).unwrap().into_inner()
+        new_roast_mesh(&env, out_pointer)
+    } else {
+        JObject::null().into_inner()
+    });
+}
+
+#[no_mangle]
+pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMeshFromVox(
+    env: JNIEnv,
+    this: jobject,
+    vox: jbyteArray,
+) -> jobject {
+    catch_panic!(env, {
+        check_backend(&env, this).unwrap();
+
+        let vox_array = env.get_byte_array_elements(vox, ReleaseMode::NoCopyBack).unwrap();
+        let rust_vox = unsafe {
+            std::slice::from_raw_parts(vox_array.as_ptr() as *const u8, vox_array.size().unwrap() as usize)
+        };
+
+        let (vertices, indices) = ogt_util::meshify_voxel(rust_vox);
+
+        let out_pointer = backend::with_renderer(move |renderer| {
+            let mesh = Mesh::build(
+                vertices.as_slice(),
+                indices.as_slice(),
+                VertexType::COLOR,
+                None,
+                None,
+                &renderer.vulkan,
+            );
+            renderer.register_mesh(mesh)
+        });
+
+        new_roast_mesh(&env, out_pointer)
     } else {
         JObject::null().into_inner()
     });
@@ -371,12 +413,12 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMeshWithG
         let geometry_ptr = lib_mesh::get_mesh_pointer(env, geometry);
 
         let out_pointer = backend::with_renderer(move |renderer| {
-            let geometry_mesh = renderer.meshes.get(geometry_ptr).expect(lib_mesh::MESH_NOT_FOUND_MSG);
+            let geometry_mesh = renderer.meshes.get(&geometry_ptr).expect(lib_mesh::MESH_NOT_FOUND_MSG);
             let mesh = Mesh::with_geometry(geometry_mesh);
             renderer.register_mesh(mesh)
         });
 
-        env.new_object(ROAST_MESH_CLASS, "(J)V", &[JValue::Long(out_pointer as i64)]).unwrap().into_inner()
+        new_roast_mesh(&env, out_pointer)
     } else {
         JObject::null().into_inner()
     });

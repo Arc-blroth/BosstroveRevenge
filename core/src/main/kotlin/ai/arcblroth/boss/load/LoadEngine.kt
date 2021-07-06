@@ -4,6 +4,7 @@ import ai.arcblroth.boss.Engine
 import ai.arcblroth.boss.backend.EventLoop
 import ai.arcblroth.boss.backend.ui.Bounds
 import ai.arcblroth.boss.backend.ui.Label
+import ai.arcblroth.boss.level.LevelEngine
 import ai.arcblroth.boss.render.Mesh
 import ai.arcblroth.boss.render.Scene
 import ai.arcblroth.boss.render.Texture
@@ -57,6 +58,8 @@ class LoadEngine : Engine {
     private val receiveTexture = Channel<Texture>(Channel.UNLIMITED)
     private val sendMesh = Channel<MeshCreationParams>(Channel.UNLIMITED)
     private val receiveMesh = Channel<Mesh>(Channel.UNLIMITED)
+    private val sendMeshVox = Channel<ByteArray>(Channel.UNLIMITED)
+    private val receiveMeshVox = Channel<Mesh>(Channel.UNLIMITED)
     private val sendMeshGeometry = Channel<Mesh>(Channel.UNLIMITED)
     private val receiveMeshGeometry = Channel<Mesh>(Channel.UNLIMITED)
 
@@ -65,6 +68,8 @@ class LoadEngine : Engine {
         receiveTexture,
         sendMesh,
         receiveMesh,
+        sendMeshVox,
+        receiveMeshVox,
         sendMeshGeometry,
         receiveMeshGeometry
     )
@@ -179,12 +184,21 @@ class LoadEngine : Engine {
             )
             receiveMesh.trySendBlocking(mesh).getOrThrow()
         }
+        while (!exceededFrameRate() && !sendMeshVox.isEmpty) {
+            val vox = sendMeshVox.tryReceive().getOrThrow()
+            val mesh = eventLoop.getRenderer().createMeshFromVox(vox)
+            receiveMeshVox.trySendBlocking(mesh).getOrThrow()
+        }
         while (!exceededFrameRate() && !sendMeshGeometry.isEmpty) {
             val geometry = sendMeshGeometry.tryReceive().getOrThrow()
             val mesh = eventLoop.getRenderer().createMeshWithGeometry(geometry)
             receiveMeshGeometry.trySendBlocking(mesh).getOrThrow()
         }
 
-        return Pair(this.scene!!, this)
+        return if (loadProcess.isDone) {
+            Pair(this.scene!!, LevelEngine(loadProcess))
+        } else {
+            Pair(this.scene!!, this)
+        }
     }
 }

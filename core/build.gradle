@@ -24,3 +24,9 @@ tasks.withType(KotlinCompile).configureEach {
         freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
 }
+
+processResources {
+    from(project.file("src/main/voxel")) {
+        into "assets/"
+    }
+}

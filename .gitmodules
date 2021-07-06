@@ -1,0 +1,3 @@
+[submodule "ogt_vox_bindings/include/opengametools"]
+	path = ogt_vox_bindings/opengametools
+	url = https://github.com/jpaver/opengametools
