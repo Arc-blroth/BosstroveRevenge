@@ -10,6 +10,7 @@
 //! [1]: https://docs.rs/jni/0.19.0/jni/
 
 #![feature(array_map)]
+#![feature(label_break_value)]
 
 use std::cell::RefCell;
 use std::collections::HashMap;

@@ -223,6 +223,11 @@ impl RoastRenderer {
         camera_buffer: &Arc<UniformBuffer<CameraBufferObjectData>>,
         mesh_ids: &Vec<MeshId>,
     ) {
+        // If there is nothing to render then return early
+        if mesh_ids.len() == 0 {
+            return;
+        }
+
         let camera_descriptor_set = Arc::new(
             self.vulkan
                 .descriptor_sets
@@ -238,50 +243,66 @@ impl RoastRenderer {
         // Vulkano doesn't support these yet and support
         // is blocked on #1355 and #1599 at the very least.
 
-        // To minimize descriptor sets and rebinds we build
-        // a map between the resources needed for each mesh
-        // and the meshes that use those resources.
-        let mut descriptor_map = HashMap::new();
+        // To minimize descriptor sets and rebinds we keep
+        // track of what descriptor is currently rebound and
+        // rebind as little as possible.
+        let mut current_descriptor: Option<(Option<TextureId>, Option<TextureId>)> = None;
+        let mut scene_descriptor_set = None;
+
         for mesh_id in mesh_ids {
             let mesh = self.meshes.get(mesh_id).unwrap();
-            if !descriptor_map.contains_key(&mesh.textures) {
-                descriptor_map.insert(mesh.textures.clone(), Vec::new());
+
+            // Do we need to rebind?
+            let should_rebind = match current_descriptor {
+                None => true,
+                Some(desc) => 'rebind_checker: {
+                    if let Some(texture0) = mesh.textures.0 {
+                        if desc.0 != Some(texture0) {
+                            break 'rebind_checker true;
+                        }
+                    }
+                    if let Some(texture1) = mesh.textures.1 {
+                        if desc.1 != Some(texture1) {
+                            break 'rebind_checker true;
+                        }
+                    }
+                    false
+                }
+            };
+
+            if should_rebind {
+                let texture0 = self.get_texture_or_default(mesh.textures.0).clone();
+                let texture1 = self.get_texture_or_default(mesh.textures.1).clone();
+                let sampler0 = self.get_sampler_for_texture(&texture0);
+                let sampler1 = self.get_sampler_for_texture(&texture1);
+
+                scene_descriptor_set = Some(Arc::new(
+                    self.vulkan
+                        .descriptor_sets
+                        .scene
+                        .next()
+                        .add_sampled_image(texture0.image().clone(), sampler0)
+                        .unwrap()
+                        .add_sampled_image(texture1.image().clone(), sampler1)
+                        .unwrap()
+                        .build()
+                        .unwrap(),
+                ));
+
+                current_descriptor = Some(mesh.textures);
             }
-            descriptor_map.get_mut(&mesh.textures).unwrap().push(mesh);
-        }
 
-        for descriptors in descriptor_map.keys() {
-            let texture0 = self.get_texture_or_default(descriptors.0).clone();
-            let texture1 = self.get_texture_or_default(descriptors.1).clone();
-            let sampler0 = self.get_sampler_for_texture(&texture0);
-            let sampler1 = self.get_sampler_for_texture(&texture1);
-
-            let scene_descriptor_set = Arc::new(
-                self.vulkan
-                    .descriptor_sets
-                    .scene
-                    .next()
-                    .add_sampled_image(texture0.image().clone(), sampler0)
-                    .unwrap()
-                    .add_sampled_image(texture1.image().clone(), sampler1)
-                    .unwrap()
-                    .build()
-                    .unwrap(),
-            );
-
-            for mesh in descriptor_map.get(descriptors).unwrap() {
-                builder
-                    .draw_indexed(
-                        pipeline.clone(),
-                        &self.vulkan.dynamic_state,
-                        vec![mesh.vertex_buffer().clone()],
-                        mesh.index_buffer().clone(),
-                        (camera_descriptor_set.clone(), scene_descriptor_set.clone()),
-                        mesh.fill_push_constants(),
-                        std::iter::empty(),
-                    )
-                    .unwrap();
-            }
+            builder
+                .draw_indexed(
+                    pipeline.clone(),
+                    &self.vulkan.dynamic_state,
+                    vec![mesh.vertex_buffer().clone()],
+                    mesh.index_buffer().clone(),
+                    (camera_descriptor_set.clone(), scene_descriptor_set.clone().unwrap()),
+                    mesh.fill_push_constants(),
+                    std::iter::empty(),
+                )
+                .unwrap();
         }
     }
 

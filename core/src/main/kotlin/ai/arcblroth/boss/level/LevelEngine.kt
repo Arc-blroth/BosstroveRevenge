@@ -12,7 +12,8 @@ class LevelEngine(private val load: LoadProcess) : Engine {
     }
 
     override fun step(eventLoop: EventLoop, lastFrameTime: Long): Pair<Scene, Engine> {
-        val scene = Scene(sceneMeshes = arrayListOf(load.testingRoom))
+        load.animation.animate()
+        val scene = Scene(sceneMeshes = arrayListOf(load.testingRoom, load.animation.mesh))
         return Pair(scene, this)
     }
 }
