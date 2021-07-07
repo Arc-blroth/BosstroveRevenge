@@ -21,6 +21,12 @@ interface Area {
 
     /**
      * Add a subsection of this area with
+     * a right-to-left horizontal layout.
+     */
+    fun horizontalRight(addContents: Contents)
+
+    /**
+     * Add a subsection of this area with
      * a horizontal layout that wraps after
      * reaching the maximum width.
      */

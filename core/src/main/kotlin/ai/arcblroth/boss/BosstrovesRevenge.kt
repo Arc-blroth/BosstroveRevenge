@@ -2,11 +2,16 @@ package ai.arcblroth.boss
 
 import ai.arcblroth.boss.backend.Backend
 import ai.arcblroth.boss.backend.RendererSettings
+import ai.arcblroth.boss.backend.ui.Bounds
+import ai.arcblroth.boss.backend.ui.Label
 import ai.arcblroth.boss.load.LoadEngine
+import ai.arcblroth.boss.util.WHITE
 import org.joml.Vector2d
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import kotlin.system.exitProcess
+
+private const val BYTES_IN_MEGABYTE: Double = (2 shl 20).toDouble()
 
 /**
  * The core class that handles all game state.
@@ -28,17 +33,76 @@ class BosstrovesRevenge(val backend: Backend) : Runnable {
             backend.run {
                 init("Bosstrove's Revenge", "0.1.0", RendererSettings(rendererSize = Vector2d(0.5, 0.5)))
 
-                var lastFrameTime = System.nanoTime()
+                val fpsProfilingQueue = ArrayDeque<Long>()
+                val usedMemProfilingQueue = ArrayDeque<Long>()
+                val totalMemProfilingQueue = ArrayDeque<Long>()
+                var averageFps = 0.0
+                var averageUsedMem = 0.0
+                var averageTotalMem = 0.0
+                var lastProfileUpdateTime = System.nanoTime()
+                var lastFrameTime = lastProfileUpdateTime
+
                 var engine: Engine = LoadEngine()
 
                 runEventLoop {
+                    // Step engine
                     val (scene, newEngine) = engine.step(this, lastFrameTime)
                     engine = newEngine
-                    getRenderer().render(scene)
 
-                    val currentTime = System.nanoTime()
-                    // logger.info("FPS: ${1e+9f / (currentTime - lastFrameTime).toFloat()}")
-                    lastFrameTime = currentTime
+                    // Profiling
+                    run {
+                        val currentTime = System.nanoTime()
+
+                        // Update the debug profiling every second
+                        if (currentTime - lastProfileUpdateTime >= 1e+9) {
+                            averageFps = 1e+9 / fpsProfilingQueue.average()
+                            averageUsedMem = usedMemProfilingQueue.average() / BYTES_IN_MEGABYTE
+                            averageTotalMem = totalMemProfilingQueue.average() / BYTES_IN_MEGABYTE
+
+                            fpsProfilingQueue.clear()
+                            usedMemProfilingQueue.clear()
+                            totalMemProfilingQueue.clear()
+
+                            lastProfileUpdateTime = currentTime
+                        }
+
+                        fpsProfilingQueue.add(currentTime - lastFrameTime)
+                        lastFrameTime = currentTime
+
+                        val runtime = Runtime.getRuntime()
+                        val totalMemory = runtime.totalMemory()
+                        usedMemProfilingQueue.add(totalMemory - runtime.freeMemory())
+                        totalMemProfilingQueue.add(totalMemory)
+                    }
+
+                    // Show FPS and memory usage for debugging
+                    getRenderer().showUI {
+                        val rendererSize = getRenderer().getSize()
+                        val bounds = Bounds(2.0f, 0.0f, rendererSize.x.toFloat() - 4.0f, rendererSize.y.toFloat())
+                        area("fps_debug", bounds) {
+                            horizontal {
+                                label(
+                                    Label(
+                                        text = String.format("%.0f FPS", averageFps),
+                                        textColor = WHITE
+                                    )
+                                )
+                            }
+                        }
+                        area("mem_debug", bounds) {
+                            horizontalRight {
+                                label(
+                                    Label(
+                                        text = String.format("%.0f MB / %.0f MB", averageUsedMem, averageTotalMem),
+                                        textColor = WHITE
+                                    )
+                                )
+                            }
+                        }
+                    }
+
+                    // Render frame
+                    getRenderer().render(scene)
                 }
             }
         } catch (e: Throwable) {

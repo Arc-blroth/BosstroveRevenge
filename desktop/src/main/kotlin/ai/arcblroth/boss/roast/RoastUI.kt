@@ -19,6 +19,8 @@ class RoastArea : Area {
 
     external override fun horizontal(addContents: Contents)
 
+    external override fun horizontalRight(addContents: Contents)
+
     external override fun horizontalWrapped(addContents: Contents)
 
     external override fun vertical(addContents: Contents)

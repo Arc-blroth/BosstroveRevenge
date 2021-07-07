@@ -4,7 +4,7 @@
 use std::ops::{Deref, DerefMut};
 use std::sync::MutexGuard;
 
-use egui::{CentralPanel, Frame, Label, Pos2 as EPos2, TextStyle, Ui, Vec2 as EVec2, Window};
+use egui::{CentralPanel, Frame, Label, Layout, Pos2 as EPos2, TextStyle, Ui, Vec2 as EVec2, Window};
 use jni::objects::{JObject, JString, JValue};
 use jni::signature::JavaType;
 use jni::sys::{jboolean, jobject, jstring, JNI_TRUE};
@@ -197,6 +197,20 @@ impl_layout_functions! {
     Java_ai_arcblroth_boss_roast_RoastArea_vertical => vertical,
     Java_ai_arcblroth_boss_roast_RoastArea_verticalCentered => vertical_centered,
     Java_ai_arcblroth_boss_roast_RoastArea_verticalCenteredJustified => vertical_centered_justified,
+}
+
+#[no_mangle]
+pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastArea_horizontalRight(
+    env: JNIEnv,
+    this: jobject,
+    kt_add_contents: jobject,
+) {
+    catch_panic!(env, {
+        let mut ui = get_ui_pointer(&env, this);
+        ui.horizontal(|ui| {
+            ui.with_layout(Layout::right_to_left(), add_contents(env, kt_add_contents));
+        });
+    });
 }
 
 #[no_mangle]
