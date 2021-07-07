@@ -14,16 +14,19 @@ interface UI {
      * Adds an [Area] that will take up any remaining
      * space not taken up by the other areas.
      */
+    @BossUIDsl
     fun centerPanel(addContents: Contents)
 
     /**
      * Adds an [Area] located at the given position
      * with the given bounds on screen.
      */
+    @BossUIDsl
     fun area(name: String, bounds: Bounds, addContents: Contents)
 
     /**
      * Adds an debug window [Area] that may be resizable.
      */
+    @BossUIDsl
     fun window(name: String, resizable: Boolean = true, addContents: Contents)
 }
