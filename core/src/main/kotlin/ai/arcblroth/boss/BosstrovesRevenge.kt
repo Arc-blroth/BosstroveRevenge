@@ -76,8 +76,8 @@ class BosstrovesRevenge(val backend: Backend) : Runnable {
                     }
 
                     // Show FPS and memory usage for debugging
-                    getRenderer().showUI {
-                        val rendererSize = getRenderer().getSize()
+                    renderer.showUI {
+                        val rendererSize = renderer.getSize()
                         val bounds = Bounds(2.0f, 0.0f, rendererSize.x.toFloat() - 4.0f, rendererSize.y.toFloat())
                         area("fps_debug", bounds) {
                             horizontal {
@@ -102,7 +102,7 @@ class BosstrovesRevenge(val backend: Backend) : Runnable {
                     }
 
                     // Render frame
-                    getRenderer().render(scene)
+                    renderer.render(scene)
                 }
             }
         } catch (e: Throwable) {

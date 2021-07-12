@@ -45,7 +45,8 @@ class RoastBackend : Backend, EventLoop, Renderer {
 
     external override fun runEventLoop(step: EventLoop.() -> Unit): Nothing
 
-    override fun getRenderer(): Renderer = this
+    override val renderer: Renderer
+        get() = this
 
     external override fun createTexture(image: ByteArray, sampling: TextureSampling, generateMipmaps: Boolean): Texture
 

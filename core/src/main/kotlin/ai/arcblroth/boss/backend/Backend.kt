@@ -71,9 +71,9 @@ interface Backend {
  */
 interface EventLoop {
     /**
-     * Gets the backend [Renderer] for this event loop.
+     * The backend [Renderer] for this event loop.
      */
-    fun getRenderer(): Renderer
+    val renderer: Renderer
 
     /**
      * Requests the event loop to stop after this frame.

@@ -104,7 +104,7 @@ class LoadEngine : Engine {
         fun exceededFrameRate() = (System.nanoTime() - lastFrameTime).toDouble() > 1e+9 / 60.0
 
         if (this.scene == null) {
-            val logoTexture = eventLoop.getRenderer().createTexture(
+            val logoTexture = eventLoop.renderer.createTexture(
                 ResourceLoader.loadResourceAsBytes("assets/bitmap.png"),
                 TextureSampling.PIXEL,
                 true
@@ -113,7 +113,7 @@ class LoadEngine : Engine {
             val halfWidth: Float = logoTexture.width.toFloat() * 8.0f / 2.0f
             val halfHeight: Float = logoTexture.height.toFloat() * 8.0f / 2.0f
 
-            val logoMesh = eventLoop.getRenderer().createMesh(
+            val logoMesh = eventLoop.renderer.createMesh(
                 arrayOf(
                     Vertex(Vector3f(halfWidth, halfHeight, 0.0f), Vector4f(1.0f, 1.0f, 0.0f, 0.0f)),
                     Vertex(Vector3f(halfWidth, -halfHeight, 0.0f), Vector4f(1.0f, 0.0f, 0.0f, 0.0f)),
@@ -132,7 +132,7 @@ class LoadEngine : Engine {
             this.scene = Scene(guiMeshes = arrayListOf(logoMesh))
         }
 
-        val rendererSize = eventLoop.getRenderer().getSize()
+        val rendererSize = eventLoop.renderer.getSize()
 
         this.logoMesh!!.let {
             // Make the logo change color!
@@ -150,7 +150,7 @@ class LoadEngine : Engine {
 
         // Show the loading text
         val textY = (rendererSize.y / 2.0).toFloat() + (logoTexture!!.height * 8.0f + ARBITRARY_PADDING_HEIGHT) / 2.0f - 16.0f
-        eventLoop.getRenderer().showUI {
+        eventLoop.renderer.showUI {
             window("Test") {
                 label(Label(text = "It works!", textColor = ai.arcblroth.boss.util.RED))
             }
@@ -170,12 +170,12 @@ class LoadEngine : Engine {
         // Handle requests to register resources.
         while (!exceededFrameRate() && !sendTexture.isEmpty) {
             val params = sendTexture.tryReceive().getOrThrow()
-            val texture = eventLoop.getRenderer().createTexture(params.image, params.sampling, params.generateMipmaps)
+            val texture = eventLoop.renderer.createTexture(params.image, params.sampling, params.generateMipmaps)
             receiveTexture.trySendBlocking(texture).getOrThrow()
         }
         while (!exceededFrameRate() && !sendMesh.isEmpty) {
             val params = sendMesh.tryReceive().getOrThrow()
-            val mesh = eventLoop.getRenderer().createMesh(
+            val mesh = eventLoop.renderer.createMesh(
                 params.vertices,
                 params.indices,
                 params.vertexType,
@@ -186,12 +186,12 @@ class LoadEngine : Engine {
         }
         while (!exceededFrameRate() && !sendMeshVox.isEmpty) {
             val vox = sendMeshVox.tryReceive().getOrThrow()
-            val mesh = eventLoop.getRenderer().createMeshFromVox(vox)
+            val mesh = eventLoop.renderer.createMeshFromVox(vox)
             receiveMeshVox.trySendBlocking(mesh).getOrThrow()
         }
         while (!exceededFrameRate() && !sendMeshGeometry.isEmpty) {
             val geometry = sendMeshGeometry.tryReceive().getOrThrow()
-            val mesh = eventLoop.getRenderer().createMeshWithGeometry(geometry)
+            val mesh = eventLoop.renderer.createMeshWithGeometry(geometry)
             receiveMeshGeometry.trySendBlocking(mesh).getOrThrow()
         }
 
