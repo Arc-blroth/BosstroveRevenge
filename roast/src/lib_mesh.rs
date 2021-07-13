@@ -2,14 +2,13 @@
 
 use glam::{Mat4, Vec2, Vec4};
 use jni::descriptors::Desc;
+use jni::JNIEnv;
 use jni::objects::{JObject, JValue};
 use jni::sys::{jfloat, jobject};
-use jni::JNIEnv;
 
 use crate::backend;
-use crate::jni_classes::{JavaMatrix4f, JavaPair, JavaRoastTexture, JavaVector2f, JavaVector4f};
+use crate::jni_classes::{JavaMatrix4f, JavaPair, JavaRoastTexture, JavaVector2f, JavaVector4f, JavaVertexType};
 use crate::jni_types::*;
-use crate::renderer::shader::VertexType;
 use crate::renderer::TextureId;
 
 pub const MESH_NOT_FOUND_MSG: &str = "Mesh pointer does not point to a valid struct";
@@ -21,18 +20,15 @@ pub fn get_mesh_pointer(env: JNIEnv, this: jobject) -> u64 {
 #[no_mangle]
 pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastMesh_getVertexType(env: JNIEnv, this: jobject) -> jobject {
     catch_panic!(env, {
-        let vertex_type_class = env.find_class(VERTEX_TYPE_CLASS).unwrap();
+        let vertex_type_class = JavaVertexType::accessor(env);
         let pointer = get_mesh_pointer(env, this);
 
-        let field_name = backend::with_renderer(move |renderer| {
-            match renderer.meshes.get(&pointer).expect(MESH_NOT_FOUND_MSG).vertex_type() {
-                VertexType::COLOR => "COLOR",
-                VertexType::TEX1 => "TEX1",
-                VertexType::TEX2 => "TEX2",
-            }
-        });
-
-        env.get_static_field(vertex_type_class, field_name, VERTEX_TYPE_TYPE).unwrap().l().unwrap().into_inner()
+        vertex_type_class.to_java(
+            backend::with_renderer(move |renderer| {
+                *renderer.meshes.get(&pointer).expect(MESH_NOT_FOUND_MSG).vertex_type()
+            })
+        )
+        .into_inner()
     } else {
         JObject::null().into_inner()
     });

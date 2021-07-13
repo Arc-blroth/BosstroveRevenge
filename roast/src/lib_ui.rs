@@ -4,15 +4,15 @@
 use std::ops::{Deref, DerefMut};
 use std::sync::MutexGuard;
 
-use egui::{CentralPanel, Frame, Label, Layout, Pos2 as EPos2, TextStyle, Ui, Vec2 as EVec2, Window};
+use egui::{CentralPanel, Frame, Label, Layout, Pos2 as EPos2, Ui, Vec2 as EVec2, Window};
+use jni::JNIEnv;
 use jni::objects::{JObject, JString, JValue};
 use jni::signature::JavaType;
-use jni::sys::{jboolean, jobject, jstring, JNI_TRUE};
-use jni::JNIEnv;
+use jni::sys::{jboolean, JNI_TRUE, jobject, jstring};
 
 use crate::backend::with_renderer;
 use crate::check_backend;
-use crate::jni_classes::{JavaBounds, JavaColor, JavaLabel};
+use crate::jni_classes::{JavaBounds, JavaColor, JavaLabel, JavaTextStyle};
 use crate::jni_types::*;
 
 /// Wrapper around a `*mut Ui` pointer
@@ -229,18 +229,8 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastArea_label(env: JNIEnv,
 
         let text_style_obj = label_class.textStyle(java_label);
         if !text_style_obj.is_null() {
-            let text_style = match call_getter!(env, text_style_obj, "ordinal", "I").i().unwrap() {
-                0 => TextStyle::Small,
-                1 => TextStyle::Body,
-                2 => TextStyle::Button,
-                3 => TextStyle::Heading,
-                4 => TextStyle::Monospace,
-                _ => {
-                    env.throw_new(ILLEGAL_ARGUMENT_EXCEPTION_CLASS, "Invalid text style!")
-                        .unwrap();
-                    panic!();
-                }
-            };
+            let text_style_class = JavaTextStyle::accessor(env);
+            let text_style = text_style_class.from_java(text_style_obj);
             label = label.text_style(text_style);
         }
 

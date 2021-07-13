@@ -1,10 +1,13 @@
 //! Common class! accessor definitions.
 
-use egui::Color32;
+use egui::{Color32, TextStyle};
 use jni::objects::JObject;
 
-use crate::class;
+use crate::{class, enum_class};
+use crate::backend::FullscreenMode;
 use crate::jni_types::*;
+use crate::renderer::shader::VertexType;
+use crate::renderer::texture::TextureSampling;
 
 class!(PAIR_CLASS, data class JavaPair(
     val first: OBJECT_CLASS,
@@ -75,11 +78,28 @@ class!(VERTEX_CLASS, class JavaVertex(
     val colorTex: VECTOR4F_CLASS,
 ));
 
+enum_class!(VERTEX_TYPE_CLASS => VertexType, enum class JavaVertexType {
+    COLOR => COLOR,
+    TEX1 => TEX1,
+    TEX2 => TEX2,
+});
+
+enum_class!(TEXTURE_SAMPLING_CLASS => TextureSampling, enum class JavaTextureSampling {
+    SMOOTH => Smooth,
+    PIXEL => Pixel,
+});
+
 class!(RENDERER_SETTINGS_CLASS, data class JavaRendererSettings(
     val rendererSize: VECTOR2D_CLASS,
     val fullscreenMode: FULLSCREEN_MODE_CLASS,
     val transparent: Boolean,
 ));
+
+enum_class!(FULLSCREEN_MODE_CLASS => FullscreenMode, enum class JavaFullscreenMode {
+    NONE => None,
+    BORDERLESS => Borderless,
+    EXCLUSIVE => Exclusive,
+});
 
 class!(BOUNDS_CLASS, data class JavaBounds(
     val x: Float,
@@ -87,6 +107,14 @@ class!(BOUNDS_CLASS, data class JavaBounds(
     val w: Float,
     val h: Float,
 ));
+
+enum_class!(TEXT_STYLE_CLASS => TextStyle, enum class JavaTextStyle {
+    SMALL => Small,
+    BODY => Body,
+    BUTTON => Button,
+    HEADING => Heading,
+    MONOSPACE => Monospace,
+});
 
 class!(LABEL_CLASS, data class JavaLabel(
     val text: String,

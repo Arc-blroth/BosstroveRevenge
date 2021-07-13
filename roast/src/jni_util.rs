@@ -1,8 +1,8 @@
 use std::marker::PhantomData;
 
 use jni::errors::Result as JNIResult;
-use jni::objects::{GlobalRef, JClass, JObject};
 use jni::JNIEnv;
+use jni::objects::{GlobalRef, JClass, JObject};
 
 /// Slightly more type safe version of GlobalRef
 #[derive(Clone)]
@@ -275,6 +275,133 @@ macro_rules! class {
             }
 
             $($crate::class!(@field_impl $va $field: $ty);)+
+        }
+    };
+}
+
+/// Defines, in an unholy fusion of Kotlin and Rust syntax,
+/// a mapping between a Java enum and a Rust enum.
+/// Creates a struct with the same name as the
+/// provided short class name that can be used to convert
+/// a JObject of that enum class into the Rust enum.
+#[macro_export]
+macro_rules! enum_class {
+    // The two `@ord_to_rust` rules use tt-munching and
+    // push-down accumulation to generate a match statement
+    // that looks like this:
+    // ```rust
+    // match $obj {
+    //     x if x == 0i32 => $rust_variant_0,
+    //     x if x == 0i32 + 1i32 => $rust_variant_1,
+    //     x if x == 0i32 + 1i32 + 1i32 => $rust_variant_2,
+    //     _ => { /* panic */ },
+    // }
+    // ```
+    // The `x if x == 0` match patterns are used because
+    // basic match patterns cannot take expressions.
+    // Luckily, the compiler will properly
+    // [optimize this implementation detail][1]
+    // away by folding constants, reducing the above to
+    // ```rust
+    // match $obj {
+    //     0i32 => $rust_variant_0,
+    //     1i32 => $rust_variant_1,
+    //     2i32 => $rust_variant_2,
+    //     _ => { /* panic */ },
+    // }
+    // ```
+    //
+    // [1]: https://play.rust-lang.org/?version=nightly&mode=release&edition=2018&gist=946278dca19c5d7a281029d851b26743
+    (@ord_to_rust $name:expr, $rust_name:ident, $self:expr, $obj:expr, $ordinal:expr, (), ($($push:tt)*)) => {
+        match $self.env.call_method_unchecked(
+            $obj,
+            $self.ordinal_method,
+            ::jni::signature::JavaType::Primitive(::jni::signature::Primitive::Int),
+            &[],
+        )
+        .unwrap()
+        .i()
+        .unwrap() {
+            $(
+                $push
+            )*
+            _ => {
+                $self.env.throw_new(
+                    $crate::jni_types::ILLEGAL_ARGUMENT_EXCEPTION_CLASS,
+                    ::std::format!("Invalid variant of {}!", $name),
+                )
+                .unwrap();
+                ::std::panic!();
+            }
+        }
+    };
+    (@ord_to_rust
+        $name:expr, $rust_name:ident, $self:expr, $obj:expr, $ordinal:expr,
+        ($java_variant:ident => $rust_variant:ident $($tail:tt)*),
+        ($($push:tt)*)
+    ) => {
+        $crate::enum_class!(
+            @ord_to_rust $name, $rust_name, $self, $obj, $ordinal + 1i32,
+            ($($tail)*),
+            ($($push)* x if x == $ordinal => $rust_name::$rust_variant,)
+        )
+    };
+
+    (@get_java_variant $rust_name:ident, $obj:expr, $($java_variant:ident => $rust_variant:ident),+) => (
+        match $obj {
+            $(
+                $rust_name::$rust_variant => stringify!($java_variant),
+            )+
+        }
+    );
+
+    ($name:expr => $rust_name:ident, enum class $short_name:ident {
+        $($java_variant:tt $arrow:tt $rust_variant:tt),+$(,)?
+    }) => {
+        pub struct $short_name<'a> {
+            env: ::jni::JNIEnv<'a>,
+            class: ::jni::objects::JClass<'a>,
+            ordinal_method: ::jni::objects::JMethodID<'a>,
+        }
+
+        impl<'a> $short_name<'a> {
+            #[inline]
+            pub fn accessor(env: ::jni::JNIEnv<'a>) -> Self {
+                let class = env.find_class($name).unwrap();
+                let ordinal_method = env.get_method_id(class, "ordinal", "()I").unwrap();
+                Self {
+                    env,
+                    class,
+                    ordinal_method,
+                }
+            }
+
+            /// Converts a Java object to its Rust enum variant.
+            ///
+            /// # Panics
+            /// If the Java object is not an enum or does not have a valid ordinal.
+            #[inline(always)]
+            pub fn from_java<O: ::core::convert::Into<::jni::objects::JObject<'a>>>(&self, obj: O) -> $rust_name {
+                $crate::enum_class!(@ord_to_rust $name, $rust_name, self, obj, 0i32,
+                                    ($($java_variant $arrow $rust_variant)+), ())
+            }
+
+            /// Converts a Rust enum variant to the Java enum variant.
+            #[inline(always)]
+            pub fn to_java(&self, obj: $rust_name) -> ::jni::objects::JObject<'a> {
+                let java_variant_name = crate::enum_class!(@get_java_variant $rust_name, obj,
+                                                           $($java_variant $arrow $rust_variant),+);
+                let enum_type = $crate::class!(@jvm_type $name);
+
+                self.env.get_static_field_unchecked(
+                    self.class,
+                    (self.class, java_variant_name, enum_type.clone()),
+                    ::jni::signature::JavaType::Object(enum_type),
+                )
+                .unwrap()
+                .l()
+                .unwrap()
+            }
         }
     };
 }

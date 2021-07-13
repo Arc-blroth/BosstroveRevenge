@@ -11,25 +11,26 @@
 
 #![feature(array_map)]
 #![feature(label_break_value)]
+#![feature(trace_macros)]
 
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use jni::JNIEnv;
 use jni::objects::{JObject, JString, JValue, ReleaseMode};
 use jni::signature::{JavaType, Primitive};
-use jni::sys::{jboolean, jbyteArray, jdouble, jintArray, jobject, jobjectArray, jstring, JNI_TRUE};
-use jni::JNIEnv;
+use jni::sys::{jboolean, jbyteArray, jdouble, jintArray, JNI_TRUE, jobject, jobjectArray, jstring};
 
-use crate::backend::{FullscreenMode, RendererSettings, Roast};
-use crate::jni_classes::{JavaRendererSettings, JavaVector2d, JavaVector3f, JavaVector4f, JavaVertex};
+use crate::backend::{RendererSettings, Roast};
+use crate::jni_classes::{JavaFullscreenMode, JavaRendererSettings, JavaTextureSampling, JavaVector2d, JavaVector3f, JavaVector4f, JavaVertex, JavaVertexType};
 use crate::jni_types::*;
 use crate::logger::JavaLogger;
+use crate::renderer::{MeshId, TextureId};
 use crate::renderer::mesh::Mesh;
 use crate::renderer::scene::Scene;
 use crate::renderer::shader::{Vertex, VertexType};
-use crate::renderer::texture::{Texture, TextureSampling};
-use crate::renderer::{MeshId, TextureId};
+use crate::renderer::texture::Texture;
 
 pub mod backend;
 pub mod jni_classes;
@@ -83,6 +84,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_init(
 
         let vector2d_class = JavaVector2d::accessor(env);
         let renderer_settings_class = JavaRendererSettings::accessor(env);
+        let fullscreen_mode_class = JavaFullscreenMode::accessor(env);
 
         let app_name = env.get_string(JString::from(app_name)).unwrap().into();
         let app_version = env.get_string(JString::from(app_version)).unwrap().into();
@@ -92,11 +94,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_init(
         let renderer_size = (vector2d_class.x(renderer_size), vector2d_class.y(renderer_size));
 
         let fullscreen_mode = renderer_settings_class.fullscreenMode(renderer_settings);
-        let fullscreen_mode = match call_getter!(env, fullscreen_mode, "ordinal", "I").i().unwrap() {
-            1 => FullscreenMode::Exclusive,
-            2 => FullscreenMode::Borderless,
-            _ => FullscreenMode::None,
-        };
+        let fullscreen_mode = fullscreen_mode_class.from_java(fullscreen_mode);
 
         let transparent = renderer_settings_class.transparent(renderer_settings);
 
@@ -235,6 +233,8 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createTexture(
     catch_panic!(env, {
         check_backend(&env, this).unwrap();
 
+        let texture_sampling_class = JavaTextureSampling::accessor(env);
+
         let image_array = env.get_byte_array_elements(image, ReleaseMode::NoCopyBack).unwrap();
         let rust_image = unsafe {
             std::slice::from_raw_parts(image_array.as_ptr() as *const u8, image_array.size().unwrap() as usize)
@@ -247,15 +247,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createTexture(
             }
         };
 
-        let rust_sampling = match call_getter!(env, sampling, "ordinal", "I").i().unwrap() {
-            0 => TextureSampling::Smooth,
-            1 => TextureSampling::Pixel,
-            _ => {
-                env.throw_new(ILLEGAL_ARGUMENT_EXCEPTION_CLASS, "Invalid texture sampling!").unwrap();
-                panic!();
-            }
-        };
-
+        let rust_sampling = texture_sampling_class.from_java(sampling);
         let rust_gen_mipmaps = generate_mipmaps == JNI_TRUE;
 
         let out_pointer = backend::with_renderer(move |renderer| {
@@ -297,6 +289,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
         let vertex_class = JavaVertex::accessor(env);
         let vector3f_class = JavaVector3f::accessor(env);
         let vector4f_class = JavaVector4f::accessor(env);
+        let vertex_type_class = JavaVertexType::accessor(env);
 
         let get_vertex = |obj: JObject| -> Vertex {
             let pos = vertex_class.pos(obj);
@@ -329,15 +322,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
             std::slice::from_raw_parts(indices_array.as_ptr() as *const u32, indices_array.size().unwrap() as usize)
         };
 
-        let rust_vertex_type = match call_getter!(env, vertex_type, "ordinal", "I").i().unwrap() {
-            0 => VertexType::COLOR,
-            1 => VertexType::TEX1,
-            2 => VertexType::TEX2,
-            _ => {
-                env.throw_new(ILLEGAL_ARGUMENT_EXCEPTION_CLASS, "Invalid vertex type!").unwrap();
-                panic!();
-            }
-        };
+        let rust_vertex_type = vertex_type_class.from_java(vertex_type);
 
         let get_texture = |obj| {
             if obj == std::ptr::null_mut() {

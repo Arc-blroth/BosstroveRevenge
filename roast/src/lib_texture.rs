@@ -1,12 +1,11 @@
 //! JNI implementation of the `ai.arcblroth.roast.RoastTexture` native methods.
 
-use jni::objects::JObject;
-use jni::sys::{jboolean, jint, jobject, JNI_FALSE, JNI_TRUE};
 use jni::JNIEnv;
+use jni::objects::JObject;
+use jni::sys::{jboolean, jint, JNI_FALSE, JNI_TRUE, jobject};
 
 use crate::backend;
-use crate::jni_types::*;
-use crate::renderer::texture::TextureSampling;
+use crate::jni_classes::JavaTextureSampling;
 
 const TEXTURE_NOT_FOUND_MSG: &str = "Texture pointer does not point to a valid texture";
 
@@ -46,21 +45,15 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastTexture_getTextureSampl
     this: jobject,
 ) -> jobject {
     catch_panic!(env, {
-        let texture_sampling_class = env.find_class(TEXTURE_SAMPLING_CLASS).unwrap();
+        let texture_sampling_class = JavaTextureSampling::accessor(env);
         let pointer = get_texture_pointer(env, this);
 
-        let field_name = backend::with_renderer(move |renderer| {
-            match renderer.textures.get(&pointer).expect(TEXTURE_NOT_FOUND_MSG).sampling() {
-                TextureSampling::Smooth => "SMOOTH",
-                TextureSampling::Pixel => "PIXEL",
-            }
-        });
-
-        env.get_static_field(texture_sampling_class, field_name, TEXTURE_SAMPLING_TYPE)
-            .unwrap()
-            .l()
-            .unwrap()
-            .into_inner()
+        texture_sampling_class.to_java(
+            backend::with_renderer(move |renderer| {
+                renderer.textures.get(&pointer).expect(TEXTURE_NOT_FOUND_MSG).sampling()
+            })
+        )
+        .into_inner()
     } else {
         JObject::null().into_inner()
     });
