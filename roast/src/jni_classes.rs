@@ -3,11 +3,11 @@
 use egui::{Color32, TextStyle};
 use jni::objects::JObject;
 
-use crate::{class, enum_class};
 use crate::backend::FullscreenMode;
 use crate::jni_types::*;
 use crate::renderer::shader::VertexType;
 use crate::renderer::texture::TextureSampling;
+use crate::{class, enum_class};
 
 class!(PAIR_CLASS, data class JavaPair(
     val first: OBJECT_CLASS,
@@ -22,6 +22,12 @@ class!(VECTOR2D_CLASS, class JavaVector2d(
 class!(VECTOR2F_CLASS, class JavaVector2f(
     val x: Float,
     val y: Float,
+));
+
+class!(VECTOR3D_CLASS, class JavaVector3d(
+    val x: Double,
+    val y: Double,
+    val z: Double,
 ));
 
 class!(VECTOR3F_CLASS, class JavaVector3f(
@@ -72,6 +78,13 @@ impl<'a> JavaColor<'a> {
         )
     }
 }
+
+class!(CAMERA_CLASS, class JavaCamera(
+    val pos: VECTOR3D_CLASS,
+    val yaw: Double,
+    val pitch: Double,
+    val fov: Double,
+));
 
 class!(VERTEX_CLASS, class JavaVertex(
     val pos: VECTOR3F_CLASS,

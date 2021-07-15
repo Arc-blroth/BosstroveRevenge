@@ -1,8 +1,8 @@
 //! JNI implementation of the `ai.arcblroth.roast.RoastTexture` native methods.
 
-use jni::JNIEnv;
 use jni::objects::JObject;
-use jni::sys::{jboolean, jint, JNI_FALSE, JNI_TRUE, jobject};
+use jni::sys::{jboolean, jint, jobject, JNI_FALSE, JNI_TRUE};
+use jni::JNIEnv;
 
 use crate::backend;
 use crate::jni_classes::JavaTextureSampling;

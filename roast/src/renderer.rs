@@ -14,7 +14,6 @@ use vulkano::device::{DeviceExtensions, Features};
 use vulkano::format::ClearValue;
 use vulkano::sampler::Sampler;
 
-use crate::renderer::camera::Camera;
 use crate::renderer::mesh::Mesh;
 use crate::renderer::scene::Scene;
 use crate::renderer::shader::CameraBufferObjectData;
@@ -84,7 +83,6 @@ pub type MeshId = u64;
 /// command buffers and dispatching them to Vulkan.
 pub struct RoastRenderer {
     pub vulkan: VulkanWrapper,
-    pub camera: Camera,
     pub gui: Platform,
     pub textures: HashMap<TextureId, Texture>,
     pub meshes: HashMap<MeshId, Mesh>,
@@ -102,7 +100,6 @@ impl RoastRenderer {
         Self {
             default_texture: Texture::new(&vulkan, default_texture, TextureSampling::Pixel, true),
             vulkan,
-            camera: Camera::default(),
             gui: Platform::new(PlatformDescriptor {
                 physical_width: size.width as u32,
                 physical_height: size.height as u32,
@@ -320,7 +317,7 @@ impl RoastRenderer {
             self.vulkan
                 .uniform_buffers
                 .camera
-                .next(self.camera.update_uniform_buffer(swap_chain_dimensions, false))
+                .next(scene.camera.update_uniform_buffer(swap_chain_dimensions, false))
                 .unwrap(),
         );
 
@@ -328,7 +325,7 @@ impl RoastRenderer {
             self.vulkan
                 .uniform_buffers
                 .camera
-                .next(self.camera.update_uniform_buffer(swap_chain_dimensions, true))
+                .next(scene.camera.update_uniform_buffer(swap_chain_dimensions, true))
                 .unwrap(),
         );
 

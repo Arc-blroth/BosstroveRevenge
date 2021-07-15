@@ -1,8 +1,8 @@
 use std::marker::PhantomData;
 
 use jni::errors::Result as JNIResult;
-use jni::JNIEnv;
 use jni::objects::{GlobalRef, JClass, JObject};
+use jni::JNIEnv;
 
 /// Slightly more type safe version of GlobalRef
 #[derive(Clone)]

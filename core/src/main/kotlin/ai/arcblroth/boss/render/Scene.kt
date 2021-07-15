@@ -6,6 +6,11 @@ package ai.arcblroth.boss.render
  */
 class Scene(
     /**
+     * The camera to use for rendering the [sceneMeshes].
+     */
+    val camera: Camera = Camera(),
+
+    /**
      * The main array of meshes to render. The backend
      * will render these in a three-dimensional context
      * with depth and lighting.

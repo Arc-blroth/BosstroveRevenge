@@ -5,10 +5,10 @@ use std::ops::{Deref, DerefMut};
 use std::sync::MutexGuard;
 
 use egui::{CentralPanel, Frame, Label, Layout, Pos2 as EPos2, Ui, Vec2 as EVec2, Window};
-use jni::JNIEnv;
 use jni::objects::{JObject, JString, JValue};
 use jni::signature::JavaType;
-use jni::sys::{jboolean, JNI_TRUE, jobject, jstring};
+use jni::sys::{jboolean, jobject, jstring, JNI_TRUE};
+use jni::JNIEnv;
 
 use crate::backend::with_renderer;
 use crate::check_backend;

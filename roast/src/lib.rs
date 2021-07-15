@@ -17,20 +17,25 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use jni::JNIEnv;
+use glam::DVec3;
 use jni::objects::{JObject, JString, JValue, ReleaseMode};
 use jni::signature::{JavaType, Primitive};
-use jni::sys::{jboolean, jbyteArray, jdouble, jintArray, JNI_TRUE, jobject, jobjectArray, jstring};
+use jni::sys::{jboolean, jbyteArray, jdouble, jintArray, jobject, jobjectArray, jstring, JNI_TRUE};
+use jni::JNIEnv;
 
 use crate::backend::{RendererSettings, Roast};
-use crate::jni_classes::{JavaFullscreenMode, JavaRendererSettings, JavaTextureSampling, JavaVector2d, JavaVector3f, JavaVector4f, JavaVertex, JavaVertexType};
+use crate::jni_classes::{
+    JavaCamera, JavaFullscreenMode, JavaRendererSettings, JavaTextureSampling, JavaVector2d, JavaVector3d,
+    JavaVector3f, JavaVector4f, JavaVertex, JavaVertexType,
+};
 use crate::jni_types::*;
 use crate::logger::JavaLogger;
-use crate::renderer::{MeshId, TextureId};
+use crate::renderer::camera::Camera;
 use crate::renderer::mesh::Mesh;
 use crate::renderer::scene::Scene;
 use crate::renderer::shader::{Vertex, VertexType};
 use crate::renderer::texture::Texture;
+use crate::renderer::{MeshId, TextureId};
 
 pub mod backend;
 pub mod jni_classes;
@@ -433,7 +438,6 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_getSize(env: JN
 
 #[no_mangle]
 pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_render(env: JNIEnv, this: jobject, scene: jobject) {
-    #[inline]
     fn get_mesh_array_from_scene(env: JNIEnv, scene: jobject, array_list_field: &str) -> Vec<MeshId> {
         let meshes = env
             .get_field(scene, array_list_field, "Ljava/util/ArrayList;")
@@ -467,9 +471,29 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_render(env: JNI
     catch_panic!(env, {
         check_backend(&env, this).unwrap();
 
+        let vector3d_class = JavaVector3d::accessor(env);
+        let camera_class = JavaCamera::accessor(env);
+        let camera_field = env
+            .get_field(scene, "camera", format!("L{};", CAMERA_CLASS))
+            .unwrap()
+            .l()
+            .unwrap();
+        let camera_pos = camera_class.pos(camera_field);
+        let camera = Camera {
+            pos: DVec3::new(
+                vector3d_class.x(camera_pos),
+                vector3d_class.y(camera_pos),
+                vector3d_class.z(camera_pos),
+            ),
+            yaw: camera_class.yaw(camera_field),
+            pitch: camera_class.pitch(camera_field),
+            fov: camera_class.fov(camera_field),
+        };
+
         let scene_meshes = get_mesh_array_from_scene(env, scene, "sceneMeshes");
         let gui_meshes = get_mesh_array_from_scene(env, scene, "guiMeshes");
         let scene = Scene {
+            camera,
             scene_meshes,
             gui_meshes,
         };
