@@ -11,12 +11,17 @@ import ai.arcblroth.boss.render.Texture
 import ai.arcblroth.boss.render.TextureSampling
 import ai.arcblroth.boss.render.Vertex
 import ai.arcblroth.boss.render.VertexType
+import jdk.incubator.foreign.CLinker
+import jdk.incubator.foreign.FunctionDescriptor
+import jdk.incubator.foreign.LibraryLookup
+import jdk.incubator.foreign.MemoryAddress
 import org.joml.Matrix4f
 import org.joml.Vector2d
 import org.joml.Vector2f
 import org.joml.Vector4f
 import org.scijava.nativelib.NativeLoader
 import org.slf4j.LoggerFactory
+import java.lang.invoke.MethodType
 
 /**
  * The winit + vulkano backend, implemented in Rust because
@@ -40,6 +45,16 @@ class RoastBackend : Backend, EventLoop, Renderer {
      * Internal pointer to the RoastBackend struct.
      */
     private var pointer = 0L
+
+    private val test = CLinker.getInstance().downcallHandle(
+        LibraryLookup.ofDefault().lookup("roast_test").get(),
+        MethodType.methodType(MemoryAddress::class.java),
+        FunctionDescriptor.of(CLinker.C_POINTER)
+    )
+
+    init {
+        println(CLinker.toJavaStringRestricted(test() as MemoryAddress))
+    }
 
     external override fun init(appName: String, appVersion: String, rendererSettings: RendererSettings)
 

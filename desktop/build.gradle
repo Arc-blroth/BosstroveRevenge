@@ -32,6 +32,10 @@ processResources {
     }
 }
 
+run {
+    jvmArgs "--add-modules=jdk.incubator.foreign", "-Dforeign.restricted=permit"
+}
+
 jar {
     manifest {
         attributes 'Main-Class': mainClassName

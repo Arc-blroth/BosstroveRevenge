@@ -15,6 +15,8 @@
 
 use std::cell::RefCell;
 use std::collections::HashMap;
+use std::ffi::CString;
+use std::os::raw::c_char;
 use std::sync::atomic::{AtomicBool, Ordering};
 
 use glam::DVec3;
@@ -504,4 +506,9 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_render(env: JNI
             renderer.render(scene, gui_data.1);
         });
     });
+}
+
+#[no_mangle]
+pub extern "system" fn roast_test() -> *mut c_char {
+    CString::new("Hello Project Panama!").unwrap().into_raw()
 }
