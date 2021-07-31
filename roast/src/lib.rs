@@ -11,45 +11,36 @@
 
 #![feature(array_map)]
 #![feature(label_break_value)]
-#![feature(trace_macros)]
+#![feature(vec_into_raw_parts)]
 
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::ffi::CString;
-use std::os::raw::c_char;
 use std::sync::atomic::{AtomicBool, Ordering};
 
-use glam::DVec3;
-use jni::objects::{JObject, JString, JValue, ReleaseMode};
-use jni::signature::{JavaType, Primitive};
-use jni::sys::{jboolean, jbyteArray, jdouble, jintArray, jobject, jobjectArray, jstring, JNI_TRUE};
-use jni::JNIEnv;
+use anyhow::{bail, Context, Result};
+use glam::DVec2;
 
 use crate::backend::{RendererSettings, Roast};
-use crate::jni_classes::{
-    JavaCamera, JavaFullscreenMode, JavaRendererSettings, JavaTextureSampling, JavaVector2d, JavaVector3d,
-    JavaVector3f, JavaVector4f, JavaVertex, JavaVertexType,
-};
-use crate::jni_types::*;
-use crate::logger::JavaLogger;
+use crate::error::{catch_panic, ForeignRoastResult, Nothing, RoastError};
+use crate::ffi::util::{slice_from_foreign, string_from_foreign, ForeignOption};
+use crate::logger::{JavaLogger, JavaLoggerCallbacks};
 use crate::renderer::camera::Camera;
 use crate::renderer::mesh::Mesh;
 use crate::renderer::scene::Scene;
 use crate::renderer::shader::{Vertex, VertexType};
-use crate::renderer::texture::Texture;
+use crate::renderer::texture::{Texture, TextureSampling};
 use crate::renderer::{MeshId, TextureId};
+use crate::texture::JavaRandomInterface;
 
 pub mod backend;
-pub mod jni_classes;
-pub mod jni_types;
-#[macro_use]
-pub mod jni_util;
-mod lib_mesh;
-mod lib_texture;
-mod lib_ui;
+pub mod error;
+pub mod ffi;
 pub mod logger;
+pub mod mesh;
 mod ogt_util;
 pub mod renderer;
+pub mod texture;
+pub mod ui;
 
 /// JNI initialization lock. This prevents the backend logger
 /// from being initialized twice.
@@ -73,51 +64,33 @@ thread_local! {
 }
 
 #[no_mangle]
-pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_init(
-    env: JNIEnv<'static>,
-    this: jobject,
-    app_name: jstring,
-    app_version: jstring,
-    renderer_settings: jobject,
-) {
-    catch_panic!(env, {
-        // SAFETY: Thread safety guaranteed by Atomics™
-        // Note that if initialization panics then things will break.
+pub extern "C" fn roast_backend_init(
+    logger_callbacks: JavaLoggerCallbacks,
+    random_interface: JavaRandomInterface,
+    app_name: *const u8,
+    app_name_len: usize,
+    app_version: *const u8,
+    app_version_len: usize,
+    renderer_settings: RendererSettings,
+) -> ForeignRoastResult<u64> {
+    catch_panic(move || {
         if let Ok(_) = JNI_INIT_LOCK.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst) {
             std::env::set_var("RUST_BACKTRACE", "full");
-            let logger = unwrap_or_throw_new!(JavaLogger::new(env), env, "Could not construct backend logger");
-            unwrap_or_throw_new!(logger.init(), env, "Could not initialize backend logger");
+            JavaLogger::new(logger_callbacks)
+                .init()
+                .context("Could not initialize backend logger")?;
         }
 
-        let vector2d_class = JavaVector2d::accessor(env);
-        let renderer_settings_class = JavaRendererSettings::accessor(env);
-        let fullscreen_mode_class = JavaFullscreenMode::accessor(env);
+        let app_name = string_from_foreign(app_name, app_name_len)?;
+        let app_version = string_from_foreign(app_version, app_version_len)?;
 
-        let app_name = env.get_string(JString::from(app_name)).unwrap().into();
-        let app_version = env.get_string(JString::from(app_version)).unwrap().into();
-        let renderer_settings = JObject::from(renderer_settings);
-
-        let renderer_size = renderer_settings_class.rendererSize(renderer_settings);
-        let renderer_size = (vector2d_class.x(renderer_size), vector2d_class.y(renderer_size));
-
-        let fullscreen_mode = renderer_settings_class.fullscreenMode(renderer_settings);
-        let fullscreen_mode = fullscreen_mode_class.from_java(fullscreen_mode);
-
-        let transparent = renderer_settings_class.transparent(renderer_settings);
-
-        let renderer_settings = RendererSettings {
-            renderer_size,
-            fullscreen_mode,
-            transparent,
-        };
-
-        let default_texture = crate::renderer::texture::generate_default_texture(env);
+        let default_texture = texture::generate_default_texture(random_interface);
 
         BACKEND_STORAGE_KEY_COUNTER.with(|counter_cell| {
             let mut counter = counter_cell.borrow_mut();
             *counter = counter
                 .checked_add(1)
-                .expect("this is not okay (Backend storage overflow)");
+                .context("this is not okay (Backend storage overflow)")?;
             BACKEND_STORAGE.with(|storage_cell| {
                 let mut storage = storage_cell.borrow_mut();
                 storage.insert(
@@ -125,53 +98,42 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_init(
                     Roast::new(app_name, app_version, renderer_settings, default_texture),
                 );
             });
-            env.set_field(this, "pointer", "J", JValue::Long(*counter as i64))
-                .unwrap();
-        });
-
-        log::info!("Let the roasting begin!");
-    });
+            log::info!("Let the roasting begin!");
+            Ok(*counter)
+        })
+    })
 }
 
 /// Checks if the backend pointer from `this` refers to a non-null
 /// and existing backend. On success, returns the pointer as a u64.
 /// On error, throws a Java exception and returns `Err`.
-pub fn check_backend(env: &JNIEnv, this: jobject) -> Result<u64, ()> {
-    let pointer = env.get_field(this, "pointer", "J").unwrap().j().unwrap() as u64;
-    if pointer == 0 {
-        env.throw_new(NULL_POINTER_EXCEPTION_CLASS, "Backend pointer is null!")
-            .unwrap();
-        return Err(());
+pub fn check_backend(this: u64) -> Result<u64> {
+    if this == 0 {
+        bail!(RoastError::NullPointer("Backend pointer is null!".to_string()));
     }
     CURRENT_BACKEND.with(|current_backend_cell| {
         match *current_backend_cell.borrow() {
             None => {
                 // No backend is running, so check storage
                 BACKEND_STORAGE.with(|storage_cell| {
-                    if storage_cell.borrow().contains_key(&pointer) {
-                        Ok(pointer)
+                    if storage_cell.borrow().contains_key(&this) {
+                        Ok(this)
                     } else {
-                        env.throw_new(
-                            ILLEGAL_STATE_EXCEPTION_CLASS,
-                            "Backend pointer does not point to a valid struct",
-                        )
-                        .unwrap();
-                        Err(())
+                        bail!(RoastError::IllegalState(
+                            "Backend pointer does not point to a valid struct".to_string()
+                        ));
                     }
                 })
             }
             Some(running_pointer) => {
                 // A backend is currently running, so check
                 // if the pointer matches
-                if pointer == running_pointer {
-                    Ok(pointer)
+                if this == running_pointer {
+                    Ok(this)
                 } else {
-                    env.throw_new(
-                        ILLEGAL_STATE_EXCEPTION_CLASS,
-                        "Only one backend can run its event loop at a time",
-                    )
-                    .unwrap();
-                    Err(())
+                    bail!(RoastError::IllegalState(
+                        "Only one backend can run its event loop at a time".to_string()
+                    ));
                 }
             }
         }
@@ -180,19 +142,17 @@ pub fn check_backend(env: &JNIEnv, this: jobject) -> Result<u64, ()> {
 
 /// Checks if the backend pointer from `this` is valid, and if so runs
 /// the callback with the backend as its only argument, then returns `Ok`.
-fn with_backend<F, R>(env: &JNIEnv, this: jobject, callback: F) -> Result<R, ()>
+fn with_backend<F, R>(this: u64, callback: F) -> Result<R>
 where
     F: FnOnce(Roast) -> R,
 {
-    let pointer = check_backend(env, this)?;
+    let pointer = check_backend(this)?;
     BACKEND_STORAGE.with(|storage_cell| {
         let mut storage = storage_cell.borrow_mut();
         match storage.remove(&pointer) {
             None => {
                 // We can only get here if init() is called on a valid, running backend
-                env.throw_new(ILLEGAL_STATE_EXCEPTION_CLASS, "Cannot initialize backend twice")
-                    .unwrap();
-                Err(())
+                bail!(RoastError::IllegalState("Cannot initialize backend twice".to_string()));
             }
             Some(roast) => {
                 CURRENT_BACKEND.with(|current_backend_cell| {
@@ -205,178 +165,78 @@ where
 }
 
 #[no_mangle]
-pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_runEventLoop(
-    env: JNIEnv<'static>,
-    this: jobject,
-    step: jobject,
-) -> jobject {
-    catch_panic!(env, {
-        let step = JObject::from(step);
-        let step_class = env.get_object_class(step).unwrap();
-        let invoke_method = env
-            .get_method_id(step_class, "invoke", "(Ljava/lang/Object;)Ljava/lang/Object;")
-            .unwrap();
-        let env_for_closure = env.clone();
-        let args = [JValue::Object(JObject::from(this))];
-        let invoke_step = move || {
-            env_for_closure
-                .call_method_unchecked(step, invoke_method, JavaType::Object(OBJECT_TYPE.to_string()), &args)
-                .expect("Failed to invoke step callback");
-        };
-
-        with_backend(&env, this, |backend| backend.run_event_loop(invoke_step))
-    });
-    JObject::null().into_inner()
+pub extern "C" fn roast_backend_run_event_loop(this: u64, step: extern "C" fn() -> ()) -> ForeignRoastResult<Nothing> {
+    catch_panic(move || {
+        with_backend(this, |backend| backend.run_event_loop(move || step()))?;
+        Ok(Nothing::default())
+    })
 }
 
 #[no_mangle]
-pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createTexture(
-    env: JNIEnv,
-    this: jobject,
-    image: jbyteArray,
-    sampling: jobject,
-    generate_mipmaps: jboolean,
-) -> jobject {
-    catch_panic!(env, {
-        check_backend(&env, this).unwrap();
+pub extern "C" fn roast_backend_create_texture(
+    this: u64,
+    image: *const u8,
+    image_len: usize,
+    sampling: TextureSampling,
+    generate_mipmaps: bool,
+) -> ForeignRoastResult<TextureId> {
+    catch_panic(move || {
+        check_backend(this)?;
 
-        let texture_sampling_class = JavaTextureSampling::accessor(env);
+        let rust_image =
+            image::load_from_memory(slice_from_foreign(image, image_len)?).context("Could not load image!")?;
 
-        let image_array = env.get_byte_array_elements(image, ReleaseMode::NoCopyBack).unwrap();
-        let rust_image = unsafe {
-            std::slice::from_raw_parts(image_array.as_ptr() as *const u8, image_array.size().unwrap() as usize)
-        };
-        let rust_image = match image::load_from_memory(rust_image) {
-            Ok(img) => img,
-            Err(err) => {
-                env.throw_new(ROAST_EXCEPTION_CLASS, format!("Could not load image: {:?}", err)).unwrap();
-                panic!();
-            }
-        };
-
-        let rust_sampling = texture_sampling_class.from_java(sampling);
-        let rust_gen_mipmaps = generate_mipmaps == JNI_TRUE;
-
-        let out_pointer = backend::with_renderer(move |renderer| {
-            let texture = Texture::new(
-                &renderer.vulkan,
-                rust_image,
-                rust_sampling,
-                rust_gen_mipmaps,
-            );
-            renderer.register_texture(texture)
-        });
-
-        env.new_object(ROAST_TEXTURE_CLASS, "(J)V", &[JValue::Long(out_pointer as i64)]).unwrap().into_inner()
-    } else {
-        JObject::null().into_inner()
-    });
-}
-
-/// Builds a new `RoastMesh` with the given pointer.
-fn new_roast_mesh(env: &JNIEnv, pointer: u64) -> jobject {
-    env.new_object(ROAST_MESH_CLASS, "(J)V", &[JValue::Long(pointer as i64)])
-        .unwrap()
-        .into_inner()
+        backend::with_renderer(move |renderer| {
+            let texture = Texture::new(&renderer.vulkan, rust_image, sampling, generate_mipmaps);
+            Ok(renderer.register_texture(texture))
+        })
+    })
 }
 
 #[no_mangle]
-pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMesh(
-    env: JNIEnv,
-    this: jobject,
-    vertices: jobjectArray,
-    indices: jintArray,
-    vertex_type: jobject,
-    texture0: jobject,
-    texture1: jobject,
-) -> jobject {
-    catch_panic!(env, {
-        check_backend(&env, this).unwrap();
+pub extern "C" fn roast_backend_create_mesh(
+    this: u64,
+    vertices: *const Vertex,
+    vertices_len: usize,
+    indices: *const u32,
+    indices_len: usize,
+    vertex_type: VertexType,
+    texture0: ForeignOption<TextureId>,
+    texture1: ForeignOption<TextureId>,
+) -> ForeignRoastResult<MeshId> {
+    catch_panic(move || {
+        check_backend(this)?;
 
-        let vertex_class = JavaVertex::accessor(env);
-        let vector3f_class = JavaVector3f::accessor(env);
-        let vector4f_class = JavaVector4f::accessor(env);
-        let vertex_type_class = JavaVertexType::accessor(env);
+        let rust_vertices = slice_from_foreign(vertices, vertices_len)?;
+        let rust_indices = slice_from_foreign(indices, indices_len)?;
 
-        let get_vertex = |obj: JObject| -> Vertex {
-            let pos = vertex_class.pos(obj);
-            let pos = [
-                vector3f_class.x(pos),
-                vector3f_class.y(pos),
-                vector3f_class.z(pos),
-            ];
-            let color_tex = vertex_class.colorTex(obj);
-            let color_tex = [
-                vector4f_class.x(color_tex),
-                vector4f_class.y(color_tex),
-                vector4f_class.z(color_tex),
-                vector4f_class.w(color_tex),
-            ];
-            Vertex {
-                pos,
-                color_tex,
-            }
-        };
-
-        let vertices_len = env.get_array_length(vertices).unwrap();
-        let mut rust_vertices = Vec::with_capacity(vertices_len as usize);
-        for i in 0..vertices_len {
-            rust_vertices.push(get_vertex(env.get_object_array_element(vertices, i).unwrap()));
-        }
-
-        let indices_array = env.get_int_array_elements(indices, ReleaseMode::NoCopyBack).unwrap();
-        let rust_indices = unsafe {
-            std::slice::from_raw_parts(indices_array.as_ptr() as *const u32, indices_array.size().unwrap() as usize)
-        };
-
-        let rust_vertex_type = vertex_type_class.from_java(vertex_type);
-
-        let get_texture = |obj| {
-            if obj == std::ptr::null_mut() {
-                None
-            } else {
-                Some(env.get_field(obj, "pointer", "J").unwrap().j().unwrap() as TextureId)
-            }
-        };
-
-        let rust_texture0 = get_texture(texture0);
-        let rust_texture1 = get_texture(texture1);
-
-        let out_pointer = backend::with_renderer(move |renderer| {
+        backend::with_renderer(move |renderer| {
             let mesh = Mesh::build(
-                rust_vertices.as_slice(),
+                rust_vertices,
                 rust_indices,
-                rust_vertex_type,
-                rust_texture0,
-                rust_texture1,
+                vertex_type,
+                texture0.into(),
+                texture1.into(),
                 &renderer.vulkan,
             );
-            renderer.register_mesh(mesh)
-        });
-
-        new_roast_mesh(&env, out_pointer)
-    } else {
-        JObject::null().into_inner()
-    });
+            Ok(renderer.register_mesh(mesh))
+        })
+    })
 }
 
 #[no_mangle]
-pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMeshFromVox(
-    env: JNIEnv,
-    this: jobject,
-    vox: jbyteArray,
-) -> jobject {
-    catch_panic!(env, {
-        check_backend(&env, this).unwrap();
+pub extern "C" fn roast_backend_create_mesh_from_vox(
+    this: u64,
+    vox: *const u8,
+    vox_len: usize,
+) -> ForeignRoastResult<MeshId> {
+    catch_panic(move || {
+        check_backend(this)?;
 
-        let vox_array = env.get_byte_array_elements(vox, ReleaseMode::NoCopyBack).unwrap();
-        let rust_vox = unsafe {
-            std::slice::from_raw_parts(vox_array.as_ptr() as *const u8, vox_array.size().unwrap() as usize)
-        };
-
+        let rust_vox = slice_from_foreign(vox, vox_len)?;
         let (vertices, indices) = ogt_util::meshify_voxel(rust_vox);
 
-        let out_pointer = backend::with_renderer(move |renderer| {
+        backend::with_renderer(move |renderer| {
             let mesh = Mesh::build(
                 vertices.as_slice(),
                 indices.as_slice(),
@@ -385,119 +245,53 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMeshFromV
                 None,
                 &renderer.vulkan,
             );
-            renderer.register_mesh(mesh)
-        });
-
-        new_roast_mesh(&env, out_pointer)
-    } else {
-        JObject::null().into_inner()
-    });
+            Ok(renderer.register_mesh(mesh))
+        })
+    })
 }
 
 #[no_mangle]
-pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_createMeshWithGeometry(
-    env: JNIEnv,
-    this: jobject,
-    geometry: jobject,
-) -> jobject {
-    catch_panic!(env, {
-        check_backend(&env, this).unwrap();
+pub extern "C" fn roast_backend_create_mesh_with_geometry(this: u64, geometry: MeshId) -> ForeignRoastResult<MeshId> {
+    catch_panic(move || {
+        check_backend(this)?;
 
-        let geometry_ptr = lib_mesh::get_mesh_pointer(env, geometry);
-
-        let out_pointer = backend::with_renderer(move |renderer| {
-            let geometry_mesh = renderer.meshes.get(&geometry_ptr).expect(lib_mesh::MESH_NOT_FOUND_MSG);
+        backend::with_renderer(move |renderer| {
+            let geometry_mesh = renderer.meshes.get(&geometry).context(mesh::MESH_NOT_FOUND_MSG)?;
             let mesh = Mesh::with_geometry(geometry_mesh);
-            renderer.register_mesh(mesh)
-        });
-
-        new_roast_mesh(&env, out_pointer)
-    } else {
-        JObject::null().into_inner()
-    });
+            Ok(renderer.register_mesh(mesh))
+        })
+    })
 }
 
 #[no_mangle]
-pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_getSize(env: JNIEnv, this: jobject) -> jobject {
-    catch_panic!(env, {
-        check_backend(&env, this).unwrap();
+pub extern "C" fn roast_backend_get_size(this: u64) -> ForeignRoastResult<DVec2> {
+    catch_panic(move || {
+        check_backend(this)?;
 
-        let size = backend::with_renderer(|renderer| {
-            renderer.vulkan.surface.window().inner_size()
-        });
+        let size = backend::with_renderer(|renderer| renderer.vulkan.surface.window().inner_size());
 
-        env.new_object(
-            VECTOR2D_TYPE,
-            "(DD)V",
-            &[JValue::Double(size.width as jdouble), JValue::Double(size.height as jdouble)]
-        )
-        .unwrap()
-        .into_inner()
-    } else {
-        JObject::null().into_inner()
-    });
+        Ok(DVec2::new(size.width as f64, size.height as f64))
+    })
 }
 
 #[no_mangle]
-pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_render(env: JNIEnv, this: jobject, scene: jobject) {
-    fn get_mesh_array_from_scene(env: JNIEnv, scene: jobject, array_list_field: &str) -> Vec<MeshId> {
-        let meshes = env
-            .get_field(scene, array_list_field, "Ljava/util/ArrayList;")
-            .unwrap()
-            .l()
-            .unwrap();
-        let len = call_getter!(env, meshes, "size", "I").i().unwrap();
-        let array_obj = env
-            .get_field(meshes, "elementData", "[Ljava/lang/Object;")
-            .unwrap()
-            .l()
-            .unwrap()
-            .into_inner();
+pub extern "C" fn roast_backend_render(
+    this: u64,
+    camera: Camera,
+    scene_meshes: *const MeshId,
+    scene_meshes_len: usize,
+    gui_meshes: *const MeshId,
+    gui_meshes_len: usize,
+) -> ForeignRoastResult<Nothing> {
+    catch_panic(move || {
+        check_backend(this)?;
 
-        let mesh_class = env.find_class(ROAST_MESH_CLASS).unwrap();
-        let mesh_pointer_field = env.get_field_id(mesh_class, "pointer", "J").unwrap();
-
-        let mut out = Vec::with_capacity(len as usize);
-        for i in 0..len {
-            let mesh = env.get_object_array_element(array_obj, i).unwrap();
-            out.push(
-                env.get_field_unchecked(mesh, mesh_pointer_field, JavaType::Primitive(Primitive::Long))
-                    .unwrap()
-                    .j()
-                    .unwrap() as MeshId,
-            );
-        }
-        out
-    }
-
-    catch_panic!(env, {
-        check_backend(&env, this).unwrap();
-
-        let vector3d_class = JavaVector3d::accessor(env);
-        let camera_class = JavaCamera::accessor(env);
-        let camera_field = env
-            .get_field(scene, "camera", format!("L{};", CAMERA_CLASS))
-            .unwrap()
-            .l()
-            .unwrap();
-        let camera_pos = camera_class.pos(camera_field);
-        let camera = Camera {
-            pos: DVec3::new(
-                vector3d_class.x(camera_pos),
-                vector3d_class.y(camera_pos),
-                vector3d_class.z(camera_pos),
-            ),
-            yaw: camera_class.yaw(camera_field),
-            pitch: camera_class.pitch(camera_field),
-            fov: camera_class.fov(camera_field),
-        };
-
-        let scene_meshes = get_mesh_array_from_scene(env, scene, "sceneMeshes");
-        let gui_meshes = get_mesh_array_from_scene(env, scene, "guiMeshes");
+        let rust_scene_meshes = slice_from_foreign(scene_meshes, scene_meshes_len)?;
+        let rust_gui_meshes = slice_from_foreign(gui_meshes, gui_meshes_len)?;
         let scene = Scene {
             camera,
-            scene_meshes,
-            gui_meshes,
+            scene_meshes: rust_scene_meshes,
+            gui_meshes: rust_gui_meshes,
         };
 
         backend::with_renderer(move |renderer| {
@@ -505,10 +299,7 @@ pub extern "system" fn Java_ai_arcblroth_boss_roast_RoastBackend_render(env: JNI
             let gui_data = renderer.gui.end_frame();
             renderer.render(scene, gui_data.1);
         });
-    });
-}
 
-#[no_mangle]
-pub extern "system" fn roast_test() -> *mut c_char {
-    CString::new("Hello Project Panama!").unwrap().into_raw()
+        Ok(Nothing::default())
+    })
 }

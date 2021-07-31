@@ -1,7 +1,11 @@
+import org.gradle.internal.jvm.Jvm
+import org.gradle.internal.os.OperatingSystem
+
 plugins {
     id 'application'
     id 'org.jetbrains.kotlin.jvm'
     id 'org.jlleitschuh.gradle.ktlint'
+    id 'io.github.krakowski.jextract'
     id 'com.github.johnrengelman.shadow'
 }
 
@@ -26,14 +30,41 @@ dependencies {
     include(implementation("org.scijava:native-lib-loader:$native_lib_loader_version"))
 }
 
+def roastCbindgen = tasks.getByPath(':roast:cbindgen')
+jextract {
+    header(roastCbindgen.outputs.files[0].absolutePath) {
+        def clangArgs = /* -C */ '"--include=stdbool.h" -C "--include=stdint.h"'
+        if(OperatingSystem.current() == OperatingSystem.WINDOWS) {
+            // Questionable definitions to remove most of the
+            // MSVC-specific symbols
+            clangArgs += ' -C "--include=vadefs.h"' +
+                    ' -C "-D _VCRUNTIME_H" -C "-D _VCRT_COMPILER_PREPROCESSOR" -C "_VA_LIST_DEFINED"'
+        }
+
+        targetPackage = 'ai.arcblroth.boss.roast.lib'
+        className = 'Roast'
+        libraries = ['roast']
+        clangArguments = clangArgs
+        sourceMode = false
+    }
+}
+tasks.getByName('jextract').with {
+    // jextract needs at least Java 17, which at the time
+    // of writing this, isn't supported by Gradle yet
+    toolchain = javaToolchains
+            .compilerFor {
+                languageVersion = JavaLanguageVersion.of(17)
+            }
+            .map { it.metadata.installationPath.asFile.absolutePath.toString() }
+            .orElse(Jvm.current().javaHome.absolutePath.toString())
+
+    dependsOn(roastCbindgen)
+}
+
 processResources {
     from(configurations.backend) {
         into "natives/windows_64"
     }
-}
-
-run {
-    jvmArgs "--add-modules=jdk.incubator.foreign", "-Dforeign.restricted=permit"
 }
 
 jar {

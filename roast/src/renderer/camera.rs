@@ -4,6 +4,7 @@ use crate::renderer::shader::CameraBufferObjectData;
 
 pub const UP: Vec3 = const_vec3!([0.0, 1.0, 0.0]);
 
+#[repr(C)]
 pub struct Camera {
     pub pos: DVec3,
     pub yaw: f64,

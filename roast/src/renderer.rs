@@ -218,7 +218,7 @@ impl RoastRenderer {
         builder: &mut AutoCommandBufferBuilder<PrimaryAutoCommandBuffer>,
         pipeline: Arc<GraphicsPipeline>,
         camera_buffer: &Arc<UniformBuffer<CameraBufferObjectData>>,
-        mesh_ids: &Vec<MeshId>,
+        mesh_ids: &[MeshId],
     ) {
         // If there is nothing to render then return early
         if mesh_ids.len() == 0 {
@@ -293,8 +293,8 @@ impl RoastRenderer {
                 .draw_indexed(
                     pipeline.clone(),
                     &self.vulkan.dynamic_state,
-                    vec![mesh.vertex_buffer().clone()],
-                    mesh.index_buffer().clone(),
+                    vec![mesh.vertex_buffer()],
+                    mesh.index_buffer(),
                     (camera_descriptor_set.clone(), scene_descriptor_set.clone().unwrap()),
                     mesh.fill_push_constants(),
                     std::iter::empty(),

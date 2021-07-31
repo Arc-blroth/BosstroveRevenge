@@ -36,8 +36,30 @@ def unzipCascadiaFont = tasks.register('unzipFonts', Copy) {
     include 'ttf/static/CascadiaMono-Regular.ttf'
 }
 
+def cbindgen = tasks.register('cbindgen') {
+    def config = project.file('cbindgen.toml')
+    def output = new File(buildDir, 'roast.h')
+
+    inputs.file(config)
+    outputs.file(output)
+
+    doLast {
+        project.exec {
+            commandLine(project.rootProject.getExecutableFromProperties('cbindgen'))
+            args(
+                    '--config', config.getAbsolutePath(),
+                    '--crate', 'roast',
+                    '--output', output.getAbsolutePath(),
+            )
+        }.assertNormalExitValue()
+    }
+}
+
 project.afterEvaluate {
-    def build = tasks.getByName('build');
+    def build = tasks.getByName('build')
     build.dependsOn(buildShaders)
     build.dependsOn(unzipCascadiaFont)
+
+    cbindgen.get().inputs.dir(new File(build.workingDir, "src"))
+    cbindgen.get().dependsOn(build)
 }

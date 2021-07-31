@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 
+use glam::DVec2;
 use image::DynamicImage;
 use winit::event::{Event, WindowEvent};
 use winit::event_loop::{ControlFlow, EventLoop, EventLoopWindowTarget};
@@ -8,13 +9,15 @@ use crate::renderer::vulkan::VulkanWrapper;
 use crate::renderer::RoastRenderer;
 
 /// Rust version of `ai.arcblroth.boss.RendererSettings`
+#[repr(C)]
 pub struct RendererSettings {
-    pub renderer_size: (f64, f64),
+    pub renderer_size: DVec2,
     pub fullscreen_mode: FullscreenMode,
     pub transparent: bool,
 }
 
 /// Rust version of `ai.arcblroth.boss.RendererSettings$FullscreenMode`
+#[repr(C)]
 #[derive(Ord, PartialOrd, Eq, PartialEq)]
 pub enum FullscreenMode {
     None,

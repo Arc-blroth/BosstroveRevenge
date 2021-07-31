@@ -190,12 +190,12 @@ impl VulkanWrapper {
         let video_mode = monitor.video_modes().min().unwrap();
         let renderer_size = settings.renderer_size;
         let window_size = PhysicalSize::new(
-            (video_mode.size().width as f64 * renderer_size.0).round() as u32,
-            (video_mode.size().height as f64 * renderer_size.1).round() as u32,
+            (video_mode.size().width as f64 * renderer_size.x).round() as u32,
+            (video_mode.size().height as f64 * renderer_size.y).round() as u32,
         );
         let window_pos = PhysicalPosition::new(
-            (video_mode.size().width as f64 * ((1.0 - renderer_size.0) * 0.5)).round() as u32,
-            (video_mode.size().height as f64 * ((1.0 - renderer_size.1) * 0.5)).round() as u32,
+            (video_mode.size().width as f64 * ((1.0 - renderer_size.x) * 0.5)).round() as u32,
+            (video_mode.size().height as f64 * ((1.0 - renderer_size.y) * 0.5)).round() as u32,
         );
         let surface = WindowBuilder::new()
             .with_title(app_name)

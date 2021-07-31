@@ -91,16 +91,16 @@ impl Mesh {
         }
     }
 
-    pub fn vertex_buffer(&self) -> &Arc<VertexBuffer> {
-        &self.vertex_buffer
+    pub fn vertex_buffer(&self) -> Arc<VertexBuffer> {
+        self.vertex_buffer.clone()
     }
 
-    pub fn index_buffer(&self) -> &Arc<IndexBuffer> {
-        &self.index_buffer
+    pub fn index_buffer(&self) -> Arc<IndexBuffer> {
+        self.index_buffer.clone()
     }
 
-    pub fn vertex_type(&self) -> &VertexType {
-        &self.vertex_type
+    pub fn vertex_type(&self) -> VertexType {
+        self.vertex_type
     }
 
     /// Fills and returns the PushConstantData that should be passed
