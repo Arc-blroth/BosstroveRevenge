@@ -1,17 +1,16 @@
-import ai.arcblroth.boss.gradle.CargoWrapperPlugin
 import ai.arcblroth.boss.gradle.BuildShadersTask
 
 plugins {
     id 'de.undercouch.download'
+    id 'io.github.arc-blroth.cargo-wrapper'
 }
-apply plugin: CargoWrapperPlugin
 
 // Set buildDir to the target folder
 // to be consistent with Rust projects
 buildDir = new File(projectDir, 'target')
 
 cargo {
-    outputs = [Tuple.tuple('', 'roast.dll')]
+    outputs = ['': 'roast.dll']
 }
 
 def buildShaders = tasks.register('buildShaders', BuildShadersTask) {
