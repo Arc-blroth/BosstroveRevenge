@@ -30,7 +30,7 @@ use crate::renderer::scene::Scene;
 use crate::renderer::shader::{Vertex, VertexType};
 use crate::renderer::texture::{Texture, TextureSampling};
 use crate::renderer::{MeshId, TextureId};
-use crate::texture::JavaRandomInterface;
+use crate::texture::{JavaDefaultTextureNumbers, DEFAULT_TEXTURE_NUMBERS_LEN};
 
 pub mod backend;
 pub mod error;
@@ -66,7 +66,7 @@ thread_local! {
 #[no_mangle]
 pub extern "C" fn roast_backend_init(
     logger_callbacks: JavaLoggerCallbacks,
-    random_interface: JavaRandomInterface,
+    default_texture_numbers: JavaDefaultTextureNumbers,
     app_name: *const u8,
     app_name_len: usize,
     app_version: *const u8,
@@ -83,8 +83,9 @@ pub extern "C" fn roast_backend_init(
 
         let app_name = string_from_foreign(app_name, app_name_len)?;
         let app_version = string_from_foreign(app_version, app_version_len)?;
+        let default_texture_numbers = slice_from_foreign(default_texture_numbers, DEFAULT_TEXTURE_NUMBERS_LEN)?;
 
-        let default_texture = texture::generate_default_texture(random_interface);
+        let default_texture = texture::generate_default_texture(default_texture_numbers);
 
         BACKEND_STORAGE_KEY_COUNTER.with(|counter_cell| {
             let mut counter = counter_cell.borrow_mut();

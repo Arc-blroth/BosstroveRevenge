@@ -1,3 +1,10 @@
+repositories {
+    mavenCentral()
+}
+
 dependencies {
     compileOnly gradleApi()
+
+    implementation "org.ow2.asm:asm:$asm_version"
+    implementation "org.ow2.asm:asm-tree:$asm_version"
 }

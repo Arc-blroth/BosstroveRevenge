@@ -11,12 +11,24 @@ import ai.arcblroth.boss.render.Texture
 import ai.arcblroth.boss.render.TextureSampling
 import ai.arcblroth.boss.render.Vertex
 import ai.arcblroth.boss.render.VertexType
+import ai.arcblroth.boss.roast.lib.DVec2
+import ai.arcblroth.boss.roast.lib.JavaLoggerCallback
+import ai.arcblroth.boss.roast.lib.JavaLoggerCallbacks
+import ai.arcblroth.boss.roast.lib.Roast.DEFAULT_TEXTURE_NUMBERS_LEN
+import ai.arcblroth.boss.roast.lib.Roast.roast_backend_init
+import jdk.incubator.foreign.MemoryCopy
+import jdk.incubator.foreign.MemoryLayouts
+import jdk.incubator.foreign.MemorySegment
+import jdk.incubator.foreign.ResourceScope
 import org.joml.Matrix4f
 import org.joml.Vector2d
 import org.joml.Vector2f
 import org.joml.Vector4f
 import org.scijava.nativelib.NativeLoader
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.util.Random
+import ai.arcblroth.boss.roast.lib.RendererSettings as ForeignRendererSettings
 
 /**
  * The winit + vulkano backend, implemented in Rust because
@@ -28,12 +40,36 @@ import org.slf4j.LoggerFactory
  */
 class RoastBackend : Backend, EventLoop, Renderer {
     companion object {
-        init {
-            NativeLoader.loadLibrary("roast")
-        }
-
         @JvmStatic
         private val LOGGER = LoggerFactory.getLogger("RoastBackend")
+
+        private val LOGGER_CALLBACKS: MemorySegment
+        private val DEFAULT_TEXTURE_NUMBERS: MemorySegment
+
+        init {
+            NativeLoader.loadLibrary("roast")
+
+            val scope = ResourceScope.globalScope()
+            fun makeCallback(method: Logger.(String) -> Unit) =
+                JavaLoggerCallback.allocate({ ptr, len -> LOGGER.method(fromRustString(ptr, len)) }, scope)
+            LOGGER_CALLBACKS = JavaLoggerCallbacks.allocate(scope).apply {
+                JavaLoggerCallbacks.`error$set`(this, makeCallback(Logger::error))
+                JavaLoggerCallbacks.`warn$set`(this, makeCallback(Logger::warn))
+                JavaLoggerCallbacks.`info$set`(this, makeCallback(Logger::info))
+                JavaLoggerCallbacks.`debug$set`(this, makeCallback(Logger::debug))
+                JavaLoggerCallbacks.`trace$set`(this, makeCallback(Logger::trace))
+            }
+
+            val random = Random(16)
+            val textureNums = DoubleArray(DEFAULT_TEXTURE_NUMBERS_LEN()) {
+                random.nextDouble()
+            }
+            DEFAULT_TEXTURE_NUMBERS = MemorySegment.allocateNative(
+                textureNums.size.toLong() * MemoryLayouts.JAVA_DOUBLE.byteSize(),
+                scope
+            )
+            MemoryCopy.copyFromArray(textureNums, 0, textureNums.size, DEFAULT_TEXTURE_NUMBERS, 0)
+        }
     }
 
     /**
@@ -41,7 +77,30 @@ class RoastBackend : Backend, EventLoop, Renderer {
      */
     private var pointer = 0L
 
-    external override fun init(appName: String, appVersion: String, rendererSettings: RendererSettings)
+    override fun init(appName: String, appVersion: String, rendererSettings: RendererSettings) {
+        ResourceScope.newConfinedScope().use { scope ->
+            val appNameC = toRustString(appName, scope)
+            val appVersionC = toRustString(appVersion, scope)
+            val rendererSettingsC = ForeignRendererSettings.allocate(scope).apply {
+                ForeignRendererSettings.`renderer_size$slice`(this).apply {
+                    DVec2.`x$set`(this, rendererSettings.rendererSize.x)
+                    DVec2.`y$set`(this, rendererSettings.rendererSize.y)
+                }
+                ForeignRendererSettings.`fullscreen_mode$set`(this, rendererSettings.fullscreenMode.ordinal)
+                ForeignRendererSettings.`transparent$set`(this, rendererSettings.transparent.toCBool())
+            }
+            roast_backend_init(
+                scope,
+                LOGGER_CALLBACKS,
+                DEFAULT_TEXTURE_NUMBERS,
+                appNameC.address(),
+                appNameC.byteSize(),
+                appVersionC.address(),
+                appVersionC.byteSize(),
+                rendererSettingsC,
+            )
+        }
+    }
 
     external override fun runEventLoop(step: EventLoop.() -> Unit): Nothing
 

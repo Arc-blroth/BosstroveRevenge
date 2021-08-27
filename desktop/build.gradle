@@ -1,5 +1,7 @@
-import org.gradle.internal.jvm.Jvm
+import ai.arcblroth.boss.gradle.ClassPatchTask
 import org.gradle.internal.os.OperatingSystem
+import org.jetbrains.kotlin.gradle.dsl.KotlinCompile
+import org.objectweb.asm.Opcodes
 
 plugins {
     id 'application'
@@ -9,8 +11,18 @@ plugins {
     id 'com.github.johnrengelman.shadow'
 }
 
-sourceCompatibility = JavaVersion.VERSION_16
-targetCompatibility = JavaVersion.VERSION_16
+java {
+    toolchain {
+        // wdym java 18 doesn't exist yet
+        languageVersion = JavaLanguageVersion.of(18)
+    }
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    def compiler = javaToolchains.compilerFor(java.toolchain)
+    kotlinOptions.jdkHome = compiler.get().metadata.installationPath.asFile.absolutePath
+    kotlinOptions.freeCompilerArgs = ["-Xextended-compiler-checks"]
+}
 
 mainClassName = "ai.arcblroth.boss.desktop.DesktopMain"
 
@@ -48,17 +60,43 @@ jextract {
         sourceMode = false
     }
 }
-tasks.getByName('jextract').with {
-    // jextract needs at least Java 17, which at the time
-    // of writing this, isn't supported by Gradle yet
-    toolchain = javaToolchains
-            .compilerFor {
-                languageVersion = JavaLanguageVersion.of(17)
-            }
-            .map { it.metadata.installationPath.asFile.absolutePath.toString() }
-            .orElse(Jvm.current().javaHome.absolutePath.toString())
+def jextract = tasks.getByName('jextract')
+jextract.dependsOn(roastCbindgen)
 
-    dependsOn(roastCbindgen)
+// JExtract generates a class that will try to load
+// our library with System.loadLibrary, but we have our
+// own library loading logic.
+// This task patches the generated class to remove the
+// System.load call.
+def patchRoastClass = tasks.register('patchRoastClass', ClassPatchTask) {
+    def roastHeader = jextract.definitions[0]
+    def roastClassFile = new File(
+            "$buildDir/generated/sources/jextract/main/java",
+            "${roastHeader.targetPackage.get().replace('.', '/')}/${roastHeader.className.get()}.class"
+    )
+
+    dependsOn jextract
+    classFile roastClassFile
+    transform {
+        def clinitMethod = it.methods.find { it.name == "<clinit>" }
+        def insns = clinitMethod.instructions.iterator()
+        while(insns.hasNext()) {
+            def insn = insns.next()
+            if(insn.opcode == Opcodes.INVOKESTATIC && insn.owner == "java/lang/System" && insn.name == "loadLibrary") {
+                // Remove the method call as well as the LDC "roast" before it.
+                insns.remove()
+                insns.previous()
+                insns.remove()
+                break
+            }
+        }
+    }
+}
+tasks.withType(JavaCompile).configureEach {
+    dependsOn patchRoastClass
+}
+tasks.withType(KotlinCompile).configureEach {
+    dependsOn patchRoastClass
 }
 
 processResources {
