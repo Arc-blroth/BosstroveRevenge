@@ -48,7 +48,7 @@ abstract class Mesh {
     abstract val vertexType: VertexType
     abstract var textures: Pair<Texture?, Texture?>
     abstract var transform: Matrix4f
-    abstract var textureOffsets: Pair<Vector2f?, Vector2f?>
+    abstract var textureOffsets: Pair<Vector2f, Vector2f>
     abstract var overlayColor: Vector4f?
     abstract var opacity: Float
 }

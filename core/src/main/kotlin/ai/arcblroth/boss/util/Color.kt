@@ -14,7 +14,7 @@ import kotlin.math.floor
  *
  * @author Arc'blroth
  */
-data class Color(private val rgba: Int) {
+data class Color(val rgba: Int) {
 
     val red: Int
         get() = rgba shr 16 and 0xFF

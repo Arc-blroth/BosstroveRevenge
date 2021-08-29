@@ -45,6 +45,6 @@ class LoadProcess {
             ResourceLoader.loadResourceAsBytes("assets/room/testing.vox")
         )
 
-        isDone = true
+        // isDone = true
     }
 }
