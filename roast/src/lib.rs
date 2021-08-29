@@ -165,10 +165,12 @@ where
     })
 }
 
+pub type Step = extern "C" fn() -> ForeignRoastResult<Nothing>;
+
 #[no_mangle]
-pub extern "C" fn roast_backend_run_event_loop(this: u64, step: extern "C" fn() -> ()) -> ForeignRoastResult<Nothing> {
+pub extern "C" fn roast_backend_run_event_loop(this: u64, step: Step) -> ForeignRoastResult<Nothing> {
     catch_panic(move || {
-        with_backend(this, |backend| backend.run_event_loop(move || step()))?;
+        with_backend(this, |backend| backend.run_event_loop(move || step().panic_if_err()))?;
         Ok(Nothing::default())
     })
 }

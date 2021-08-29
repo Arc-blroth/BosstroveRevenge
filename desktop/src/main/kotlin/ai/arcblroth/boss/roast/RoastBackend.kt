@@ -12,10 +12,14 @@ import ai.arcblroth.boss.render.TextureSampling
 import ai.arcblroth.boss.render.Vertex
 import ai.arcblroth.boss.render.VertexType
 import ai.arcblroth.boss.roast.lib.DVec2
+import ai.arcblroth.boss.roast.lib.ForeignRoastResult_Nothing
+import ai.arcblroth.boss.roast.lib.ForeignRoastResult_u64
 import ai.arcblroth.boss.roast.lib.JavaLoggerCallback
 import ai.arcblroth.boss.roast.lib.JavaLoggerCallbacks
 import ai.arcblroth.boss.roast.lib.Roast.DEFAULT_TEXTURE_NUMBERS_LEN
 import ai.arcblroth.boss.roast.lib.Roast.roast_backend_init
+import ai.arcblroth.boss.roast.lib.Roast.roast_backend_run_event_loop
+import ai.arcblroth.boss.roast.lib.Step
 import jdk.incubator.foreign.MemoryCopy
 import jdk.incubator.foreign.MemoryLayouts
 import jdk.incubator.foreign.MemorySegment
@@ -79,8 +83,8 @@ class RoastBackend : Backend, EventLoop, Renderer {
 
     override fun init(appName: String, appVersion: String, rendererSettings: RendererSettings) {
         ResourceScope.newConfinedScope().use { scope ->
-            val appNameC = toRustString(appName, scope)
-            val appVersionC = toRustString(appVersion, scope)
+            val appNameC = toRustString(scope, appName)
+            val appVersionC = toRustString(scope, appVersion)
             val rendererSettingsC = ForeignRendererSettings.allocate(scope).apply {
                 ForeignRendererSettings.`renderer_size$slice`(this).apply {
                     DVec2.`x$set`(this, rendererSettings.rendererSize.x)
@@ -89,7 +93,7 @@ class RoastBackend : Backend, EventLoop, Renderer {
                 ForeignRendererSettings.`fullscreen_mode$set`(this, rendererSettings.fullscreenMode.ordinal)
                 ForeignRendererSettings.`transparent$set`(this, rendererSettings.transparent.toCBool())
             }
-            roast_backend_init(
+            this.pointer = roast_backend_init(
                 scope,
                 LOGGER_CALLBACKS,
                 DEFAULT_TEXTURE_NUMBERS,
@@ -98,11 +102,31 @@ class RoastBackend : Backend, EventLoop, Renderer {
                 appVersionC.address(),
                 appVersionC.byteSize(),
                 rendererSettingsC,
+            ).unwrap(
+                ForeignRoastResult_u64::`tag$get`,
+                ForeignRoastResult_u64::`ok$get`,
+                ForeignRoastResult_u64::`err$slice`
             )
         }
     }
 
-    external override fun runEventLoop(step: EventLoop.() -> Unit): Nothing
+    override fun runEventLoop(step: EventLoop.() -> Unit): Nothing {
+        ResourceScope.newConfinedScope().use { scope ->
+            val wrappedStep = wrapUpcall(
+                scope,
+                ForeignRoastResult_Nothing::allocate,
+                ForeignRoastResult_Nothing::`tag$set`,
+                ForeignRoastResult_Nothing::`err$slice`,
+            ) { this.step() }
+            val stepC = Step.allocate(wrappedStep, scope)
+            roast_backend_run_event_loop(scope, this.pointer, stepC).unwrap(
+                ForeignRoastResult_Nothing::`tag$get`,
+                ForeignRoastResult_Nothing::`ok$get`,
+                ForeignRoastResult_Nothing::`err$slice`
+            )
+            throw UNREACHABLE("event loop should never return normally")
+        }
+    }
 
     override val renderer: Renderer
         get() = this
