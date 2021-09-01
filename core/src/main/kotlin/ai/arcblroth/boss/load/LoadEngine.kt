@@ -15,8 +15,6 @@ import ai.arcblroth.boss.util.Color
 import ai.arcblroth.boss.util.ResourceLoader
 import ai.arcblroth.boss.util.asVector4f
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.trySendBlocking
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import org.joml.Vector4d
@@ -54,26 +52,6 @@ private const val LOGO_ANIMATION_SPEED = 0.01
  */
 class LoadEngine : Engine {
 
-    private val sendTexture = Channel<TextureCreationParams>(Channel.UNLIMITED)
-    private val receiveTexture = Channel<Texture>(Channel.UNLIMITED)
-    private val sendMesh = Channel<MeshCreationParams>(Channel.UNLIMITED)
-    private val receiveMesh = Channel<Mesh>(Channel.UNLIMITED)
-    private val sendMeshVox = Channel<ByteArray>(Channel.UNLIMITED)
-    private val receiveMeshVox = Channel<Mesh>(Channel.UNLIMITED)
-    private val sendMeshGeometry = Channel<Mesh>(Channel.UNLIMITED)
-    private val receiveMeshGeometry = Channel<Mesh>(Channel.UNLIMITED)
-
-    private val loadRenderer = LoadRendererResourceFactory(
-        sendTexture,
-        receiveTexture,
-        sendMesh,
-        receiveMesh,
-        sendMeshVox,
-        receiveMeshVox,
-        sendMeshGeometry,
-        receiveMeshGeometry
-    )
-
     private val loadProcess = LoadProcess()
     private val loadThreadError = AtomicReference<Throwable>()
 
@@ -89,7 +67,7 @@ class LoadEngine : Engine {
 
     init {
         // Start the loading thread
-        Thread({ loadProcess.load(loadRenderer) }, "LoadEngine").run {
+        Thread(loadProcess::load, "LoadEngine").run {
             setUncaughtExceptionHandler { _, error ->
                 loadThreadError.set(error)
             }
@@ -167,36 +145,8 @@ class LoadEngine : Engine {
             throw error
         }
 
-        // Handle requests to register resources.
-        while (!exceededFrameRate() && !sendTexture.isEmpty) {
-            val params = sendTexture.tryReceive().getOrThrow()
-            val texture = eventLoop.renderer.createTexture(params.image, params.sampling, params.generateMipmaps)
-            receiveTexture.trySendBlocking(texture).getOrThrow()
-        }
-        while (!exceededFrameRate() && !sendMesh.isEmpty) {
-            val params = sendMesh.tryReceive().getOrThrow()
-            val mesh = eventLoop.renderer.createMesh(
-                params.vertices,
-                params.indices,
-                params.vertexType,
-                params.texture0,
-                params.texture1
-            )
-            receiveMesh.trySendBlocking(mesh).getOrThrow()
-        }
-        while (!exceededFrameRate() && !sendMeshVox.isEmpty) {
-            val vox = sendMeshVox.tryReceive().getOrThrow()
-            val mesh = eventLoop.renderer.createMeshFromVox(vox)
-            receiveMeshVox.trySendBlocking(mesh).getOrThrow()
-        }
-        while (!exceededFrameRate() && !sendMeshGeometry.isEmpty) {
-            val geometry = sendMeshGeometry.tryReceive().getOrThrow()
-            val mesh = eventLoop.renderer.createMeshWithGeometry(geometry)
-            receiveMeshGeometry.trySendBlocking(mesh).getOrThrow()
-        }
-
         return if (loadProcess.isDone) {
-            Pair(this.scene!!, LevelEngine(loadProcess))
+            Pair(this.scene!!, LevelEngine(eventLoop, loadProcess))
         } else {
             Pair(this.scene!!, this)
         }
