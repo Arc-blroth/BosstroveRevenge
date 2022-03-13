@@ -1,0 +1,72 @@
+targets = [
+    { triple = "x86_64-unknown-linux-gnu" },
+    { triple = "aarch64-unknown-linux-gnu" },
+    # { triple = "aarch64-apple-darwin" },
+    # { triple = "x86_64-apple-darwin" },
+    { triple = "x86_64-pc-windows-gnu" },
+]
+
+[advisories]
+vulnerability = "deny"
+unmaintained = "deny"
+notice = "deny"
+unsound = "deny"
+ignore = []
+
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+highlight = "all"
+deny = []
+skip = [
+    # pulled in as wildcards
+    { name = "asefile" },
+    { name = "bevy_ase" },
+]
+
+[licenses]
+unlicensed = "deny"
+allow = ["Apache-2.0", "BSD-3-Clause", "ISC", "MIT"]
+deny = []
+copyleft = "allow"
+allow-osi-fsf-free = "neither"
+default = "deny"
+confidence-threshold = 0.95
+
+[[licenses.exceptions]]
+name = "adler32"
+version = "1.2.0"
+allow = ["Zlib"]
+
+[[licenses.exceptions]]
+name = "hexf-parse"
+version = "0.2.1"
+allow = ["CC0-1.0"]
+
+[[licenses.exceptions]]
+name = "notify"
+version = "5.0.0-pre.11"
+allow = ["CC0-1.0"]
+
+[[licenses.exceptions]]
+name = "rusty-xinput"
+version = "1.2.0"
+allow = ["0BSD"]
+
+[[licenses.clarify]]
+# stretch is licensed under MIT per its repository
+# https://github.com/vislyhq/stretch/blob/6879b9a/LICENSE
+# but for some reason the crate uploaded to crates.io
+# doesn't have a LICENSE file
+name = "stretch"
+expression = "MIT"
+license-files = []
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = [
+    "https://github.com/Arc-blroth/bevy_ase",
+    "https://github.com/B-Reif/asefile",
+]

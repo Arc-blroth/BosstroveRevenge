@@ -1,0 +1,26 @@
+[package]
+name = "bosstroves-revenge"
+authors = ["Arc-blroth <45273859+Arc-blroth@users.noreply.github.com>"]
+license = "GPL-3.0-only"
+version = "0.3.0"
+edition = "2021"
+
+[dependencies]
+benimator = "2.2.0"
+lazy_static = "1.4.0"
+rand = "0.8.5"
+winit = "0.26.1"
+
+[dependencies.bevy]
+version = "0.6.1"
+features = ["bevy_ci_testing"]
+
+[dependencies.bevy_ase]
+git = "https://github.com/Arc-blroth/bevy_ase"
+rev = "13263652850ef448eb71bb8c5e33128b0c87458d"
+version = "0.2.0"
+features = ["benimator"]
+
+[features]
+default = ["bevy_dyn"]
+bevy_dyn = ["bevy/dynamic"]
