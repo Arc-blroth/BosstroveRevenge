@@ -8,18 +8,28 @@ edition = "2021"
 [dependencies]
 benimator = "2.2.0"
 lazy_static = "1.4.0"
+memory-stats = "1.0.0"
 rand = "0.8.5"
+uuid = "0.8.2"
 winit = "0.26.1"
+
+# TODO: remove when the uuid! macro lands into uuid proper
+[dependencies.uuid-macro-internal]
+version = "1.0.0-alpha.1"
 
 [dependencies.bevy]
 version = "0.6.1"
-features = ["bevy_ci_testing"]
 
 [dependencies.bevy_ase]
 git = "https://github.com/Arc-blroth/bevy_ase"
 rev = "13263652850ef448eb71bb8c5e33128b0c87458d"
 version = "0.2.0"
 features = ["benimator"]
+
+[build-dependencies]
+path_macro = "1.0.0"
+reqwest = { version = "0.11.10", features = ["blocking"] }
+zip = "0.6.0"
 
 [features]
 default = ["bevy_dyn"]
