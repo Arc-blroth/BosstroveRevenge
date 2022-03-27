@@ -25,8 +25,8 @@ impl MemoryDiagnosticsPlugin {
     pub const VIRTUAL_MEM: DiagnosticId = DiagnosticId(uuid!("576a83d4-49bb-41e6-ae9c-5d8e26917cb9"));
 
     fn setup(mut diagnostics: ResMut<Diagnostics>) {
-        diagnostics.add(Diagnostic::new(Self::PHYSICAL_MEM, "physical memory", 20));
-        diagnostics.add(Diagnostic::new(Self::VIRTUAL_MEM, "virtual memory", 20));
+        diagnostics.add(Diagnostic::new(Self::PHYSICAL_MEM, "physical memory", 4));
+        diagnostics.add(Diagnostic::new(Self::VIRTUAL_MEM, "virtual memory", 4));
     }
 
     fn update_diagnostics(mut diagnostics: ResMut<Diagnostics>) {
