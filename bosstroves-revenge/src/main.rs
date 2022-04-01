@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 #![feature(decl_macro)]
 
+extern crate core;
 #[cfg(all(not(debug_assertions), feature = "bevy_dyn"))]
 compile_error!("Bevy should not be dynamically linked for release builds!");
 
@@ -13,9 +14,12 @@ use bevy::{log, DefaultPlugins};
 
 use crate::debug::fps_mem_display::FPSAndMemoryDisplayPlugin;
 use crate::debug::memory_diagnostics::MemoryDiagnosticsPlugin;
+use crate::load::LoadingPlugin;
 use crate::ui::styles::UIStyleInitPlugin;
 
 pub mod debug;
+pub mod load;
+pub mod state;
 pub mod ui;
 pub mod util;
 
@@ -33,6 +37,7 @@ fn main() {
         .add_plugin(MemoryDiagnosticsPlugin)
         .add_plugin(FPSAndMemoryDisplayPlugin)
         .add_plugin(UIStyleInitPlugin)
+        .add_plugin(LoadingPlugin)
         .add_startup_system(setup_cameras)
         .run();
 }
