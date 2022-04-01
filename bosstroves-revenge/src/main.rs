@@ -39,6 +39,7 @@ fn main() {
         .add_plugin(UIStyleInitPlugin)
         .add_plugin(LoadingPlugin)
         .add_startup_system(setup_cameras)
+        .add_system(debug::fullscreen_toggle)
         .run();
 }
 
