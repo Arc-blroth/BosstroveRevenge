@@ -26,7 +26,7 @@ skip = [
 
 [licenses]
 unlicensed = "deny"
-allow = ["Apache-2.0", "BSD-3-Clause", "ISC", "MIT"]
+allow = ["Apache-2.0", "BSD-3-Clause", "CC0-1.0", "ISC", "MIT"]
 deny = []
 copyleft = "allow"
 allow-osi-fsf-free = "neither"
@@ -39,19 +39,18 @@ version = "1.2.0"
 allow = ["Zlib"]
 
 [[licenses.exceptions]]
-name = "hexf-parse"
-version = "0.2.1"
-allow = ["CC0-1.0"]
-
-[[licenses.exceptions]]
-name = "notify"
-version = "5.0.0-pre.11"
-allow = ["CC0-1.0"]
-
-[[licenses.exceptions]]
 name = "rusty-xinput"
 version = "1.2.0"
 allow = ["0BSD"]
+
+[[licenses.clarify]]
+# Clarification taken from encoding-rs' README
+# https://github.com/hsivonen/encoding_rs/commit/b73366a88ef1968df2999d6d8d670b49763ad959
+name = "encoding_rs"
+expression = "(Apache-2.0 OR MIT) AND BSD-3-Clause"
+license-files = [
+    { path = "COPYRIGHT", hash = 0x39f8ad31 }
+]
 
 [[licenses.clarify]]
 # stretch is licensed under MIT per its repository
