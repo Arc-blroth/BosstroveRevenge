@@ -3,14 +3,14 @@ use bevy::asset::AssetServer;
 use bevy::core::Time;
 use bevy::math::{Rect, Size, Vec3, Vec4};
 use bevy::prelude::{
-    BuildChildren, Color, Component, ImageBundle, NodeBundle, Query, Res, TextBundle, Transform, With,
+    BuildChildren, Color, Component, ImageBundle, NodeBundle, Query, Res, SystemSet, TextBundle, Transform, With,
 };
 use bevy::text::{HorizontalAlign, Text, TextAlignment, VerticalAlign};
 use bevy::ui::{AlignSelf, FlexDirection, JustifyContent, PositionType, Style, UiColor, Val};
 
 use crate::ui::hsv::HSVA;
 use crate::ui::styles::UIStyles;
-use crate::Commands;
+use crate::{Commands, GameState};
 
 // Padding height and logo colors from
 // https://github.com/Arc-blroth/BosstroveRevenge/blob/try1/core/src/main/java/ai/arcblroth/boss/load/LoadEngine.java#L20
@@ -38,7 +38,8 @@ pub struct LogoScreenPlugin;
 
 impl Plugin for LogoScreenPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup).add_system(update_logo);
+        app.add_startup_system(setup)
+            .add_system_set(SystemSet::on_update(GameState::Loading).with_system(update_logo));
     }
 }
 

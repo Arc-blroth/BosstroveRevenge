@@ -14,6 +14,7 @@ use bevy::{log, DefaultPlugins};
 use crate::debug::fps_mem_display::FPSAndMemoryDisplayPlugin;
 use crate::debug::memory_diagnostics::MemoryDiagnosticsPlugin;
 use crate::load::LoadingPlugin;
+use crate::state::{GameState, TransitionSupportPlugin};
 use crate::ui::styles::UIStyleInitPlugin;
 
 pub mod debug;
@@ -35,8 +36,10 @@ fn main() {
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(MemoryDiagnosticsPlugin)
         .add_plugin(FPSAndMemoryDisplayPlugin)
+        .add_plugin(TransitionSupportPlugin)
         .add_plugin(UIStyleInitPlugin)
         .add_plugin(LoadingPlugin)
+        .add_state(GameState::Loading)
         .add_startup_system(setup_cameras)
         .add_system(debug::fullscreen_toggle)
         .run();
