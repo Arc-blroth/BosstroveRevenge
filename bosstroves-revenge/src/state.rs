@@ -113,7 +113,7 @@ fn on_transition_load(
     transition: Res<Transition>,
 ) {
     game_state.replace(GameState::Transitioning).unwrap();
-    if let None = transition.load_ty {
+    if transition.load_ty.is_none() {
         // Jump to `TransitionState::End` on the next frame.
         // Game state will be updated accordingly in the `on_transition_end` system below.
         transition_state.replace(TransitionState::End).unwrap();
