@@ -10,12 +10,14 @@ use bevy::diagnostic::FrameTimeDiagnosticsPlugin;
 use bevy::prelude::{ClearColor, Color, Commands, PerspectiveCameraBundle, UiCameraBundle};
 use bevy::window::WindowDescriptor;
 use bevy::{log, DefaultPlugins};
+use bevy_zhack::ZHackPlugin;
 
 use crate::debug::fps_mem_display::FPSAndMemoryDisplayPlugin;
 use crate::debug::memory_diagnostics::MemoryDiagnosticsPlugin;
 use crate::load::LoadingPlugin;
 use crate::state::{GameState, TransitionSupportPlugin};
 use crate::ui::styles::UIStyleInitPlugin;
+use crate::ui::transitions::TransitionLibraryPlugin;
 
 pub mod debug;
 pub mod load;
@@ -36,8 +38,10 @@ fn main() {
         .add_plugin(FrameTimeDiagnosticsPlugin::default())
         .add_plugin(MemoryDiagnosticsPlugin)
         .add_plugin(FPSAndMemoryDisplayPlugin)
-        .add_plugin(TransitionSupportPlugin)
         .add_plugin(UIStyleInitPlugin)
+        .add_plugin(ZHackPlugin)
+        .add_plugin(TransitionSupportPlugin)
+        .add_plugin(TransitionLibraryPlugin)
         .add_plugin(LoadingPlugin)
         .add_state(GameState::Loading)
         .add_startup_system(setup_cameras)

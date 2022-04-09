@@ -797,6 +797,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "bevy_zhack"
+version = "0.1.0"
+dependencies = [
+ "bevy",
+]
+
+[[package]]
 name = "bindgen"
 version = "0.56.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -858,6 +865,7 @@ dependencies = [
  "benimator",
  "bevy",
  "bevy_ase",
+ "bevy_zhack",
  "lazy_static",
  "memory-stats",
  "path_macro",

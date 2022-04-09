@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "bevy_zhack",
     "bosstroves-revenge"
 ]
 

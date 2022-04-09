@@ -1,8 +1,9 @@
 use bevy::app::{App, Plugin};
 use bevy::diagnostic::{Diagnostic, Diagnostics, FrameTimeDiagnosticsPlugin};
-use bevy::prelude::{Color, Commands, Component, Query, Rect, Res, TextBundle, With, Without};
+use bevy::prelude::{BuildChildren, Color, Commands, Component, Query, Rect, Res, TextBundle, With, Without};
 use bevy::text::{HorizontalAlign, Text, TextAlignment, VerticalAlign};
 use bevy::ui::{PositionType, Style, Val};
+use bevy_zhack::{ZHackRootBundle, ZIndex};
 
 use crate::ui::styles::UIStyles;
 use crate::MemoryDiagnosticsPlugin;
@@ -30,50 +31,56 @@ struct MemDisplay;
 
 fn setup(mut commands: Commands, styles: Res<UIStyles>) {
     commands
-        .spawn_bundle(TextBundle {
-            text: Text::with_section(
-                "",
-                styles.text(Color::WHITE),
-                TextAlignment {
-                    vertical: VerticalAlign::Top,
-                    horizontal: HorizontalAlign::Left,
-                },
-            ),
-            style: Style {
-                position_type: PositionType::Absolute,
-                position: Rect {
-                    left: Val::Px(2.0),
-                    top: Val::Px(1.0),
-                    ..Rect::default()
-                },
-                ..Style::default()
-            },
-            ..TextBundle::default()
-        })
-        .insert(FPSDisplay);
+        .spawn_bundle(ZHackRootBundle::default())
+        .with_children(|builder| {
+            builder
+                .spawn_bundle(TextBundle {
+                    text: Text::with_section(
+                        "",
+                        styles.text(Color::WHITE),
+                        TextAlignment {
+                            vertical: VerticalAlign::Top,
+                            horizontal: HorizontalAlign::Left,
+                        },
+                    ),
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        position: Rect {
+                            left: Val::Px(2.0),
+                            top: Val::Px(1.0),
+                            ..Rect::default()
+                        },
+                        ..Style::default()
+                    },
+                    ..TextBundle::default()
+                })
+                .insert(ZIndex(999.0))
+                .insert(FPSDisplay);
 
-    commands
-        .spawn_bundle(TextBundle {
-            text: Text::with_section(
-                "",
-                styles.text(Color::WHITE),
-                TextAlignment {
-                    vertical: VerticalAlign::Top,
-                    horizontal: HorizontalAlign::Right,
-                },
-            ),
-            style: Style {
-                position_type: PositionType::Absolute,
-                position: Rect {
-                    right: Val::Px(3.0),
-                    top: Val::Px(1.0),
-                    ..Rect::default()
-                },
-                ..Style::default()
-            },
-            ..TextBundle::default()
-        })
-        .insert(MemDisplay);
+            builder
+                .spawn_bundle(TextBundle {
+                    text: Text::with_section(
+                        "",
+                        styles.text(Color::WHITE),
+                        TextAlignment {
+                            vertical: VerticalAlign::Top,
+                            horizontal: HorizontalAlign::Right,
+                        },
+                    ),
+                    style: Style {
+                        position_type: PositionType::Absolute,
+                        position: Rect {
+                            right: Val::Px(3.0),
+                            top: Val::Px(1.0),
+                            ..Rect::default()
+                        },
+                        ..Style::default()
+                    },
+                    ..TextBundle::default()
+                })
+                .insert(ZIndex(999.0))
+                .insert(MemDisplay);
+        });
 }
 
 fn unwrap_diagnostic(diagnostic: Option<&Diagnostic>) -> f64 {

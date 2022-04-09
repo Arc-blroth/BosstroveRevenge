@@ -3,7 +3,8 @@ use bevy::asset::AssetServer;
 use bevy::core::Time;
 use bevy::math::{Rect, Size, Vec3, Vec4};
 use bevy::prelude::{
-    BuildChildren, Color, Component, ImageBundle, NodeBundle, Query, Res, SystemSet, TextBundle, Transform, With,
+    BuildChildren, Color, Component, DespawnRecursiveExt, Entity, ImageBundle, NodeBundle, Query, Res, SystemSet,
+    TextBundle, Transform, With,
 };
 use bevy::text::{HorizontalAlign, Text, TextAlignment, VerticalAlign};
 use bevy::ui::{AlignSelf, FlexDirection, JustifyContent, PositionType, Style, UiColor, Val};
@@ -39,9 +40,13 @@ pub struct LogoScreenPlugin;
 impl Plugin for LogoScreenPlugin {
     fn build(&self, app: &mut App) {
         app.add_startup_system(setup)
-            .add_system_set(SystemSet::on_update(GameState::Loading).with_system(update_logo));
+            .add_system_set(SystemSet::on_update(GameState::Loading).with_system(update_logo))
+            .add_system_set(SystemSet::on_exit(GameState::Loading).with_system(cleanup));
     }
 }
+
+#[derive(Component)]
+struct LogoBaseNode;
 
 #[derive(Component)]
 struct Logo;
@@ -64,6 +69,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, styles: Res<UIS
             },
             ..NodeBundle::default()
         })
+        .insert(LogoBaseNode)
         .with_children(|builder| {
             builder
                 .spawn_bundle(ImageBundle {
@@ -113,4 +119,8 @@ fn update_logo(mut logo_color: Query<&mut UiColor, With<Logo>>, time: Res<Time>)
     *logo_color.single_mut() = HSVA::from(Vec4::from(SAT_BLUE).lerp(LIGHT_BLUE.into(), blue_interpolation))
         .as_rgba()
         .into();
+}
+
+fn cleanup(mut commands: Commands, base_node: Query<Entity, With<LogoBaseNode>>) {
+    commands.entity(base_node.single()).despawn_recursive();
 }

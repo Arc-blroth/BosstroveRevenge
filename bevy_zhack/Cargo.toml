@@ -1,0 +1,30 @@
+[package]
+name = "bevy_zhack"
+authors = ["Arc-blroth <45273859+Arc-blroth@users.noreply.github.com>"]
+license = "MIT OR Apache-2.0"
+version = "0.1.0"
+edition = "2021"
+description = "A quick and dirty hack for setting the z-index of Bevy UI nodes."
+repository = "https://github.com/Arc-blroth/BosstroveRevenge/tree/try3/bevy_zhack"
+readme = "README.md"
+categories = ["gui", "game-development"]
+keywords = ["bevy", "z-index"]
+
+[dependencies.bevy]
+version = "0.6"
+features = [
+    "bevy_core_pipeline",
+    "bevy_render",
+    "bevy_ui",
+]
+
+[features]
+default = ["x11", "winit"]
+x11 = ["bevy/x11"]
+wayland = ["bevy/wayland"]
+winit = ["bevy/bevy_winit"]
+gilrs = ["bevy/bevy_gilrs"]
+
+[[example]]
+name = "over-everything-else"
+path = "examples/over-everything-else.rs"

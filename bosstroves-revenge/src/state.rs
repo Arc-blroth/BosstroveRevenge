@@ -1,3 +1,4 @@
+use std::any::TypeId;
 use std::fmt::Debug;
 
 use bevy::app::{EventReader, Plugin};
@@ -34,8 +35,15 @@ pub enum TransitionState {
     End,
 }
 
-/// Union trait for debuggable resources.
-pub trait ResourceWithDebug: Resource + Debug {}
+/// Union trait for transition resources.
+pub trait TransitionResource: Resource + Debug {
+    fn resource_id(&self) -> TypeId;
+}
+impl<T: Resource + Debug> TransitionResource for T {
+    fn resource_id(&self) -> TypeId {
+        TypeId::of::<T>()
+    }
+}
 
 /// Metadata on the currently running transition (if any).
 /// **This should be specified as an `Option<Res<Transition>>` if a transition might not be running**,
@@ -43,10 +51,10 @@ pub trait ResourceWithDebug: Resource + Debug {}
 #[derive(Debug)]
 pub struct Transition {
     /// A marker (likely an empty struct) for the current transition type.
-    pub ty: &'static dyn ResourceWithDebug,
+    pub ty: &'static dyn TransitionResource,
     /// Optional marker for what type of loading is running during this transition.
     /// If this is `None`, the transition state will automatically be set to `End` after reaching `Load`.
-    pub load_ty: Option<&'static dyn ResourceWithDebug>,
+    pub load_ty: Option<&'static dyn TransitionResource>,
     /// Game state to set once the current transition begins ending.
     pub next_state: GameState,
 }
@@ -72,21 +80,19 @@ impl Plugin for TransitionSupportPlugin {
     }
 }
 
-const TRANSITION_LOG_TARGET: &str = "Boss/Transition";
-
 fn pump_transition_events(
     mut state: ResMut<State<TransitionState>>,
     mut transition_events: EventReader<TransitionEvent>,
     current_transition: Option<Res<Transition>>,
     mut commands: Commands,
 ) {
-    for event in transition_events.iter() {
+    if let Some(event) = transition_events.iter().last() {
         match event {
             TransitionEvent::Start(transition) => {
                 if let Some(current) = &current_transition {
                     warn!(
-                        target: TRANSITION_LOG_TARGET,
-                        "Overriding current transition {:?}!", *current
+                        "Overriding running transition {:?} with new transition {:?}!",
+                        *current, transition
                     );
                 } else {
                     debug_assert_eq!(*state.current(), TransitionState::None);
@@ -97,7 +103,9 @@ fn pump_transition_events(
                     next_state: transition.next_state,
                 };
                 commands.insert_resource(new_transition);
-                state.replace(TransitionState::Start).unwrap();
+                if *state.current() != TransitionState::Start {
+                    state.replace(TransitionState::Start).unwrap();
+                }
             }
         }
     }
@@ -114,12 +122,13 @@ fn on_transition_load(
 ) {
     game_state.replace(GameState::Transitioning).unwrap();
     if transition.load_ty.is_none() {
-        // Jump to `TransitionState::End` on the next frame.
+        // Jump to `TransitionState::End` on the same frame.
         // Game state will be updated accordingly in the `on_transition_end` system below.
         transition_state.replace(TransitionState::End).unwrap();
     }
 }
 
 fn on_transition_end(mut state: ResMut<State<GameState>>, transition: Res<Transition>) {
-    state.replace(transition.next_state).unwrap();
+    // overwrite_replace since we might have also just queued a `GameState::Transitioning`
+    state.overwrite_replace(transition.next_state).unwrap();
 }
