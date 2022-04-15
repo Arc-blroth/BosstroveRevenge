@@ -67,5 +67,7 @@ unknown-git = "deny"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
 allow-git = [
     "https://github.com/Arc-blroth/bevy_ase",
+    "https://github.com/Arc-blroth/bevy_vox_mesh",
+    "https://github.com/bonsairobo/block-mesh-rs",
     "https://github.com/B-Reif/asefile",
 ]

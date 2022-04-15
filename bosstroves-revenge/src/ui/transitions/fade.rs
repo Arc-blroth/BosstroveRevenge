@@ -4,7 +4,7 @@ use bevy::core::Time;
 use bevy::ecs::schedule::ShouldRun;
 use bevy::math::Size;
 use bevy::prelude::{
-    App, BuildChildren, Color, Commands, Component, DespawnRecursiveExt, Entity, NodeBundle, Query, Res, ResMut, State,
+    App, BuildChildren, Color, Commands, Component, DespawnRecursiveExt, NodeBundle, Parent, Query, Res, ResMut, State,
     SystemLabel, SystemSet, With,
 };
 use bevy::ui::{PositionType, Style, UiColor, Val};
@@ -113,10 +113,10 @@ fn handle_fade_transition(
     mut state: ResMut<State<TransitionState>>,
     params: Res<FadeTransitionParams>,
     time: Res<Time>,
-    mut overlay: Query<(&mut UiColor, Entity), With<FadeTransitionOverlay>>,
+    mut overlay: Query<(&mut UiColor, &Parent), With<FadeTransitionOverlay>>,
     mut commands: Commands,
 ) {
-    let (mut color, entity) = overlay.single_mut();
+    let (mut color, Parent(parent)) = overlay.single_mut();
 
     // note that we update `start_time` on entering `TransitionState::End`
     let time_passed = (time.time_since_startup() - params.start_time).as_secs_f64();
@@ -153,7 +153,7 @@ fn handle_fade_transition(
                 }
             }
             // cleanup
-            commands.entity(entity).despawn_recursive();
+            commands.entity(*parent).despawn_recursive();
             commands.remove_resource::<FadeTransitionParams>();
             state.replace(TransitionState::None).unwrap();
         }

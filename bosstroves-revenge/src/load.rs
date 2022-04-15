@@ -1,6 +1,8 @@
 use bevy::app::{App, EventWriter, Plugin};
 use bevy::prelude::{Color, Commands, Local, SystemSet};
+use bevy_vox_mesh::VoxMeshPlugin;
 
+use crate::level::load::InitLevel;
 use crate::state::{GameState, Transition, TransitionEvent};
 use crate::ui::logo::LogoScreenPlugin;
 use crate::ui::transitions::{FadeTransition, FadeType};
@@ -15,6 +17,7 @@ pub struct LoadingPlugin;
 impl Plugin for LoadingPlugin {
     fn build(&self, app: &mut App) {
         app.add_plugin(LogoScreenPlugin)
+            .add_plugin(VoxMeshPlugin::default())
             .add_system_set(SystemSet::on_update(GameState::Loading).with_system(test_finish_load));
     }
 }
@@ -29,7 +32,7 @@ fn test_finish_load(
         FadeTransition::configure(&mut commands, FadeType::FadeIn, 1.0 / (0.04 * 30.0), Color::BLACK);
         events.send(TransitionEvent::Start(Transition {
             ty: &FadeTransition,
-            load_ty: None,
+            load_ty: Some(&InitLevel),
             next_state: GameState::Active,
         }));
     }

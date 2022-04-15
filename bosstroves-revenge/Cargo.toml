@@ -7,7 +7,9 @@ edition = "2021"
 
 [dependencies]
 benimator = "2.2.0"
+bevy_flycam = "0.6.0"
 bevy_zhack = { version = "0.1.0", path = "../bevy_zhack" }
+humantime = "2.1.0"
 lazy_static = "1.4.0"
 memory-stats = "1.0.0"
 rand = "0.8.5"
@@ -26,6 +28,11 @@ git = "https://github.com/Arc-blroth/bevy_ase"
 rev = "13263652850ef448eb71bb8c5e33128b0c87458d"
 version = "0.2.0"
 features = ["benimator"]
+
+[dependencies.bevy_vox_mesh]
+git = "https://github.com/Arc-blroth/bevy_vox_mesh"
+rev = "c662ddcaaf50d1b3b61e1e2b2a9aca044a7ba1b4"
+version = "0.3.0"
 
 [build-dependencies]
 path_macro = "1.0.0"
