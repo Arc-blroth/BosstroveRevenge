@@ -2,7 +2,7 @@
 name = "bevy_zhack"
 authors = ["Arc-blroth <45273859+Arc-blroth@users.noreply.github.com>"]
 license = "MIT OR Apache-2.0"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 description = "A quick and dirty hack for setting the z-index of Bevy UI nodes."
 repository = "https://github.com/Arc-blroth/BosstroveRevenge/tree/try3/bevy_zhack"
@@ -11,7 +11,7 @@ categories = ["gui", "game-development"]
 keywords = ["bevy", "z-index"]
 
 [dependencies.bevy]
-version = "0.6"
+version = "0.7"
 features = [
     "bevy_core_pipeline",
     "bevy_render",

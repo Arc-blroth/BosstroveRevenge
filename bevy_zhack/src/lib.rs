@@ -1,6 +1,7 @@
 #![doc = include_str!("../README.md")]
 
 use bevy::app::{App, CoreStage, Plugin, StartupStage};
+use bevy::hierarchy::HierarchySystem;
 use bevy::math::{Size, Vec2};
 use bevy::prelude::{
     Bundle, Changed, Children, Component, Entity, GlobalTransform, ParallelSystemDescriptorCoercion, Parent, Query,
@@ -56,13 +57,13 @@ impl Plugin for ZHackPlugin {
             StartupStage::PostStartup,
             zhack_copy_transform
                 .label(TransformSystem::TransformPropagate)
-                .after(TransformSystem::ParentUpdate),
+                .after(HierarchySystem::ParentUpdate),
         );
         app.add_system_to_stage(
             CoreStage::PostUpdate,
             zhack_copy_transform
                 .label(TransformSystem::TransformPropagate)
-                .after(TransformSystem::ParentUpdate),
+                .after(HierarchySystem::ParentUpdate),
         );
     }
 }

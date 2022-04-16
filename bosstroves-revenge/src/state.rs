@@ -1,7 +1,8 @@
 use std::any::TypeId;
 use std::fmt::Debug;
 
-use bevy::app::{EventReader, Plugin};
+use bevy::app::Plugin;
+use bevy::ecs::event::EventReader;
 use bevy::ecs::system::Resource;
 use bevy::log::warn;
 use bevy::prelude::{App, Commands, Res, ResMut, State, SystemSet};

@@ -1,4 +1,5 @@
-use bevy::app::{App, EventWriter, Plugin};
+use bevy::app::{App, Plugin};
+use bevy::ecs::event::EventWriter;
 use bevy::prelude::{Color, Commands, Local, SystemSet};
 use bevy_vox_mesh::VoxMeshPlugin;
 
