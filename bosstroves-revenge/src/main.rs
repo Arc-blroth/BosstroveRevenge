@@ -17,7 +17,6 @@ use bevy_zhack::ZHackPlugin;
 
 use crate::debug::fps_mem_display::FPSAndMemoryDisplayPlugin;
 use crate::debug::memory_diagnostics::MemoryDiagnosticsPlugin;
-use crate::level::load::VOXEL_SIZE;
 use crate::level::LevelPlugin;
 use crate::load::LoadingPlugin;
 use crate::state::{GameState, TransitionSupportPlugin};
@@ -41,7 +40,7 @@ fn main() {
         })
         .insert_resource(MovementSettings {
             sensitivity: 0.0002,
-            speed: 1.0,
+            speed: 80.0,
         })
         .insert_resource(ClearColor(Color::rgba(0.0, 0.0, 0.0, 1.0)))
         .add_plugins(DefaultPlugins)
@@ -65,10 +64,10 @@ fn setup_cameras(mut commands: Commands) {
     commands
         .spawn_bundle(PerspectiveCameraBundle {
             perspective_projection: PerspectiveProjection {
-                near: VOXEL_SIZE * 0.1,
+                near: 0.1,
                 ..PerspectiveProjection::default()
             },
-            transform: Transform::from_xyz(0.0, VOXEL_SIZE, 1.0),
+            transform: Transform::from_xyz(0.0, 2.0, 80.0),
             ..PerspectiveCameraBundle::default()
         })
         .insert(FlyCam);

@@ -15,9 +15,6 @@ use humantime::format_duration;
 use crate::state::{Transition, TransitionState};
 use crate::Color;
 
-// The length and width, in arbitrary render units, of a single voxel in game.
-pub const VOXEL_SIZE: f32 = 0.0125;
-
 #[derive(Clone, PartialEq, Eq, Hash, Debug, SystemLabel)]
 struct Setup;
 
@@ -93,7 +90,7 @@ fn wait_for_load(
     match asset_server.get_group_load_state(handles) {
         LoadState::Loaded => {
             // spawn everything
-            let shadow_size = VOXEL_SIZE * 100.0;
+            let shadow_size = 100.0;
             let shadow_projection = OrthographicProjection {
                 left: -shadow_size,
                 right: shadow_size,
@@ -109,8 +106,8 @@ fn wait_for_load(
                     color: Color::WHITE,
                     shadows_enabled: true,
                     shadow_projection,
-                    shadow_depth_bias: VOXEL_SIZE * DirectionalLight::DEFAULT_SHADOW_DEPTH_BIAS,
-                    shadow_normal_bias: VOXEL_SIZE * DirectionalLight::DEFAULT_SHADOW_NORMAL_BIAS,
+                    shadow_depth_bias: DirectionalLight::DEFAULT_SHADOW_DEPTH_BIAS,
+                    shadow_normal_bias: DirectionalLight::DEFAULT_SHADOW_NORMAL_BIAS,
                     ..DirectionalLight::default()
                 },
                 transform: Transform {
@@ -122,7 +119,7 @@ fn wait_for_load(
             });
 
             commands.spawn_bundle(PbrBundle {
-                mesh: meshes.add(Mesh::from(shape::Plane { size: 10.0 })),
+                mesh: meshes.add(Mesh::from(shape::Plane { size: 800.0 })),
                 material: materials.add(StandardMaterial {
                     base_color: Color::GRAY,
                     perceptual_roughness: 1.0,
@@ -136,7 +133,6 @@ fn wait_for_load(
                 commands.spawn_bundle(PbrBundle {
                     mesh,
                     material,
-                    transform: Transform::from_scale(Vec3::splat(VOXEL_SIZE)),
                     ..PbrBundle::default()
                 });
             }
