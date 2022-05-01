@@ -31,7 +31,7 @@ features = ["benimator"]
 
 [dependencies.bevy_vox_mesh]
 git = "https://github.com/Arc-blroth/bevy_vox_mesh"
-rev = "3aa81227a23dcae5e1d1c59b241e8ee04730ba53"
+rev = "ac2bb93d1bafed830f0349483c98ffa9683b6f66"
 version = "0.3.0"
 
 [build-dependencies]

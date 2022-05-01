@@ -2,14 +2,13 @@ use std::any::TypeId;
 use std::time::Instant;
 
 use bevy::app::App;
-use bevy::asset::{AssetServer, Assets, Handle, LoadState};
+use bevy::asset::{AssetServer, Handle, LoadState};
 use bevy::ecs::schedule::ShouldRun;
 use bevy::log;
 use bevy::math::{Quat, Vec3};
-use bevy::pbr::{DirectionalLight, DirectionalLightBundle, PbrBundle, StandardMaterial};
-use bevy::prelude::{
-    shape, Commands, Mesh, OrthographicProjection, Res, ResMut, State, SystemLabel, SystemSet, Transform,
-};
+use bevy::pbr::{DirectionalLight, DirectionalLightBundle};
+use bevy::prelude::{Commands, OrthographicProjection, Res, ResMut, State, SystemLabel, SystemSet, Transform};
+use bevy::scene::{Scene, SpawnSceneCommands};
 use humantime::format_duration;
 
 use crate::state::{Transition, TransitionState};
@@ -39,7 +38,7 @@ pub struct InitLevel;
 struct InitLevelStorage {
     /// Use an `Instant` rather than Bevy's `Time` since we don't want frame time
     start_time: Instant,
-    terrain: Vec<(Handle<Mesh>, Handle<StandardMaterial>)>,
+    terrain: Vec<Handle<Scene>>,
 }
 
 /// Run criteria for init level loading
@@ -58,16 +57,9 @@ fn setup(maybe_transition: Option<Res<Transition>>, mut commands: Commands, asse
     if is_init_level(maybe_transition) == ShouldRun::Yes {
         log::info!("Loading level...");
 
-        macro load_vox($asset_server:ident, $path:literal) {
-            (
-                $asset_server.load($path),
-                $asset_server.load(concat!($path, "#material")),
-            )
-        }
-
         commands.insert_resource(InitLevelStorage {
             start_time: Instant::now(),
-            terrain: vec![load_vox!(asset_server, "level/test/w0l1-debugging-seas-reloaded.vox")],
+            terrain: vec![asset_server.load("level/test/w0l1-debugging-seas-reloaded.vox")],
         });
     }
 }
@@ -78,15 +70,13 @@ fn wait_for_load(
     asset_server: Res<AssetServer>,
     mut storage: ResMut<InitLevelStorage>,
     mut state: ResMut<State<TransitionState>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     // TODO replace with actual run criteria once #2446 gets merged
     if is_init_level(maybe_transition) != ShouldRun::Yes {
         return;
     }
 
-    let handles = storage.terrain.iter().flat_map(|x| [x.0.id, x.1.id]);
+    let handles = storage.terrain.iter().map(|x| x.id);
     match asset_server.get_group_load_state(handles) {
         LoadState::Loaded => {
             // spawn everything
@@ -104,11 +94,11 @@ fn wait_for_load(
             commands.spawn_bundle(DirectionalLightBundle {
                 directional_light: DirectionalLight {
                     color: Color::WHITE,
+                    illuminance: 50000.0,
                     shadows_enabled: true,
                     shadow_projection,
                     shadow_depth_bias: DirectionalLight::DEFAULT_SHADOW_DEPTH_BIAS,
                     shadow_normal_bias: DirectionalLight::DEFAULT_SHADOW_NORMAL_BIAS,
-                    ..DirectionalLight::default()
                 },
                 transform: Transform {
                     translation: Vec3::new(0.0, shadow_size / 2.0, 0.0),
@@ -118,23 +108,8 @@ fn wait_for_load(
                 ..DirectionalLightBundle::default()
             });
 
-            commands.spawn_bundle(PbrBundle {
-                mesh: meshes.add(Mesh::from(shape::Plane { size: 800.0 })),
-                material: materials.add(StandardMaterial {
-                    base_color: Color::GRAY,
-                    perceptual_roughness: 1.0,
-                    double_sided: true,
-                    ..StandardMaterial::default()
-                }),
-                ..PbrBundle::default()
-            });
-
-            for (mesh, material) in storage.terrain.drain(..) {
-                commands.spawn_bundle(PbrBundle {
-                    mesh,
-                    material,
-                    ..PbrBundle::default()
-                });
+            for scene in storage.terrain.drain(..) {
+                commands.spawn_scene(scene);
             }
 
             // cleanup

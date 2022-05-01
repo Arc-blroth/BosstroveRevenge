@@ -812,7 +812,7 @@ dependencies = [
 [[package]]
 name = "bevy_vox_mesh"
 version = "0.3.0"
-source = "git+https://github.com/Arc-blroth/bevy_vox_mesh?rev=3aa81227a23dcae5e1d1c59b241e8ee04730ba53#3aa81227a23dcae5e1d1c59b241e8ee04730ba53"
+source = "git+https://github.com/Arc-blroth/bevy_vox_mesh?rev=ac2bb93d1bafed830f0349483c98ffa9683b6f66#ac2bb93d1bafed830f0349483c98ffa9683b6f66"
 dependencies = [
  "anyhow",
  "bevy",
@@ -1474,8 +1474,7 @@ dependencies = [
 [[package]]
 name = "dot_vox"
 version = "4.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "83c18405ef54de0398b77a3ec8394d3a1639e7bf060e1385201e8db40c44ab41"
+source = "git+https://github.com/davidedmonds/dot_vox?rev=34c445cf7fd52c83d24e00d32366119d7a5928dc#34c445cf7fd52c83d24e00d32366119d7a5928dc"
 dependencies = [
  "byteorder",
  "lazy_static",

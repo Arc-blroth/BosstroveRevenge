@@ -70,4 +70,5 @@ allow-git = [
     "https://github.com/Arc-blroth/bevy_vox_mesh",
     "https://github.com/bonsairobo/block-mesh-rs",
     "https://github.com/B-Reif/asefile",
+    "https://github.com/davidedmonds/dot_vox",
 ]
