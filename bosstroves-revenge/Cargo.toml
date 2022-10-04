@@ -6,9 +6,8 @@ version = "0.3.0"
 edition = "2021"
 
 [dependencies]
-benimator = "3.0.0"
-bevy_flycam = "0.7.0"
-bevy_zhack = { version = "0.2.0", path = "../bevy_zhack" }
+benimator = "4.0.0-rc.1"
+bevy_flycam = "0.8.1"
 humantime = "2.1.0"
 lazy_static = "1.4.0"
 memory-stats = "1.0.0"
@@ -25,7 +24,7 @@ version = "0.7.0"
 
 [dependencies.bevy_ase]
 git = "https://github.com/Arc-blroth/bevy_ase"
-rev = "61bd71669798bec098b7d0c780c031cfdc9b5daf"
+rev = "13eee8c043b8d2877bee0879c288a9a76a5487e3"
 version = "0.2.0"
 features = ["benimator"]
 
